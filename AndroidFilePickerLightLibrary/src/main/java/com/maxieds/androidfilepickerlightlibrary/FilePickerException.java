@@ -33,7 +33,7 @@ public class FilePickerException {
         return nextUniqueErrorCode;
     }
 
-    public static class AndroidFilePickerLightException extends RuntimeException implements FilePickerExceptionInterface {
+    public static class AndroidFilePickerLightException extends RuntimeException implements ExceptionInterface {
 
         private boolean isError;
         private int errorCode;
@@ -261,6 +261,22 @@ public class FilePickerException {
         public InvalidActivityContextException() {
             configureExceptionParams(UNIQUE_ERROR_CODE,
                     "The library does not have a handle on a valio activity or context reference object",
+                    true, DEFAULT_DATA_ITEMS_TYPE, null);
+        }
+
+    }
+
+    public static class NotImplementedException extends AndroidFilePickerLightException {
+
+        private static int UNIQUE_ERROR_CODE = claimNextUniqueErrorCode();
+
+        protected static AndroidFilePickerLightException getNewInstance() {
+            return new NotImplementedException();
+        }
+
+        public NotImplementedException() {
+            configureExceptionParams(UNIQUE_ERROR_CODE,
+                    "The invoked feature is reserved for future use",
                     true, DEFAULT_DATA_ITEMS_TYPE, null);
         }
 

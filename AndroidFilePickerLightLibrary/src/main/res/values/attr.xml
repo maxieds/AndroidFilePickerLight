@@ -31,10 +31,9 @@
     <attr name="defaultFileIcon" format="reference" />
     <attr name="defaultHiddenFileIcon" format="reference" />
     <attr name="defaultFolderIcon" format="reference" />
-
     <attr name="namedFolderSDCardIcon" format="reference" />
     <attr name="namedFolderPicsIcon" format="reference" />
-    <attr name="nameFolderCameraIcon" format="reference" />
+    <attr name="namedFolderCameraIcon" format="reference" />
     <attr name="namedFolderScreenshotsIcon" format="reference" />
     <attr name="namedFolderDownloadsIcon" format="reference" />
     <attr name="namedFolderUserHomeIcon" format="reference" />

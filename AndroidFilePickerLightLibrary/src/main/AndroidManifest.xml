@@ -18,16 +18,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.maxieds.androidfilepickerlightlibrary">
 
-    <!-- Core storage permissions required: -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:required="true" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:required="true" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" android:required="false" />
-
-    <!-- A useful (non-mandatory, fairly innocuous) permission needed to use the DownloadManager -->
+    <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" android:required="false" />
     <uses-permission android:name="android.permission.INTERNET" android:required="false" />
 
     <application
-        android:name=".AndroidFilePickerLightLibrary"
+        android:name=".LibraryApplication"
         android:description="@string/libraryDesc"
         android:icon="${libraryIcon}"
         android:label="@string/libraryDesc"
@@ -39,7 +37,7 @@
         android:testOnly="${libraryDebug}"
         android:hardwareAccelerated="true"
         android:supportsRtl="true"
-        android:manageSpaceActivity=".FilePickerChooserActivity"
+        android:manageSpaceActivity=".FileChooserActivity"
         android:defaultToDeviceProtectedStorage="true"
         android:usesCleartextTraffic="false"
         android:installLocation="${libraryInstallLocation}"
@@ -47,25 +45,37 @@
         android:allowBackup="true"
         >
 
-    <activity
-        android:name=".FilePickerChooserActivity"
-        android:screenOrientation="nosensor"
-        android:alwaysRetainTaskState="true"
-        android:clearTaskOnLaunch="true"
-        android:hardwareAccelerated="true"
-        android:uiOptions="none"
-        android:stateNotNeeded="true"
-        android:exported="true"
-        >
+        <activity
+            android:name=".FileChooserActivity"
+            android:screenOrientation="nosensor"
+            android:alwaysRetainTaskState="true"
+            android:clearTaskOnLaunch="true"
+            android:hardwareAccelerated="true"
+            android:uiOptions="none"
+            android:stateNotNeeded="true"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            >
 
-    <intent-filter android:priority="1000">
-        <action android:name="android.intent.action.ACTION_PICK_ACTIVITY" />
-        <category android:name="android.intent.category.HOME" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.LAUNCHER" />
-    </intent-filter>
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.ACTION_PICK_ACTIVITY" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
-    </activity>
+        </activity>
+
+        <provider
+            android:name="com.maxieds.androidfilepickerlightlibrary.BasicFileProvider"
+            android:authorities="com.maxieds.androidfilepickerlightlibrary.documents"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
 
     </application>
 

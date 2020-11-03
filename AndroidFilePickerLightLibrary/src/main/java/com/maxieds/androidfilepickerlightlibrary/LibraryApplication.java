@@ -17,5 +17,25 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
-public interface FileFilterInterface {
+import android.app.Application;
+import android.content.Context;
+
+public class LibraryApplication extends Application {
+
+    public static LibraryApplication libStaticAppInstance;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        libStaticAppInstance = this;
+    }
+
+    @Override
+    public Context getApplicationContext() {
+        return super.getApplicationContext();
+    }
+    public static LibraryApplication getInstance() {
+        return libStaticAppInstance;
+    }
+
 }

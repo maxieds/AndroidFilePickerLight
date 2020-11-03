@@ -17,10 +17,42 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.app.Activity;
+import android.content.pm.PackageManager;
+
+import androidx.core.content.ContextCompat;
+
 public class AndroidPermissionsHandler {
 
-    // implement the perms checker ...
-    // request perms interface ...
-    // user displays to explain why ...
+    protected static boolean hasAccessPermission(Activity activityCtx, String permName) {
+        return ContextCompat.checkSelfPermission(activityCtx, permName) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static final int REQUEST_REQUIRED_PERMISSIONS_CODE = 0;
+    public static final int REQUEST_OPTIONAL_PERMISSIONS_CODE = 1;
+
+    public static boolean obtainRequiredPermissions(Activity activityCtx, String[] permsList) {
+        if(android.os.Build.VERSION.SDK_INT >= 23) {
+             activityCtx.requestPermissions(permsList, REQUEST_REQUIRED_PERMISSIONS_CODE);
+        }
+        for(int pidx = 0; pidx < permsList.length; pidx++) {
+            if(!hasAccessPermission(activityCtx, permsList[pidx])) {
+                throw new FilePickerException.PermissionsErrorException();
+            }
+        }
+        return true;
+    }
+
+    public static boolean requestOptionalPermissions(Activity activityCtx, String[] permsList) {
+        if(android.os.Build.VERSION.SDK_INT >= 23) {
+            activityCtx.requestPermissions(permsList, REQUEST_OPTIONAL_PERMISSIONS_CODE);
+        }
+        for(int pidx = 0; pidx < permsList.length; pidx++) {
+            if(!hasAccessPermission(activityCtx, permsList[pidx])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

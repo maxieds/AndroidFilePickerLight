@@ -26,6 +26,11 @@
     <string name="errorMsgNotSelectable">Cannot select the file path (too many or no multiple)</string>
     <string name="errorMsgPathJailExceeded">Cannot jump out of the preset top level path sandbox!</string>
 
+    <string name="requiredPermsRationale">These permissions are requirements for the file chooser library to access files on the Android device.</string>
+    <string name="optionalPermsRationale">These permissions are technically optional, but make things more convenient.</string>
+
+    <string name="fileProviderRootSummayDesc">Root of storage for our basic file provider implementation</string>
+
     <string name="filePickerTitleText">Select file or directory path ...</string>
     <string name="filePickerNavBarText">Quick Links: </string>
     <string name="filePickerDoneButtonText">Done</string>

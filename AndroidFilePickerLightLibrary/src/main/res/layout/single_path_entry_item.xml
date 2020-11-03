@@ -17,8 +17,8 @@
     https://github.com/maxieds/AndroidFilePickerLight
 -->
 
-<resources>
-    <color name="colorPrimary">#72B1D6</color>
-    <color name="colorPrimaryDark">#215270</color>
-    <color name="colorAccent">#A7CEE6</color>
-</resources>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+</LinearLayout>

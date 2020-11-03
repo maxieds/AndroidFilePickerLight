@@ -18,12 +18,13 @@
 package com.maxieds.androidfilepickerlightlibrary;
 
 import android.app.Activity;
+import android.content.ContentProvider;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
-import android.provider.DocumentsProvider;
 
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,15 +32,17 @@ import static android.app.Activity.RESULT_OK;
 
 public class FilePickerBuilder implements Serializable {
 
-    private static Activity activityContextRef;
+    private String LOGTAG = FilePickerBuilder.class.getSimpleName();
+
+    private static WeakReference<Activity> activityContextRef;
     public void setActivityContext(Activity activityRef) {
-        activityContextRef = activityRef;
+        activityContextRef = new WeakReference<Activity>(activityRef);
     }
 
     public enum DefaultNavFoldersType {
         FOLDER_SDCARD_STORAGE("SD Card", R.attr.namedFolderSDCardIcon),
         FOLDER_PICTURES("Pictures", R.attr.namedFolderPicsIcon),
-        FOLDER_CAMERA("Camera", R.attr.nameFolderCameraIcon),
+        FOLDER_CAMERA("Camera", R.attr.namedFolderCameraIcon),
         FOLDER_SCREENSHOTS("Screenshots", R.attr.namedFolderScreenshotsIcon),
         FOLDER_DOWNLOADS("Downloads", R.attr.namedFolderDownloadsIcon),
         FOLDER_USER_HOME("Home", R.attr.namedFolderUserHomeIcon),
@@ -61,7 +64,7 @@ public class FilePickerBuilder implements Serializable {
 
         public Drawable getFolderIconDrawable() {
             if(customIconObj == null && activityContextRef != null) {
-                return activityContextRef.getResources().getDrawable(folderIconResId, activityContextRef.getTheme());
+                return activityContextRef.get().getResources().getDrawable(folderIconResId, activityContextRef.get().getTheme());
             }
             else if(customIconObj != null) {
                 return customIconObj;
@@ -85,11 +88,19 @@ public class FilePickerBuilder implements Serializable {
     }
 
     public enum BaseFolderPathType {
-        BASE_PATH_TYPE_EXTERNAL_STORAGE,
-        BASE_PATH_TYPE_INTERNAL_STORAGE,
-        BASE_PATH_TYPE_USER_HOME,
+        BASE_PATH_TYPE_FILES_DIR,
+        BASE_PATH_TYPE_CACHE_DIR,
+        BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS,
+        BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES,
+        BASE_PATH_TYPE_EXTERNAL_FILES_MUSIC,
+        BASE_PATH_TYPE_EXTERNAL_FILES_DOCUMENTS,
+        BASE_PATH_TYPE_EXTERNAL_FILES_DCIM,
+        BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES,
+        BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS,
+        BASE_PATH_TYPE_EXTERNAL_CACHE_DIR,
+        BASE_PATH_TYPE_USER_DATA_DIR,
+        BASE_PATH_TYPE_MEDIA_STORE,
         BASE_PATH_TYPE_SDCARD,
-        BASE_PATH_TYPE_DEFAULT_EMULATED,
         BASE_PATH_SECONDARY_STORAGE,
         BASE_PATH_DEFAULT,
         BASE_PATH_EXTERNAL_PROVIDER
@@ -115,14 +126,14 @@ public class FilePickerBuilder implements Serializable {
     private BaseFolderPathType initFolderBasePathType;
     private String initFolderSubDirName;
     private SelectionModeType pathSelectMode;
-    private DocumentsProvider externalFilesProvider;
+    private ContentProvider externalFilesProvider;
     private long idleTimeoutMillis;
 
     public static final long NO_ABORT_TIMEOUT = -1;
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
 
     public FilePickerBuilder(Activity activityContextInst) {
-        activityContextRef = activityContextInst;
+        activityContextRef = new WeakReference<Activity>(activityContextInst);
         defaultExceptionType = FilePickerException.CommunicateSelectionDataException.getNewInstance();
         lastError = null;
         displayUIConfig = DisplayConfigInterface.getDefaultsInstance();
@@ -131,7 +142,7 @@ public class FilePickerBuilder implements Serializable {
         showHidden = false;
         maxSelectedFiles = DEFAULT_MAX_SELECTED_FILES;
         localThemeResId = R.style.LibraryDefaultTheme;
-        initFolderBasePathType = BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_STORAGE;
+        initFolderBasePathType = BaseFolderPathType.BASE_PATH_TYPE_FILES_DIR;
         pathSelectMode = SelectionModeType.SELECT_OMNIVORE;
         externalFilesProvider = null;
         idleTimeoutMillis = NO_ABORT_TIMEOUT;
@@ -165,14 +176,76 @@ public class FilePickerBuilder implements Serializable {
         return this;
     }
 
-    private static final String FILE_PICKER_BUILDER_EXTRA_DATA_KEY = "FilePickerBuilderExtraData";
+    public FilePickerBuilder setBaseTheme(int localThemeResId) {
+        throw new FilePickerException.NotImplementedException();
+    }
+
+    public FilePickerBuilder setSelectMultiple(int maxFileInsts) {
+        maxSelectedFiles = maxFileInsts;
+        return this;
+    }
+
+    public FilePickerBuilder setSelectionMode(SelectionModeType modeType) {
+        pathSelectMode = modeType;
+        return this;
+    }
+
+    public FilePickerBuilder setPickerInitialPath(String subdirRelativePath, BaseFolderPathType storageAccessBase) {
+        initFolderBasePathType = storageAccessBase;
+        initFolderSubDirName = subdirRelativePath;
+        return this;
+    }
+
+    public FilePickerBuilder enforceSandboxTopLevelDirectory(String subdirRelativePath, BaseFolderPathType storageAccessBase,
+                                                             boolean excludeOtherOutsideNav) {
+        throw new FilePickerException.NotImplementedException();
+    }
+
+    public FilePickerBuilder setDefaultExceptionType(FilePickerException.AndroidFilePickerLightException exInst) {
+        defaultExceptionType = exInst;
+        return this;
+    }
+
+    public FilePickerBuilder setActivityIdleTimeout(long timeoutMillis) {
+        idleTimeoutMillis = timeoutMillis;
+        return this;
+    }
+
+    public static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = true;
+    public static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = false;
+
+    public FilePickerBuilder filterByDefaultFileTypes(List<FileTypes.DefaultFileTypes> fileTypesList, boolean includeExcludeInList) {
+        throw new FilePickerException.NotImplementedException();
+    }
+
+    public FilePickerBuilder filterByMimeTypes(List<String> fileTypesList, boolean includeExcludeInList) {
+        throw new FilePickerException.NotImplementedException();
+    }
+
+    public FilePickerBuilder filterByRegex(String fileFilterPattern, boolean includeExcludeInList) {
+        throw new FilePickerException.NotImplementedException();
+    }
+
+    public FilePickerBuilder setDataItemsFormatter() {
+        throw new FilePickerException.NotImplementedException();
+    }
+
+    public FilePickerBuilder setFilesListSortCompareFunction() {
+        throw new FilePickerException.NotImplementedException();
+    }
+
+    public FilePickerBuilder setExternalFilesProvider(ContentProvider extFileProvider) {
+        throw new FilePickerException.NotImplementedException();
+    }
+
+    public static final String FILE_PICKER_BUILDER_EXTRA_DATA_KEY = "FilePickerBuilderExtraData";
 
     public <DataItemTypeT extends Object> List<DataItemTypeT> runFilePicker() throws FilePickerException.AndroidFilePickerLightException {
-        Intent launchPickerIntent = new Intent(activityContextRef, FilePickerChooserActivity.class);
+        Intent launchPickerIntent = new Intent(activityContextRef.get(), FileChooserActivity.class);
         launchPickerIntent.setAction(Intent.ACTION_PICK_ACTIVITY);
         launchPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         launchPickerIntent.putExtra(FILE_PICKER_BUILDER_EXTRA_DATA_KEY, this);
-        activityContextRef.startActivityForResult(launchPickerIntent, activityActionCode);
+        activityContextRef.get().startActivityForResult(launchPickerIntent, activityActionCode);
         try {
             Looper.loop();
         } catch(FilePickerException.AndroidFilePickerLightException rteInst) {
@@ -189,10 +262,10 @@ public class FilePickerBuilder implements Serializable {
                 /* The next procedure is necessary because for some reason the app otherwise
                  * freezes without bringing the original Activity context back to the front:
                  */
-                activityContextRef.moveTaskToBack(false);
-                Intent bringToFrontIntent = new Intent(activityContextRef, activityContextRef.getClass());
+                activityContextRef.get().moveTaskToBack(false);
+                Intent bringToFrontIntent = new Intent(activityContextRef.get(), activityContextRef.get().getClass());
                 bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                activityContextRef.startActivity(bringToFrontIntent);
+                activityContextRef.get().startActivity(bringToFrontIntent);
                 /* Now resume to return the data we requested: */
                 return selectedDataItems;
             } catch(Exception ex) {

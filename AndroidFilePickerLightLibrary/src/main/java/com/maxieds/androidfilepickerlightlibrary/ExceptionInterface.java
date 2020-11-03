@@ -23,12 +23,12 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 
-interface FilePickerExceptionInterface {
+interface ExceptionInterface {
 
     /* constructors -- building a new descriptive exception from the usual causal data: */
-    public FilePickerExceptionInterface newExceptionInstance(Exception javaBaseExcpt);
-    public FilePickerExceptionInterface newExceptionInstance(String errorMsg);
-    public FilePickerExceptionInterface newExceptionInstance(String errorMsg, Exception javaBaseExcpt);
+    public ExceptionInterface newExceptionInstance(Exception javaBaseExcpt);
+    public ExceptionInterface newExceptionInstance(String errorMsg);
+    public ExceptionInterface newExceptionInstance(String errorMsg, Exception javaBaseExcpt);
 
     /* Standard-ish Exception class handling and methods: */
     public String getExceptionMessage();

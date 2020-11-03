@@ -17,27 +17,8 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
-import android.content.Intent;
-import android.os.Bundle;
+public class FileDisplayWidgets {
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class FilePickerChooserActivity extends AppCompatActivity {
-
-    @Override
-    public void onCreate(Bundle lastSettingsBundle) {
-        super.onCreate(lastSettingsBundle);
-    }
-
-    @Override
-    public void onNewIntent(Intent broadcastIntent) {
-        super.onNewIntent(broadcastIntent);
-    }
-
-    // Check permissions and call the permissions handler if necessary ...
-    // Create layout ... (including setting defaults, set default theme, etc. ) ...
-    // When launch by intent, need to obtain the original Builder cfg object ...
-    // Need fragments for loading files in the UI nav (see the forked library code) ...
-    // Need to updated Android 11 interface for accessing files and their storage component data ...
+    private String LOGTAG = FileDisplayWidgets.class.getSimpleName();
 
 }

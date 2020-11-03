@@ -17,10 +17,79 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.webkit.MimeTypeMap;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Locale;
+
 public class FileUtils {
+
+    private static final String FILE_PATH_SEPARATOR = "/";
 
     // URI: read path data (isDirectory, isMediaFile, isBlobFile, etc.) ...
     // Construct some helper methods to send the result: in general, by email, over SMS, etc. ...
 
+    public static boolean validFileBaseName(String filePath) {
+        return filePath != null
+                && !filePath.equals("")
+                && !filePath.contains(FILE_PATH_SEPARATOR)
+                && !filePath.equals(".")
+                && !filePath.equals("..");
+    }
+
+    public static boolean isHiddenFile(String filePath) {
+        return validFileBaseName(filePath) && filePath.length() >= 1 && filePath.charAt(0) == '.';
+    }
+
+    public static String getFileExtension(String filePath) {
+        if(filePath == null) {
+            return "";
+        }
+        else if(!filePath.contains(".")) {
+            return "";
+        }
+        int extSepPosIndex = filePath.lastIndexOf('.');
+        return filePath.substring(extSepPosIndex);
+    }
+
+    public static String getFileMimeType(String filePath) {
+        if(getFileExtension(filePath).equals("")) {
+            return "*/*";
+        }
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(getFileExtension(filePath).toLowerCase());
+    }
+
+    public static String getFilePosixPermissionsString(File fileOnDisk) {
+        try {
+            return Files.getPosixFilePermissions(fileOnDisk.toPath()).toString();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return "";
+        }
+    }
+
+    public static String getFileSizeString(File fileOnDisk) {
+        long fileSizeBytes = fileOnDisk.getTotalSpace();
+        if(fileSizeBytes < 1024) {
+            return String.format(Locale.getDefault(), "%ldB", fileSizeBytes);
+        }
+        long fileSizeKB = fileSizeBytes / 1024;
+        if(fileSizeKB < 1024) {
+            return String.format(Locale.getDefault(), "%ldK", fileSizeKB);
+        }
+        long fileSizeMB = fileSizeKB / 1024;
+        if(fileSizeMB < 1024) {
+            return String.format(Locale.getDefault(), "%ldM", fileSizeMB);
+        }
+        long fileSizeGB = fileSizeMB / 1024;
+        if(fileSizeGB < 1024) {
+            return String.format(Locale.getDefault(), "%ldG", fileSizeGB);
+        }
+        return String.format(Locale.getDefault(), "%ldT+", fileSizeGB / 1024);
+    }
 
 }

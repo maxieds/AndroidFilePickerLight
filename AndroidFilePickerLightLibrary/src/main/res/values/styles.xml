@@ -25,6 +25,16 @@
         <item name="filePickerNavBarText"></item>
         <item name="filePickerDoneButtonText">@string/filePickerDoneButtonText</item>
         <item name="filePickerCancelButtonText">@string/filePickerCancelButtonText</item>
+        <item name="namedFolderSDCardIcon">@drawable/named_folder_sdcard_icon32</item>
+        <item name="defaultFileIcon">@drawable/text_file_icon32</item>
+        <item name="defaultHiddenFileIcon">@drawable/hidden_file_icon32</item>
+        <item name="defaultFolderIcon">@drawable/folder_icon32</item>
+        <item name="namedFolderPicsIcon">@drawable/named_folder_images_icon32</item>
+        <item name="namedFolderCameraIcon">@drawable/named_folder_camera_icon32</item>
+        <item name="namedFolderScreenshotsIcon">@drawable/named_folder_screenshots_icon32</item>
+        <item name="namedFolderDownloadsIcon">@drawable/named_folder_downloads_icon32</item>
+        <item name="namedFolderUserHomeIcon">@drawable/named_folder_user_home_icon32</item>
+        <item name="namedFolderMediaIcon">@drawable/named_folder_media_icon32</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -40,6 +50,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="SelectionCheckBoxStyle">
+        <item name="colorControlNormal">?colorPrimaryDark</item>
+        <item name="colorControlActivated">?colorPrimaryDark</item>
+        <item name="buttonTint">?colorPrimaryDark</item>
     </style>
 
 </resources>
