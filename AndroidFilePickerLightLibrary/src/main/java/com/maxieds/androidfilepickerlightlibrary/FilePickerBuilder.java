@@ -128,6 +128,7 @@ public class FilePickerBuilder implements Serializable {
     private SelectionModeType pathSelectMode;
     private ContentProvider externalFilesProvider;
     private long idleTimeoutMillis;
+    private FileFilter.FileFilterInterface localFileFilter;
 
     public static final long NO_ABORT_TIMEOUT = -1;
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
@@ -146,6 +147,7 @@ public class FilePickerBuilder implements Serializable {
         pathSelectMode = SelectionModeType.SELECT_OMNIVORE;
         externalFilesProvider = null;
         idleTimeoutMillis = NO_ABORT_TIMEOUT;
+        localFileFilter = null;
     }
 
     public static FilePickerBuilder getSingleFilePickerInstance(FileChooserActivity activityContextInst) {
@@ -221,15 +223,18 @@ public class FilePickerBuilder implements Serializable {
     public static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = false;
 
     public FilePickerBuilder filterByDefaultFileTypes(List<FileTypes.DefaultFileTypes> fileTypesList, boolean includeExcludeInList) {
-        throw new FilePickerException.NotImplementedException();
+        localFileFilter = new FileFilter.FileFilterByDefaultTypesList(fileTypesList, includeExcludeInList);
+        return this;
     }
 
     public FilePickerBuilder filterByMimeTypes(List<String> fileTypesList, boolean includeExcludeInList) {
-        throw new FilePickerException.NotImplementedException();
+        localFileFilter = new FileFilter.FileFilterByMimeType(fileTypesList, includeExcludeInList);
+        return this;
     }
 
     public FilePickerBuilder filterByRegex(String fileFilterPattern, boolean includeExcludeInList) {
-        throw new FilePickerException.NotImplementedException();
+        localFileFilter = new FileFilter.FileFilterByRegex(fileFilterPattern, includeExcludeInList);
+        return this;
     }
 
     public FilePickerBuilder setDataItemsFormatter() {
@@ -244,11 +249,43 @@ public class FilePickerBuilder implements Serializable {
         throw new FilePickerException.NotImplementedException();
     }
 
+    public long getIdleTimeout() {
+        return idleTimeoutMillis;
+    }
+
+    public DisplayConfigInterface getDisplayConfig() {
+        return displayUIConfig;
+    }
+
+    public BaseFolderPathType getInitialBaseFolder() {
+        return initFolderBasePathType;
+    }
+
+    public boolean showHidden() {
+        return showHidden;
+    }
+
+    public int getMaxSelectedFilesCount() {
+        return maxSelectedFiles;
+    }
+
+    public SelectionModeType getSelectionMode() {
+        return pathSelectMode;
+    }
+
+    public List<DefaultNavFoldersType> getNavigationFoldersList() {
+        return defaultNavFoldersList;
+    }
+
+    public FileFilter.FileFilterInterface getFileFilter() {
+        return localFileFilter;
+    }
+
     public static final String FILE_PICKER_BUILDER_EXTRA_DATA_KEY = "FilePickerBuilderExtraData";
     public static final String FILE_PICKER_INTENT_DATA_TYPE_KEY = "FilePickerSelectedIntentDataType";
     public static final String FILE_PICKER_INTENT_DATA_PAYLOAD_KEY = "FilePickerSelectedIntentDataPayloadList";
 
-    public <DataItemTypeT extends Object> List<DataItemTypeT> runFilePicker() throws FilePickerException.AndroidFilePickerLightException {
+    public <DataItemTypeT extends Object> List<DataItemTypeT> launchFilePicker() throws FilePickerException.AndroidFilePickerLightException {
         Intent launchPickerIntent = new Intent(activityContextRef.get(), FileChooserActivity.class);
         launchPickerIntent.setAction(Intent.ACTION_PICK_ACTIVITY);
         launchPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

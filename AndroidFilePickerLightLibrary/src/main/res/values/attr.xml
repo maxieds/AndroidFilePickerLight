@@ -24,8 +24,11 @@
     <attr name="filePickerDoneButtonText" format="reference|string" />
     <attr name="filePickerCancelButtonText" format="reference|string" />
 
+    <attr name="mainToolbarBackgroundColor" format="reference|color" />
+    <attr name="mainToolbarForegroundTextColor" format="reference|color" />
     <attr name="colorPrimary" format="reference|color" />
     <attr name="colorPrimaryDark" format="reference|color" />
+    <attr name="colorPrimaryVeryDark" format="reference|color" />
     <attr name="colorAccent" format="reference|color" />
 
     <attr name="defaultFileIcon" format="reference" />

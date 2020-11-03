@@ -17,14 +17,18 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -73,11 +77,23 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR); // keep app from crashing when the screen rotates
 
         FilePickerBuilder fpConfig = (FilePickerBuilder) getIntent().getSerializableExtra(FilePickerBuilder.FILE_PICKER_BUILDER_EXTRA_DATA_KEY);
+
         // TODO: ...
         // Create layout ... (including setting defaults, set default theme, etc. ) ...
-        // set an idle timeout to kill the activity if it hanges or the user ignores it for too long ...
         // Need fragments for loading files in the UI nav (see the forked library code) ...
         // need a RecyclerView interface ...
+
+        long idleTimeout = fpConfig.getIdleTimeout();
+        if(idleTimeout != FilePickerBuilder.NO_ABORT_TIMEOUT) {
+            Handler execIdleTimeoutHandler = new Handler();
+            Runnable execIdleTimeoutRunner = new Runnable() {
+                @Override
+                public void run() {
+                    throw new FilePickerException.AbortedByTimeoutException();
+                }
+            };
+            execIdleTimeoutHandler.postDelayed(execIdleTimeoutRunner, idleTimeout);
+        }
 
     }
 
@@ -137,17 +153,22 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     }
 
     public Intent getSelectedFilesActivityResultIntent() {
-        return null;
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(FilePickerBuilder.FILE_PICKER_INTENT_DATA_TYPE_KEY, String.class);
+        int selectedFilesCount = selectedFilePaths != null ? selectedFilePaths.size() : 0;
+        String[] filePathsList = new String[selectedFilesCount];
+        for(int fileIndex = 0; fileIndex < selectedFilesCount; fileIndex++) {
+            filePathsList[fileIndex] = selectedFilePaths.get(fileIndex).getAbsolutePath();
+        }
+        resultIntent.putStringArrayListExtra(FilePickerBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY, new ArrayList<String>(Arrays.asList(filePathsList)));
+        return resultIntent;
     }
 
     public void postSelectedFilesActivityResult() {
-
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
-        // TODO
+        setResult(Activity.RESULT_OK, filesResultIntent);
         finish();
         System.exit(0);
-        //System.exit(TODO:activityResultCode???);
-
     }
 
 }

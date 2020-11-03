@@ -35,8 +35,11 @@
         <item name="namedFolderDownloadsIcon">@drawable/named_folder_downloads_icon32</item>
         <item name="namedFolderUserHomeIcon">@drawable/named_folder_user_home_icon32</item>
         <item name="namedFolderMediaIcon">@drawable/named_folder_media_icon32</item>
+        <item name="mainToolbarBackgroundColor">@color/colorMainToolbarBackground</item>
+        <item name="mainToolbarForegroundTextColor">@color/colorMainToolbarForegroundText</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryVeryDark">@color/colorPrimaryVeryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
