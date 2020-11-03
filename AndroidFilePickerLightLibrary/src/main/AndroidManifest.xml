@@ -1,0 +1,72 @@
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.maxieds.androidfilepickerlightlibrary">
+
+    <!-- Core storage permissions required: -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:required="true" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:required="true" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" android:required="false" />
+
+    <!-- A useful (non-mandatory, fairly innocuous) permission needed to use the DownloadManager -->
+    <uses-permission android:name="android.permission.INTERNET" android:required="false" />
+
+    <application
+        android:name=".AndroidFilePickerLightLibrary"
+        android:description="@string/libraryDesc"
+        android:icon="${libraryIcon}"
+        android:label="@string/libraryDesc"
+        android:roundIcon="${libraryIcon}"
+        android:theme="${libraryTheme}"
+        android:launchMode="singleTop"
+        android:noHistory="false"
+        android:excludeFromRecents="false"
+        android:testOnly="${libraryDebug}"
+        android:hardwareAccelerated="true"
+        android:supportsRtl="true"
+        android:manageSpaceActivity=".FilePickerChooserActivity"
+        android:defaultToDeviceProtectedStorage="true"
+        android:usesCleartextTraffic="false"
+        android:installLocation="${libraryInstallLocation}"
+        android:requestLegacyExternalStorage="true"
+        android:allowBackup="true"
+        >
+
+    <activity
+        android:name=".FilePickerChooserActivity"
+        android:screenOrientation="nosensor"
+        android:alwaysRetainTaskState="true"
+        android:clearTaskOnLaunch="true"
+        android:hardwareAccelerated="true"
+        android:uiOptions="none"
+        android:stateNotNeeded="true"
+        android:exported="true"
+        >
+
+    <intent-filter android:priority="1000">
+        <action android:name="android.intent.action.ACTION_PICK_ACTIVITY" />
+        <category android:name="android.intent.category.HOME" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+
+    </activity>
+
+    </application>
+
+</manifest>

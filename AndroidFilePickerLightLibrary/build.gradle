@@ -1,0 +1,73 @@
+apply plugin: 'com.android.library'
+
+import java.io.File;
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+
+def getDateTimestamp() {
+    DateFormat df = new SimpleDateFormat("YYYY-MM-dd-HHmmss");
+    return new String(df.format(new Date()).toString());
+}
+
+def getShellCommandOutput(String shellCmd) {
+    def cmdResult = ['bash', '-c', shellCmd].execute();
+    cmdResult.waitFor();
+    return cmdResult.text[0..-2];
+}
+
+def getGitCommitHash() {
+    return getShellCommandOutput("git show | head -n 1 | sed -e \"s/commit //\" | cut -c-12");
+}
+
+def getGitCommitDate() {
+    return getShellCommandOutput("git show | grep Date: | head -n 1 | sed -e \"s/Date:[ ]*//\"");
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.0"
+
+    defaultConfig {
+        minSdkVersion 26
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+
+        release {
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField "String", "BUILD_TIMESTAMP", "\"" + getDateTimestamp() + "\""
+            buildConfigField "String", "GIT_COMMIT_HASH", "\"" + getGitCommitHash() + "\""
+            buildConfigField "String", "GIT_COMMIT_DATE", "\"" + getGitCommitDate() + "\""
+
+            manifestPlaceholders = [
+                    libraryIcon               : "@mipmap/library_profile_icon_round",
+                    libraryTheme              : "@style/LibraryDefaultTheme",
+                    libraryDebug              : "false",
+                    libraryInstallLocation    : "preferExternal" // "internalOnly"
+            ]
+        }
+
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    testImplementation 'junit:junit:4.12'
+
+}

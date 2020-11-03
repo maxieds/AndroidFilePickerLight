@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
+<resources>
+
+    <attr name="filePickerTitleText" format="reference|string" />
+    <attr name="filePickerNavBarText" format="reference|string" />
+    <attr name="filePickerDoneButtonText" format="reference|string" />
+    <attr name="filePickerCancelButtonText" format="reference|string" />
+
+    <attr name="colorPrimary" format="reference|color" />
+    <attr name="colorPrimaryDark" format="reference|color" />
+    <attr name="colorAccent" format="reference|color" />
+
+    <attr name="defaultFileIcon" format="reference" />
+    <attr name="defaultHiddenFileIcon" format="reference" />
+    <attr name="defaultFolderIcon" format="reference" />
+
+    <attr name="namedFolderSDCardIcon" format="reference" />
+    <attr name="namedFolderPicsIcon" format="reference" />
+    <attr name="nameFolderCameraIcon" format="reference" />
+    <attr name="namedFolderScreenshotsIcon" format="reference" />
+    <attr name="namedFolderDownloadsIcon" format="reference" />
+    <attr name="namedFolderUserHomeIcon" format="reference" />
+    <attr name="namedFolderMediaIcon" format="reference" />
+
+</resources>

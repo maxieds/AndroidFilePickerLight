@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
+<resources>
+
+    <string name="libraryName">Android File Picker Light Library</string>
+    <string name="libraryDesc">A lightweight modern file selector</string>
+
+    <string name="errorMsgUnknown">An unknown error occurred</string>
+    <string name="errorMsgNotSelectable">Cannot select the file path (too many or no multiple)</string>
+    <string name="errorMsgPathJailExceeded">Cannot jump out of the preset top level path sandbox!</string>
+
+    <string name="filePickerTitleText">Select file or directory path ...</string>
+    <string name="filePickerNavBarText">Quick Links: </string>
+    <string name="filePickerDoneButtonText">Done</string>
+    <string name="filePickerCancelButtonText">Cancel</string>
+
+</resources>
