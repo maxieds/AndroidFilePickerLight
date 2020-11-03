@@ -1,4 +1,4 @@
-# Android File Picker Light
+# Android File Picker Light Library
 
 ## About the library 
 
@@ -9,6 +9,18 @@ works with the new **Android 11** file system and
 The source is made openly available as free software according to the 
 [project license](https://github.com/maxieds/AndroidFilePickerLight/blob/main/LICENSE). 
 
+The main design considerations were to 
+create a file picker library with as minimal a footprint as possible to do basic file selection 
+operations, and that the resulting library chooser display must be very easy to extend and 
+configure with respect to its look-and-feel themes, color schemes, icons and other UI options that 
+users will want to customize to their client application. 
+I was unable to find a solid external library for my application use cases that was not 
+bloated with respect to media loaders and image processing features, that could be easily 
+extended, and that was not limited by only a cumbersome list of built-in themes that the 
+user can select. Therefore, I decided to take the best functionality I found in other libraries 
+(many written in Kotlin) and write a custom implementation in Java while keeping the 
+media file processing minimal. 
+
 ### Feature set
 
 Key features in the library include the following:
@@ -17,17 +29,20 @@ Key features in the library include the following:
 * Allows client code to access many standard file system types on the Android device without 
   complicated procedures and permissions headaches inherited by the new Android 11 policy changes
 * Exceptions and errors thrown at runtime extend the standard Java ``RuntimeException`` class for 
-  ease of handling
+  ease of handling. Many of these exceptions are just wrappers around data returned by a newly 
+  spawned file picker activity and do not necessarily indicate errors in the file selection process.
   
-### Screenshots of the library in action
+### Screenshots of the library in action (TODO)
 
-TODO
+<img src="" width="250" /><img src="" width="250" /><img src="" width="250" />
+
+<img src="" width="250" /><img src="" width="250" /><img src="" width="250" />
 
 ## Including the library in an Android application
 
 There are a couple of quickstart items covered in the sections below to handle before this
 library can be included in the client Android application:
-* Include the library using [Jitpack.io/GitHub]() 
+* Include the library using [Jitpack.io/GitHub (TODO -- Get Link for Release)]() 
   in the application *build.gradle* configuration.
 * Update the project *AndroidManifest.xml* file to extend the documents provider, 
   request required permissions, and setup some helpful legacy file handling options for devices 
@@ -38,21 +53,35 @@ included in the detailed documentation in the next section.
 
 ### Application build.gradle modifications
 
-### Project manifest modifications
+We will require the following small modifications to the client **project** *build.gradle* 
+configuration:
+```bash
+android {
+     /* ... */
+     defaultConfig {
+        minSdkVersion 29
+         /* ... */
+     }
+     compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+dependencies {
+    /* ... */
+    implementation 'com.github.maxieds:AndroidFilePickerLight:-SNAPSHOT'
+}
+allprojects {
+    repositories {
+        /* ... */
+        maven {
+            url 'https://maven.fabric.io/public'
+        }
+    }
+}
+```
 
-It is necessary to declare that the client application receive minimal permissions. 
-We request the ``MANAGE_EXTERNAL_STORAGE`` permission for ease of 
-handling of multiple file path types (internal/external storage, emulated storage, user home directories). 
-The new [Android and Play Store policies](https://developer.android.com/training/data-storage/manage-all-files#enable-manage-external-storage-for-testing) 
-for applications requesting this 
-permission are clearly stated -- 
-and be aware that this library has no malicious usages of this permission, through we cannot verify illicit 
-permissions abuse from the client code once it is granted.
-Moreover, for client applications that utilize this library for users to select files on the device, 
-the Play Store review of this permission may reference the stock 
-[library privacy policy](https://github.com/maxieds/AndroidFilePickerLight/blob/main/LibraryPrivacyPolicy.md) that 
-explains why these permissions are requested, and what the library does with them in handling the 
-file picker selection requests from the client application. 
+### Project manifest modifications
 
 Near the top of the project manifest file, append the following permissions-related 
 statements:
@@ -61,13 +90,12 @@ statements:
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:required="true" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:required="true" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" android:required="false" />
-
-    <!-- A useful (non-mandatory, fairly innocuous) permission needed to use the DownloadManager -->
+    <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" android:required="false" />
     <uses-permission android:name="android.permission.INTERNET" android:required="false" />
 ```
 For applications targeting so-called legacy platforms, that is Android devices where the new 
 Android 11 storage management options are not explicitly required, it is 
-[recommended]() for compatibility sake by the Google developer docs 
+recommended for compatibility sake by the Google developer docs 
 that the application set the option
 ``requestLegacyExternalStorage="true"``. For example, use the following code:
 ```xml
@@ -81,14 +109,20 @@ that the application set the option
         android:launchMode="singleTop"
         android:manageSpaceActivity=".MyAndroidProjectMainActivity"
         android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
         android:allowBackup="true"
         >
-     <!-- Complete the internals of the application tag (activities, etc.) -->
+     <!-- Complete the internals of the application tag (activities, etc.) below -->
 </application>
 ```
-TODO: Does the library require a DocumentsProvider or FileProvider definition yet ???
 
 ## Sample client Java source code
+
+A sample application to demonstrate usage of this library is not included in the sources. 
+This file picker library was designed with the needs of the 
+[Chameleon Mini Live Debugger](https://github.com/maxieds/ChameleonMiniLiveDebugger) 
+application in mind to give a concrete working use case. 
+The next examples document basic, advanced, and custom uses of the library in client code. 
 
 ### Basic usage: Returning a file path selected by the user
 
@@ -133,7 +167,6 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
  */
 // include whether to throw a certain exception type
 // throw an invalid selection exception on error ??? 
-// TODO: Set unhandled exception handler 
 
 /* Set desired file path return types (String path, File, URI, etc.): */
 
@@ -151,48 +184,8 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
 
 ```java
 /* Basic interface methods to implement for subclasses: */
-public interface AndroidFilePickerLightException extends RuntimeException  { 
-     // constructors -- building a new descriptive exception from the usual causal data:
-     public AndroidFilePickerLightException(Exception javaBaseExcpt);
-     public AndroidFilePickerLightException(String errorMsg);
-     public AndroidFilePickerLightException(String errorMsg, Exception javaBaseExcpt);
-     protected void configureExceptionParams(int errorCode, String baseExcptDesc, boolean defaultIsError, 
-                                             Object dataTypeT, ExceptionDataFieldFormatter dataFmtObjType);
-     // standard-ish Exception class handling and methods:
-     public String getExceptionMessage();
-     public String[] getStackTrace();
-     public void printStackTrace();
-     public String toString();
-     // communicating other information by exception:
-     public boolean isError();
-     public boolean getErrorCode();
-     public Intent getAsIntent();
-     // custom error messages and printing methods:
-     public String getExceptionName();
-     public String getExceptionBaseDesc();
-     public String getErrorMessage();
-     public String getErrorMessageFull();
-     public String getInvokingSourceFile();
-     public int getInvokingLineNumber();
-     public String prettyPrintException(boolean verboseStackTrace);
-     // obtaining file selection data passed by the exceptional instance:
-     public boolean hasDataItems();
-     public <DataTypeT extends Object> DataTypeT getDataSingle();
-     public <DataTypeT extends Object> List<DataTypeT> getDataAsList();
-     public int dataTypeItemsCount();
-     public <DataTypeT extends Object> List<DataTypeT> getTypedDataAsList();
-     // custom formatting and preparation of the returned data expected by the 
-     // client application: 
-     public interface ExceptionDataFieldFormatter {
-          public <DataTypeT extends Object> List<DataTypeT> formatDataItems(List<File> fileItems);
-          public <DataTypeT extends Object> List<DataTypeT> formatDataItems(List<String> fileItems);
-          public <DataTypeT extends Object> List<DataTypeT> formatDataItems(List<URI> fileItems);
-          public <DataTypeT extends Object> String toString(List<DataTypeT> lstView);
-          public static <DataTypeT extends Object> byte[] toSerializedDataBuffer(List<DataTypeT> lstView);
-          public static <DataTypeT extends Object> List<DataTypeT> recoverDataItemsList(byte[] serializedBufferData);
-     }
-     public static <DataTypeT extends Object> void setDataItemsFieldFormatterInterface(ExceptionDataFieldFormatter<DataTypeT> dataFormatter);
-}
+public interface AndroidFilePickerLightException extends RuntimeException  {}
+
 /* Some predefined options for exceptions that can be thrown by the chooser selection activity: */
 public class GenericRuntimeErrorException extends AndroidFilePickerLightException { /* ... */ }
 public class FileIOException extends AndroidFilePickerLightException { /* ... */ }
@@ -207,19 +200,20 @@ public class InvalidThemeResourceException extends AndroidFilePickerLightExcepti
 
 #### Checking whether the returned file path is valid
 
-
-
-#### Determine whether a timeout occured to close the picker
+#### Determine whether an idle timeout occurred to close the picker
 
 #### Query whether items in the list of paths are directories versus files
 
+
 ### Configuring the client theme and UI look-and-feel properties
 
-#### Basic example (quickstart)
+#### Basic example (quickstart guide to using the file picker library)
 
 
 
-#### Full example (detailed usage of all theming/UI display options)
+
+
+#### Full example (detailed usage of the current custom theme/UI display options)
 
 Note that with the exception of a few predefined themes that are included as 
 default resources within the library packaging, all UI display related 
@@ -327,17 +321,19 @@ customUIDisplayCfg.setDefaultChooserIcon(Drawable replacementIcon, NamedDisplayI
 
 ```
 
-### Other useful utilities and examples
+### Misc other useful utilities and examples (TODO)
 
-#### Extending the inclusion/exclusion mechanism of files by type
+#### Overriding the default file and directory sorting (feature request: reserved for future use)
 
-#### Sending the selected file to another application (or emailing the file results)
+#### Extending the inclusion/exclusion mechanism of files by type (feature request: reserved for future use)
 
-#### Extending the library as a picker for more complicated media file types
+#### Sending the selected file to another application (or emailing the file results) -- FEATURE REQUEST (reserved for future use)
 
-#### Misc utility functions
+#### Extending the library as a picker to select more complicated media file types (feature request: reserved for future use)
 
 ## Documentation and approach to handling files internally within the picker library
+
+### Links to relevant Android API documentation
 
 The next links provide some context and developer reference docs for the internal schemes used by the 
 library to implement listing files on the local device file system. 
@@ -347,10 +343,18 @@ library to implement listing files on the local device file system.
 * [Data and file storage overview (developer docs)](https://developer.android.com/training/data-storage)
 * [Overview of shared storage (developer docs)](https://developer.android.com/training/data-storage/shared)
 * [Requesting a shared file (developer docs)](https://developer.android.com/training/secure-file-sharing/request-file.html)
+* [MediaStore based file access(developer docs)](https://developer.android.com/reference/android/provider/MediaStore)
+
+### Listing of other file picker libraries for Android
+
 We have also made use of some of the functionality provided in Kotlin and/or Java code from the 
 following alternative Android file chooser libraries:
-* [AndroidFilePicker library](https://github.com/rosuH/AndroidFilePicker -- Kotlin based implementation by **@rosuH**.
-* **TODO** -- LINKS to other good projects used as a reference point ... 
+* [AndroidFilePicker library](https://github.com/rosuH/AndroidFilePicker)
+* [NoNonsense-FilePicker library](https://github.com/spacecowboy/NoNonsense-FilePicker)
+* [MultiType-FilePicker library](https://github.com/fishwjy/MultiType-FilePicker/blob/master/filepicker/src/main/java/com/vincent/filepicker/filter/callback/FileLoaderCallbacks.java)
+* [LFilePicker library](https://github.com/leonHua/LFilePicker)
+* [MaterialFilePicker library](https://github.com/nbsp-team/MaterialFilePicker)
+
 Much of the reason for re-writing the Kotlin-based scheme in 
 [my initial fork](https://github.com/maxieds/AndroidFilePicker) 
 the first library above is 
@@ -359,57 +363,18 @@ when selecting only directory based paths. This library also deals with the time
 new storage and access permissions that are popping up as Android devices being to migrate to 
 SDK >= 11 (codename *Android* **Q**).
 
-### Rationale and comparison to past mechanisms for file selection 
+### Requested and required permissions summary
 
-#### Tentative explanation for why file selection on Android is so difficult by default 
-
-I have the **opinion** that the overly complex interface for a files/documents provider 
-is to excessively generalize something that is a priori a simple operation for defining files 
-for big-time Google API clients, e.g., Dropbox and media providers. 
-This API functionality was as such introduced to generalize a way of listing out files on non-hardware 
-based filesystems or media platforms, for example to retrieve files oragnized on an external 
-internet provider, or stream in content from a large media content provider. 
-As this complexity is not really needed for lightweight applications that just need a quick, 
-bare bones way to select a standard issue (e.g., text or image or PDF documentt) file off the Android device, 
-the design decision for this library is to focus on providing as minimal an interface, 
-and to pull in only the smallest amounts of extra components, as are needed for all 
-but large scale applications -- and those big content providers, mind you, will be very much apt to 
-write their own file picker displays and theme the UI their way. 
-
-N.b., there may be some good initiative type 
-security related permissions restrictions at play too, but an 
-intuition on this suggests that this explicit not-niceness the be for core file system based 
-operations on any recent Android would have to be motivated by the Google/Android 
-developer folks typically deferring to largest common denominator, rather than say, 
-the convenience of smaller order Android Application developers that need simplicity for 
-basic access ... :thumbsdown:
-
-#### Historical procedures for file selection
-
-Prior to approximately Android 8-10+, the scheme for 
-picking files was limited to launching a new picker 
-activity instance, looping and waiting for a Java ``RuntimeException`` containing the 
-file selection data to signal the procedure had completed, and handling the termination 
-of the first activity using the main activity's overriden ``onActivityResult`` function. 
-For example, this may have worked a long time ago:
-```java
-
-```
-Along the way and over time things became more complex with reading out the actual 
-file path on disk from a URI type for the same reasons I surmise the file provider 
-type complexity was added: namely, to provide access to non-standard file types and 
-locations. Given the right ``READ|WRITE_EXTERNAL_STORAGE`` permissions, and by having the 
-library and client code cooperate on sharing the URI read permissions still allowed for 
-things to work easily enough prior to Android 11:
-```java
-
-```
-With the new changes at and after Android 11, the mechanism for reading and obtaining 
-file path locations and other file attribute datum have required a new interface 
-(see the library sources). In particular, former approaches to this by returning a 
-stock Java ``File`` type no longer work reliably with the most recent Android API 
-boxen. Determining whether a file path is a directory, for example, or creating 
-a new file given its path, when the path references something like 
-``//storage/emulated/0/myFilePath.txt`` have been outcast by the Android police. 
-What we end up with is the hodgepodge of ways to select/read/write files that are 
-wrapped by this current library implementation. 
+It is necessary to declare that the client application receive minimal permissions. 
+We request the ``MANAGE_EXTERNAL_STORAGE`` permission for ease of 
+handling of multiple file path types (internal/external storage, emulated storage, user home directories). 
+The new [Android and Play Store policies](https://developer.android.com/training/data-storage/manage-all-files#enable-manage-external-storage-for-testing) 
+for applications requesting this 
+permission are clearly stated -- 
+and be aware that this library has no malicious usages of this permission, through we cannot verify illicit 
+permissions abuse from the client code once it is granted.
+Moreover, for client applications that utilize this library for users to select files on the device, 
+the Play Store review of this permission may reference the stock 
+[library privacy policy](https://github.com/maxieds/AndroidFilePickerLight/blob/main/LibraryPrivacyPolicy.md) that 
+explains why these permissions are requested, and what the library does with them in handling the 
+file picker selection requests from the client application. 
