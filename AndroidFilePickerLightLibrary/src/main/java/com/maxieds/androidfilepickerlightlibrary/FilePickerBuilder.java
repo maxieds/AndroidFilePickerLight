@@ -34,9 +34,9 @@ public class FilePickerBuilder implements Serializable {
 
     private String LOGTAG = FilePickerBuilder.class.getSimpleName();
 
-    private static WeakReference<Activity> activityContextRef;
-    public void setActivityContext(Activity activityRef) {
-        activityContextRef = new WeakReference<Activity>(activityRef);
+    private static WeakReference<FileChooserActivity> activityContextRef;
+    public void setActivityContext(FileChooserActivity activityRef) {
+        activityContextRef = new WeakReference<FileChooserActivity>(activityRef);
     }
 
     public enum DefaultNavFoldersType {
@@ -132,8 +132,8 @@ public class FilePickerBuilder implements Serializable {
     public static final long NO_ABORT_TIMEOUT = -1;
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
 
-    public FilePickerBuilder(Activity activityContextInst) {
-        activityContextRef = new WeakReference<Activity>(activityContextInst);
+    public FilePickerBuilder(FileChooserActivity activityContextInst) {
+        activityContextRef = new WeakReference<FileChooserActivity>(activityContextInst);
         defaultExceptionType = FilePickerException.CommunicateSelectionDataException.getNewInstance();
         lastError = null;
         displayUIConfig = DisplayConfigInterface.getDefaultsInstance();
@@ -148,12 +148,18 @@ public class FilePickerBuilder implements Serializable {
         idleTimeoutMillis = NO_ABORT_TIMEOUT;
     }
 
-    public static FilePickerBuilder getSingleFilePickerInstance() {
-        return null; // TODO
+    public static FilePickerBuilder getSingleFilePickerInstance(FileChooserActivity activityContextInst) {
+        FilePickerBuilder pickerBuilderInst = new FilePickerBuilder(activityContextInst);
+        pickerBuilderInst.pathSelectMode = SelectionModeType.SELECT_DIRECTORY_ONLY;
+        pickerBuilderInst.maxSelectedFiles = 1;
+        return pickerBuilderInst;
     }
 
-    public static FilePickerBuilder getDirectoryChooserInstance() {
-        return null; // TODO
+    public static FilePickerBuilder getDirectoryChooserInstance(FileChooserActivity activityContextInst) {
+        FilePickerBuilder pickerBuilderInst = new FilePickerBuilder(activityContextInst);
+        pickerBuilderInst.pathSelectMode = SelectionModeType.SELECT_FILE;
+        pickerBuilderInst.maxSelectedFiles = 1;
+        return pickerBuilderInst;
     }
 
     public FilePickerBuilder setDisplayUIConfig(DisplayConfigInterface uiCfg) {
@@ -190,13 +196,13 @@ public class FilePickerBuilder implements Serializable {
         return this;
     }
 
-    public FilePickerBuilder setPickerInitialPath(String subdirRelativePath, BaseFolderPathType storageAccessBase) {
+    public FilePickerBuilder setPickerInitialPath(BaseFolderPathType storageAccessBase) {
         initFolderBasePathType = storageAccessBase;
-        initFolderSubDirName = subdirRelativePath;
+        activityContextRef.get().getFileProviderInstance().selectBaseDirectoryByType(storageAccessBase);
         return this;
     }
 
-    public FilePickerBuilder enforceSandboxTopLevelDirectory(String subdirRelativePath, BaseFolderPathType storageAccessBase,
+    public FilePickerBuilder enforceSandboxTopLevelDirectory(BaseFolderPathType storageAccessBase,
                                                              boolean excludeOtherOutsideNav) {
         throw new FilePickerException.NotImplementedException();
     }
@@ -239,6 +245,8 @@ public class FilePickerBuilder implements Serializable {
     }
 
     public static final String FILE_PICKER_BUILDER_EXTRA_DATA_KEY = "FilePickerBuilderExtraData";
+    public static final String FILE_PICKER_INTENT_DATA_TYPE_KEY = "FilePickerSelectedIntentDataType";
+    public static final String FILE_PICKER_INTENT_DATA_PAYLOAD_KEY = "FilePickerSelectedIntentDataPayloadList";
 
     public <DataItemTypeT extends Object> List<DataItemTypeT> runFilePicker() throws FilePickerException.AndroidFilePickerLightException {
         Intent launchPickerIntent = new Intent(activityContextRef.get(), FileChooserActivity.class);
@@ -291,15 +299,19 @@ public class FilePickerBuilder implements Serializable {
             case ACTIVITY_CODE_SELECT_FILE:
             case ACTIVITY_CODE_SELECT_DIRECTORY_ONLY:
             case ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
-                if (resultCode == RESULT_OK) {
-                    throw new RuntimeException("TODO: Encode the logic to return the correct RTE data here ... ");
+                if(resultCode == RESULT_OK) {
+                    FilePickerException.AndroidFilePickerLightException resultOKException = new FilePickerException.CommunicateSelectionDataException();
+                    resultOKException.packageDataItemsFromIntent(data);
+                    throw resultOKException;
                 }
                 break;
             default:
                 break;
 
         }
-        throw new FilePickerException.GenericRuntimeErrorException();
+        FilePickerException.AndroidFilePickerLightException resultNotOKException = new FilePickerException.GenericRuntimeErrorException();
+        resultNotOKException.packageDataItemsFromIntent(data);
+        throw resultNotOKException;
     }
 
 }

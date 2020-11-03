@@ -75,6 +75,21 @@ public class BasicFileProvider extends DocumentsProvider {
 
     private File baseDirPath;
 
+    /*
+     * Other storage related calls in the Context class still supported to look at later:
+     * -> File[] getExternalMediaDirs()
+     * -> getRootDirectory()
+     * -> getNoBackupFilesDirectory()
+     * -> getExternalStorageState() [Lengthy list of state inidcator constants]
+     * -> isDeviceProtectedStorage()
+     * ->isExternalStorageEmulated()
+     * -> isExternalStorageLegacy()
+     * -> isExternalStorageManager()
+     * -> isExternalStorageRemovable()
+     *
+     * Also, may consider files flags:
+     * Context.MODE_APPEND, Context.MODE_PRIVATE, Context.MODE_MULTI_PROCESS ;
+     */
     public File selectBaseDirectoryByType(FilePickerBuilder.BaseFolderPathType baseFolderType) {
         switch(baseFolderType) {
             case BASE_PATH_TYPE_FILES_DIR:

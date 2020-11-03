@@ -42,6 +42,7 @@
         android:usesCleartextTraffic="false"
         android:installLocation="${libraryInstallLocation}"
         android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
         android:allowBackup="true"
         >
 

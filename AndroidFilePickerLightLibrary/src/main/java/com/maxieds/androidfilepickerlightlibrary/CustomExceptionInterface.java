@@ -23,12 +23,12 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 
-interface ExceptionInterface {
+interface CustomExceptionInterface {
 
     /* constructors -- building a new descriptive exception from the usual causal data: */
-    public ExceptionInterface newExceptionInstance(Exception javaBaseExcpt);
-    public ExceptionInterface newExceptionInstance(String errorMsg);
-    public ExceptionInterface newExceptionInstance(String errorMsg, Exception javaBaseExcpt);
+    public CustomExceptionInterface newExceptionInstance(Exception javaBaseExcpt);
+    public CustomExceptionInterface newExceptionInstance(String errorMsg);
+    public CustomExceptionInterface newExceptionInstance(String errorMsg, Exception javaBaseExcpt);
 
     /* Standard-ish Exception class handling and methods: */
     public String getExceptionMessage();
@@ -55,6 +55,7 @@ interface ExceptionInterface {
     public int dataTypeItemsCount();
     public <DataTypeT extends Object> DataTypeT getTypedDataSingle();
     public <DataTypeT extends Object> List<DataTypeT> getTypedDataAsList();
+    public List<String> packageDataItemsFromIntent(Intent fileItemsIntent);
 
     /* Custom formatting and packaging/preparation of the returned data expected by the
      * client application (basically a rough serialization to byte buffer type object spec):
@@ -63,7 +64,7 @@ interface ExceptionInterface {
 
         public <DataTypeT extends Object> List<DataTypeT> packageDataItemsFromFileType(List<File> fileItems);
         public <DataTypeT extends Object> List<DataTypeT> packageDataItemsFromStringType(List<String> fileItems);
-        public <DataTypeT extends Object> List<DataTypeT> fpackageDataItemsFromURIType(List<URI> fileItems);
+        public <DataTypeT extends Object> List<DataTypeT> packageDataItemsFromURIType(List<URI> fileItems);
         public <DataTypeT extends Object> String toString(List<DataTypeT> lstView);
 
         public static <DataTypeT extends Object> byte[] toSerializedDataBuffer(List<DataTypeT> lstView) {

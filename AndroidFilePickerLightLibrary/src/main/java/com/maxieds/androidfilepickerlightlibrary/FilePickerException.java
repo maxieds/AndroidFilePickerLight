@@ -19,6 +19,9 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.content.Intent;
 
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FilePickerException {
@@ -33,7 +36,7 @@ public class FilePickerException {
         return nextUniqueErrorCode;
     }
 
-    public static class AndroidFilePickerLightException extends RuntimeException implements ExceptionInterface {
+    public static class AndroidFilePickerLightException extends RuntimeException implements CustomExceptionInterface {
 
         private boolean isError;
         private int errorCode;
@@ -99,6 +102,33 @@ public class FilePickerException {
         public int dataTypeItemsCount() { return 0; }
         public <DataTypeT extends Object> DataTypeT getTypedDataSingle() { return null; }
         public <DataTypeT extends Object> List<DataTypeT> getTypedDataAsList() { return null; }
+
+        private static String resolveFilePathFromObjectType(Object dataItem) {
+            if(dataItem instanceof String) {
+                return (String) dataItem;
+            }
+            else if(dataItem instanceof File) {
+                /* TODO: Depending on the complexity of the FileProvider in future Android versions,
+                 *       it might be more useful to keep the File object around for operations ...
+                 */
+                return ((File) dataItem).getAbsolutePath();
+            }
+            else if(dataItem instanceof URI) {
+                URI dataItemAsURI = (URI) dataItem;
+                return dataItemAsURI.getPath();
+            }
+            throw new UnsupportedTypeException();
+        }
+
+        public List<String> packageDataItemsFromIntent(Intent fileItemsIntent) {
+            Class dataTypeClass = (Class) fileItemsIntent.getSerializableExtra(FilePickerBuilder.FILE_PICKER_INTENT_DATA_TYPE_KEY);
+            Object[] fileDataItems = (Object[]) fileItemsIntent.getSerializableExtra(FilePickerBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY);
+            List<String> selectedFilePathsList = new ArrayList<String>();
+            for(int didx = 0; didx < fileDataItems.length; didx++) {
+                selectedFilePathsList.add(resolveFilePathFromObjectType(fileDataItems[didx]));
+            }
+            return selectedFilePathsList;
+        }
 
         public <DataTypeT extends Object> void setDataItemsFieldFormatterInterface(ExceptionDataFieldFormatter dataFormatterObj) {
             dataItemsFormatter = dataFormatterObj;
@@ -261,6 +291,22 @@ public class FilePickerException {
         public InvalidActivityContextException() {
             configureExceptionParams(UNIQUE_ERROR_CODE,
                     "The library does not have a handle on a valio activity or context reference object",
+                    true, DEFAULT_DATA_ITEMS_TYPE, null);
+        }
+
+    }
+
+    public static class UnsupportedTypeException extends AndroidFilePickerLightException {
+
+        private static int UNIQUE_ERROR_CODE = claimNextUniqueErrorCode();
+
+        protected static AndroidFilePickerLightException getNewInstance() {
+            return new UnsupportedTypeException();
+        }
+
+        public UnsupportedTypeException() {
+            configureExceptionParams(UNIQUE_ERROR_CODE,
+                    "Attempted to convert or return selected data items in an unsupported format",
                     true, DEFAULT_DATA_ITEMS_TYPE, null);
         }
 

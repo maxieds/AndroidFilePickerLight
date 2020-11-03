@@ -24,6 +24,7 @@ import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -33,6 +34,11 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class FileChooserActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private String LOGTAG = FileChooserActivity.class.getSimpleName();
+
+    private static BasicFileProvider defaultFileProviderStaticInst = new BasicFileProvider();
+    public static BasicFileProvider getFileProviderInstance() { return defaultFileProviderStaticInst; }
+
+    private List<File> selectedFilePaths; // TODO: Need to store the UI FileType lists somewhere ...
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -69,9 +75,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         FilePickerBuilder fpConfig = (FilePickerBuilder) getIntent().getSerializableExtra(FilePickerBuilder.FILE_PICKER_BUILDER_EXTRA_DATA_KEY);
         // TODO: ...
         // Create layout ... (including setting defaults, set default theme, etc. ) ...
-        // When launch by intent, need to obtain the original Builder cfg object ...
+        // set an idle timeout to kill the activity if it hanges or the user ignores it for too long ...
         // Need fragments for loading files in the UI nav (see the forked library code) ...
-        // Need to updated Android 11 interface for accessing files and their storage component data ...
         // need a RecyclerView interface ...
 
     }
@@ -129,6 +134,20 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             EasyPermissions.requestPermissions(this, getString(R.string.optionalPermsRationale),
                     AndroidPermissionsHandler.REQUEST_OPTIONAL_PERMISSIONS_CODE, permsList);
         }
+    }
+
+    public Intent getSelectedFilesActivityResultIntent() {
+        return null;
+    }
+
+    public void postSelectedFilesActivityResult() {
+
+        Intent filesResultIntent = getSelectedFilesActivityResultIntent();
+        // TODO
+        finish();
+        System.exit(0);
+        //System.exit(TODO:activityResultCode???);
+
     }
 
 }
