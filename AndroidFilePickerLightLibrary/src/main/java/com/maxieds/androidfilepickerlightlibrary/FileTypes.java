@@ -154,6 +154,16 @@ public class FileTypes {
             DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(lastWorkingDir.getWorkingDirectoryContents());
         }
 
+        /* Re-initiate the inquisition: Static reusable wrapper function to invoke loading a new directory
+         * from scratch (reinitializing objects, starting the initial root query, and launching the
+         * RecyclerView pattern making compendia on a whole new dataset):
+         */
+        public static void initiateNewFolderLoad(FilePickerBuilder.BaseFolderPathType initBaseFolder) {
+            FileTypes.DirectoryResultContext newCwdContext = FileTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
+            FileTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
+            DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
+        }
+
     }
 
     public static class FileType {

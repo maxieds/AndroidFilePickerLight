@@ -57,8 +57,6 @@ public class DisplayFragments {
             recyclerViewDisplay.setHasFixedSize(true); // TODO: Check if this causes errors ...
             rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
             recyclerViewDisplay.setLayoutManager(rvLayoutManager);
-            rvAdapter = new DisplayAdapters.FileListAdapter(new ArrayList<String>()); // TODO: Is this where we need to initialize the View with the initial dir contents?
-            recyclerViewDisplay.setAdapter(rvAdapter);
         }
 
         public void resetLayout(FileTypes.FileType fileItem, int displayPosition) {

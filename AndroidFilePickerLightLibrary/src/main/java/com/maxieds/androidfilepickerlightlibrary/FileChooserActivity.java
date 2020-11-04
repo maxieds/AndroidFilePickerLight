@@ -63,6 +63,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public static int curSelectionCount = 0;
     public static boolean allowSelectFiles = true;
     public static boolean allowSelectFolders = true;
+    public static boolean recyclerViewAdapterInit = false;
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -148,9 +149,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                     DisplayFragments.cancelAllOperationsInProgress();
                     FileTypes.DirectoryResultContext.pathHistoryStack.clear(); // reset the directory traversal history
                     FilePickerBuilder.BaseFolderPathType navBtnInitFolder = (FilePickerBuilder.BaseFolderPathType) btnView.getTag();
-                    FileTypes.DirectoryResultContext newCwdContext = FileTypes.DirectoryResultContext.probeAtCursoryFolderQuery(navBtnInitFolder);
-                    FileTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
-                    DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
+                    FileTypes.DirectoryResultContext.initiateNewFolderLoad(navBtnInitFolder);
                     Button navBtn = (Button) btnView;
                     navBtn.setEnabled(false);
                     navBtn.setElevation(-1.0f);
@@ -217,8 +216,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 )
         );
         DisplayFragments.FileListItemFragment.configureStaticInstanceMembers(mainFileListContainer);
-        // TODO ...
-        //RecyclerViewTouchListener rviewTouchListener = new RecyclerViewTouchListener(FileChooserActivity.getInstance(), mainFileListContainer, )
+        FileTypes.DirectoryResultContext.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
     }
 

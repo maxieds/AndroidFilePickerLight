@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -74,6 +75,15 @@ public class DisplayAdapters {
 
         public void displayNextDirectoryFilesList(List<FileTypes.FileType> workingDirContentsList) {
             List<FileTypes.FileType> filteredFileContents = FilePickerBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
+            if(!FileChooserActivity.recyclerViewAdapterInit) {
+                List<String> fileItemBasePathsList = new ArrayList<String>();
+                for(FileTypes.FileType fileItem : filteredFileContents) {
+                    fileItemBasePathsList.add(fileItem.getBaseName());
+                }
+                DisplayFragments.FileListItemFragment.rvAdapter = new DisplayAdapters.FileListAdapter(new ArrayList<String>());
+                DisplayFragments.FileListItemFragment.mainFileListRecyclerView.setAdapter(DisplayFragments.FileListItemFragment.rvAdapter);
+                FileChooserActivity.recyclerViewAdapterInit = true;
+            }
             DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
             DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText("----");
             adapterFileItemsMap = filteredFileContents;
