@@ -32,9 +32,6 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
     }
 
     compileOptions {
@@ -47,7 +44,7 @@ android {
         release {
 
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             buildConfigField "String", "BUILD_TIMESTAMP", "\"" + getDateTimestamp() + "\""
             buildConfigField "String", "GIT_COMMIT_HASH", "\"" + getGitCommitHash() + "\""
@@ -70,6 +67,4 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.android.support:recyclerview-v7:30.0.0'
     implementation 'pub.devrel:easypermissions:3.0.0'
-    testImplementation 'junit:junit:4.12'
-
 }

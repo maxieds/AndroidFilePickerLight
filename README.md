@@ -1,6 +1,6 @@
 # Android File Picker Light Library
 
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/LibraryProfileIconPlayStore.png" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/LibraryProfileIconPlayStore.png" width="400" />
 
 <hr /><hr />
 
@@ -11,7 +11,7 @@
 <img src="https://forthebadge.com/images/badges/powered-by-coffee.svg" /> 
 <img src="https://forthebadge.com/images/badges/built-for-android.svg" /> 
 <img src="https://badges.frapsoft.com/os/gpl/gpl.svg?v=103" /> 
-<img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" />  🐱‍💻
+<img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" />
 
 ## About the library 
 
@@ -70,10 +70,8 @@ We will require the following small modifications to the client **project** *bui
 configuration:
 ```bash
 android {
-     /* ... */
      defaultConfig {
         minSdkVersion 29
-         /* ... */
      }
      compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -81,12 +79,10 @@ android {
     }
 }
 dependencies {
-    /* ... */
     implementation 'com.github.maxieds:AndroidFilePickerLight:-SNAPSHOT'
 }
 allprojects {
     repositories {
-        /* ... */
         maven {
             url 'https://maven.fabric.io/public'
         }
@@ -131,10 +127,6 @@ that the application set the option
 
 ## Sample client Java source code
 
-A sample application to demonstrate usage of this library is not included in the sources. 
-This file picker library was designed with the needs of the 
-[Chameleon Mini Live Debugger](https://github.com/maxieds/ChameleonMiniLiveDebugger) 
-application in mind to give a concrete working use case. 
 The next examples document basic, advanced, and custom uses of the library in client code. 
 
 ### Basic usage: Returning a file path selected by the user
@@ -351,107 +343,11 @@ To invoke this progress bar display in realtime, consider calling the following 
 TODO
 ```
 
-#### Overriding the default file and directory sorting (feature request: reserved for future use)
+#### Overriding the default file and directory sorting
 
-#### Extending the inclusion/exclusion mechanism of files by type (feature request: reserved for future use)
+#### Extending the inclusion/exclusion mechanism of files by type
 
-#### Sending the selected file to another application (or emailing the file results) -- FEATURE REQUEST (reserved for future use)
+#### Sending the selected file to another application (or emailing the file results)
 
-#### Extending the library as a picker to select more complicated media file types (feature request: reserved for future use)
+#### Extending the library as a picker to select more complicated media file types
 
-## Documentation and approach to handling files internally within the picker library
-
-### Links to relevant Android API documentation
-
-The next links provide some context and developer reference docs for the internal schemes used by the 
-library to implement listing files on the local device file system. 
-* [Android Storage Access Framework (SAF)](https://developer.android.com/guide/topics/providers/document-provider)
-* [Accessing app-specific files (developer docs)](https://developer.android.com/training/data-storage/app-specific)
-* [Access documents and other files from shared storage (developer docs)](https://developer.android.com/training/data-storage/shared/documents-files)
-* [Data and file storage overview (developer docs)](https://developer.android.com/training/data-storage)
-* [Overview of shared storage (developer docs)](https://developer.android.com/training/data-storage/shared)
-* [Requesting a shared file (developer docs)](https://developer.android.com/training/secure-file-sharing/request-file.html)
-* [MediaStore based file access(developer docs)](https://developer.android.com/reference/android/provider/MediaStore)
-* [A tutorial with pointers](https://medium.com/androiddevelopers/building-a-documentsprovider-f7f2fb38e86a) 
-   for the under documented new SAF and storage restrictions on recent Android releases
-* [A detailed discussion of changed to Android storage policy](http://thewindowsupdate.com/2020/06/03/scoped-storage-in-android-10-android-11/)
-
-Basically Google has invoked its power and privilege to impose a new file system access scheme from 
-Mars on developers. And that new Martian access mechanism is only loosely coupled with 
-more standardized historical ways of getting at files on local disk native to Java and its I/O functionality 
-that used to be so lovely and implicitly understandable to us native Unix folks. 
-As the development of this library 
-gets under way and Android 11+ sets into more new devices on the market, we hope to figure out how to keep up 
-with this new alien technolgy and will continue to expect small operations like reading files on 
-one's hardware to happen in finite time (on this earth).  
-
-### Listing of other file picker libraries for Android
-
-We have also made use of some of the functionality provided in Kotlin and/or Java code from the 
-following alternative Android file chooser libraries:
-* [AndroidFilePicker library](https://github.com/rosuH/AndroidFilePicker)
-* [NoNonsense-FilePicker library](https://github.com/spacecowboy/NoNonsense-FilePicker)
-* [MultiType-FilePicker library](https://github.com/fishwjy/MultiType-FilePicker/blob/master/filepicker/src/main/java/com/vincent/filepicker/filter/callback/FileLoaderCallbacks.java)
-* [LFilePicker library](https://github.com/leonHua/LFilePicker)
-* [MaterialFilePicker library](https://github.com/nbsp-team/MaterialFilePicker)
-
-Much of the reason for re-writing the Kotlin-based scheme in 
-[my initial fork](https://github.com/maxieds/AndroidFilePicker) 
-the first library above is 
-centered on needing to re-theme and customize the UI, and also resolve some consistency issues 
-when selecting only directory based paths. This library also deals with the timely issue of the 
-new storage and access permissions that are popping up as Android devices being to migrate to 
-SDK >= 11 (codename *Android* **Q**).
-
-### Requested and required permissions summary
-
-It is necessary to declare that the client application receive minimal permissions. 
-We request the ``MANAGE_EXTERNAL_STORAGE`` permission for ease of 
-handling of multiple file path types (internal/external storage, emulated storage, user home directories). 
-The new [Android and Play Store policies](https://developer.android.com/training/data-storage/manage-all-files#enable-manage-external-storage-for-testing) 
-for applications requesting this 
-permission are clearly stated -- 
-and be aware that this library has no malicious usages of this permission, through we cannot verify illicit 
-permissions abuse from the client code once it is granted.
-Moreover, for client applications that utilize this library for users to select files on the device, 
-the Play Store review of this permission may reference the stock 
-[library privacy policy](https://github.com/maxieds/AndroidFilePickerLight/blob/main/LibraryPrivacyPolicy.md) that 
-explains why these permissions are requested, and what the library does with them in handling the 
-file picker selection requests from the client application. 
-
-## TODO and feature request for future bursts of coder energy
-
-* The ``BasicFileProvider`` class has built-in functionality to query the top of the most recent 
-  documents list. Perhaps this action would make a good naviagation folder alongside the 
-  default folder paths to common directories displayed at the top of the chooser activity?
-* My growing understanding of the new storage access changes on Android suggests that eventually 
-  the ``String`` and ``File`` based returned data from the picker will not be easy to 
-  turn into hooks that can actually open these obscured file paths. This means that even if you 
-  have an absolute path to a local file, the Android system may not like to let you open the 
-  file from that string reference under the new ways it limits storage access. 
-  **Note to self** to eventually explore adding functionality to the picker to return 
-  plaintext strings and byte arrays of the file contents in place of the path identifiers on disk. 
-  This should require better usages of the ``GET_CONTENT_*_TREE_*`` intent actions, and 
-  working with persistent URI data from the file provider:
-  1. Modify ``openFile(...)`` to yield ``readFileAsString`` and/or ``readFileAsBytesArray`` 
-     depending on the picker action the client code calls. 
-  2. Note that returned ``MatrixCursor`` objects have columns that describe th file contents, and then 
-     we can call ``getType(colIndex)`` to figure out whether the contents are: 
-     string / plaintext data (like with ``FIELD_TYPE_STRING``) or stored as 
-     binary data that can be read out in byte arrays (e.g., for `FIELD_TYPE_BLOB`).
-
-#### Some small bits of clarity on why the new storage access changes are, well, so unavailable at the moment:
-
-In the event that anyone has made it to these lines at the bottom of this lengthy unfinished documentation 
-prospectus, I have a few words to empathize with others on the net that have expressed confusion 
-working with these new Android 10-11+ APIs and their pathological 
-file system access restrictions. I do not believe that 
-this offering from the Android API is a refined, well thought out masterpiece that 
-requires careful attention to appreciate and understand. Rather, it is apparent (to me) that the file 
-provide frameworks and the SAF requirements form an unholy and massively *crappy* specification to deal with. 
-It is difficult and cumbersome even to perform the most routine file operations now. 
-The documentation from Google on their GitHub sources profile is most underwhelming and not 
-demonstrative of how to actually use these changes to their API. Granted, I am not in a lighthearted moode having 
-slogged over rudimentary concepts like this for hours today. But this is a poor offering for a platform that is 
-so easy to get off the ground and working lierally in hours! WTF, Google, et tu with my standard advanced 
-integrated Java support for Unix and System V fare? This blows. :scream: :scream: :scream:
