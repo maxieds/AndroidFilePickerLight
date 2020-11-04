@@ -90,7 +90,7 @@ public class FileTypes {
             initMatrixCursorListing = mcResult;
             computeDirectoryContents();
             if(parentDirCtx != null) {
-                BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+                BasicFileProvider fpInst = BasicFileProvider.getInstance();
                 activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(parentDirCtx);
                 activeDocId = mcResult.getString(BasicFileProvider.ROOT_PROJ_DOCID_COLUMN_INDEX);
             }
@@ -101,7 +101,7 @@ public class FileTypes {
         }
 
         public void computeDirectoryContents() {
-            BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
             MatrixCursor mcResult = initMatrixCursorListing;
             mcResult.moveToFirst();
             List<FileType> filesDataList = new ArrayList<FileType>();
@@ -117,7 +117,7 @@ public class FileTypes {
         }
 
         public DirectoryResultContext loadNextFolderAtIndex(int posIndex) {
-            BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
             directoryContentsList.clear();
             pathHistoryStack.push(this);
             MatrixCursor nextDirCursor = null;
@@ -132,7 +132,7 @@ public class FileTypes {
         }
 
         public static DirectoryResultContext probeAtCursoryFolderQuery(FileChooserBuilder.BaseFolderPathType baseFolderChoice) {
-            BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
             fpInst.selectBaseDirectoryByType(baseFolderChoice);
             try {
                 MatrixCursor cursoryProbe = (MatrixCursor) fpInst.queryRoots(BasicFileProvider.DEFAULT_ROOT_PROJECTION);

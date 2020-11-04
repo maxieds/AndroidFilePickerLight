@@ -17,6 +17,7 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -49,6 +50,9 @@ import static java.util.Locale.ROOT;
 public class BasicFileProvider extends DocumentsProvider {
 
     private static String LOGTAG = BasicFileProvider.class.getSimpleName();
+
+    private static BasicFileProvider fileProviderStaticInst = null;
+    public static  BasicFileProvider getInstance() { return fileProviderStaticInst; }
 
     public static final String[] DEFAULT_ROOT_PROJECTION = new String[] {
             DocumentsContract.Root.COLUMN_ROOT_ID,
@@ -93,42 +97,43 @@ public class BasicFileProvider extends DocumentsProvider {
      * Context.MODE_APPEND, Context.MODE_PRIVATE, Context.MODE_MULTI_PROCESS ;
      */
     public File selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
+        Context appCtx = FileChooserActivity.getInstance();
         switch(baseFolderType) {
             case BASE_PATH_TYPE_FILES_DIR:
             case BASE_PATH_DEFAULT:
             case BASE_PATH_SECONDARY_STORAGE:
-                baseDirPath = getContext().getFilesDir();
+                baseDirPath = appCtx.getFilesDir();
                 break;
             case BASE_PATH_TYPE_CACHE_DIR:
-                baseDirPath = getContext().getCacheDir();
+                baseDirPath = appCtx.getCacheDir();
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS:
-                baseDirPath = getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES:
-                baseDirPath = getContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MUSIC:
-                baseDirPath = getContext().getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOCUMENTS:
-                baseDirPath = getContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DCIM:
-                baseDirPath = getContext().getExternalFilesDir(Environment.DIRECTORY_DCIM);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DCIM);
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES:
-                baseDirPath = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS:
-                baseDirPath = getContext().getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
                 break;
             case BASE_PATH_TYPE_EXTERNAL_CACHE_DIR:
             case BASE_PATH_TYPE_SDCARD:
-                baseDirPath = getContext().getExternalCacheDir();
+                baseDirPath = appCtx.getExternalCacheDir();
                 break;
             case BASE_PATH_TYPE_USER_DATA_DIR:
-                baseDirPath = getContext().getDataDir();
+                baseDirPath = appCtx.getDataDir();
             case BASE_PATH_TYPE_MEDIA_STORE:
             case BASE_PATH_EXTERNAL_PROVIDER:
             default:
@@ -139,7 +144,12 @@ public class BasicFileProvider extends DocumentsProvider {
 
     @Override
     public boolean onCreate() {
-        baseDirPath = selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        if(fileProviderStaticInst != null) {
+            fileProviderStaticInst = this;
+        }
+        if(FileChooserActivity.getInstance() != null) {
+            baseDirPath = selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        }
         return true;
     }
 

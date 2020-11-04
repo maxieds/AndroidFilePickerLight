@@ -22,6 +22,7 @@ import android.content.ContentProvider;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
+import android.util.TypedValue;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -36,10 +37,16 @@ public class FileChooserBuilder implements Serializable {
 
     private static String LOGTAG = FileChooserBuilder.class.getSimpleName();
 
-    //private static WeakReference<FileChooserActivity> activityContextRef;
-    //public void setActivityContext(FileChooserActivity activityRef) {
-    //    activityContextRef = new WeakReference<FileChooserActivity>(activityRef);
-    //}
+    private static Activity callingActivityStaticInst = FileChooserActivity.getInstance();
+
+    public static Drawable resolveDrawableFromAttribute(int attrID) {
+        if(callingActivityStaticInst == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
+        }
+        TypedValue typedValueAttr = new TypedValue();
+        callingActivityStaticInst.getTheme().resolveAttribute(attrID, typedValueAttr, true);
+        return callingActivityStaticInst.getDrawable(typedValueAttr.resourceId);
+    }
 
     public enum DefaultNavFoldersType {
 
@@ -54,13 +61,13 @@ public class FileChooserBuilder implements Serializable {
         public static final Map<DefaultNavFoldersType, String> NAV_FOLDER_NAME_LOOKUP_MAP = new HashMap<>();
         public static final Map<DefaultNavFoldersType, String> NAV_FOLDER_DESC_MAP = new HashMap<>();
         public static final Map<DefaultNavFoldersType, BaseFolderPathType> NAV_FOLDER_PATHS_MAP = new HashMap<>();
-        public static final Map<DefaultNavFoldersType, Drawable> NAV_FOLDER_ICON_RESIDS_MAP = new HashMap<>();
+        public static final Map<DefaultNavFoldersType, Integer> NAV_FOLDER_ICON_RESIDS_MAP = new HashMap<>();
         static {
             for (DefaultNavFoldersType navType : values()) {
                 NAV_FOLDER_NAME_LOOKUP_MAP.put(navType, navType.toString());
                 NAV_FOLDER_DESC_MAP.put(navType, navType.getFolderLabel());
                 NAV_FOLDER_PATHS_MAP.put(navType, navType.getBaseFolderPathType());
-                NAV_FOLDER_ICON_RESIDS_MAP.put(navType, navType.getFolderIconDrawable());
+                NAV_FOLDER_ICON_RESIDS_MAP.put(navType, navType.getFolderIconResId());
             }
         }
 
@@ -69,7 +76,7 @@ public class FileChooserBuilder implements Serializable {
         private int folderIconResId;
         private Drawable customIconObj;
 
-        private DefaultNavFoldersType(String folderLabel, int folderIconResId, BaseFolderPathType baseFolderSpec) {
+        DefaultNavFoldersType(String folderLabel, int folderIconResId, BaseFolderPathType baseFolderSpec) {
             this.folderLabel = folderLabel;
             this.baseFolderSpec = baseFolderSpec;
             this.folderIconResId = folderIconResId;
@@ -84,9 +91,13 @@ public class FileChooserBuilder implements Serializable {
             return baseFolderSpec;
         }
 
+        public int getFolderIconResId() {
+            return folderIconResId;
+        }
+
         public Drawable getFolderIconDrawable() {
             if(customIconObj == null) {
-                return GradientDrawableFactory.getDrawableFromResource(folderIconResId);
+                return resolveDrawableFromAttribute(folderIconResId);
             }
             return customIconObj;
         }
@@ -122,7 +133,19 @@ public class FileChooserBuilder implements Serializable {
         BASE_PATH_TYPE_SDCARD,
         BASE_PATH_SECONDARY_STORAGE,
         BASE_PATH_DEFAULT,
-        BASE_PATH_EXTERNAL_PROVIDER
+        BASE_PATH_EXTERNAL_PROVIDER;
+
+        public static final Map<Integer, BaseFolderPathType> NAV_FOLDER_ICON_RESIDS_MAP = new HashMap<>();
+        static {
+            for (BaseFolderPathType folderType : values()) {
+                NAV_FOLDER_ICON_RESIDS_MAP.put(folderType.ordinal(), folderType);
+            }
+        }
+
+        public static BaseFolderPathType getInstanceByName(BaseFolderPathType folderTypeName) {
+            return BaseFolderPathType.NAV_FOLDER_ICON_RESIDS_MAP.get(folderTypeName.ordinal());
+        }
+
     }
 
     public enum SelectionModeType {
@@ -155,6 +178,7 @@ public class FileChooserBuilder implements Serializable {
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
 
     public FileChooserBuilder(Activity activityContextInst) {
+        callingActivityStaticInst = activityContextInst;
         activityContextRef = new WeakReference<Activity>(activityContextInst);
         defaultExceptionType = FileChooserException.CommunicateSelectionDataException.getNewInstance();
         displayUIConfig = DisplayConfigInterface.getDefaultsInstance();
@@ -163,7 +187,7 @@ public class FileChooserBuilder implements Serializable {
         showHidden = false;
         maxSelectedFiles = DEFAULT_MAX_SELECTED_FILES;
         localThemeResId = R.style.LibraryDefaultTheme;
-        initFolderBasePathType = BaseFolderPathType.BASE_PATH_TYPE_FILES_DIR;
+        initFolderBasePathType = BaseFolderPathType.getInstanceByName(BaseFolderPathType.BASE_PATH_TYPE_FILES_DIR);
         pathSelectMode = SelectionModeType.SELECT_OMNIVORE;
         externalFilesProvider = null;
         idleTimeoutMillis = NO_ABORT_TIMEOUT;
@@ -171,6 +195,7 @@ public class FileChooserBuilder implements Serializable {
     }
 
     public static FileChooserBuilder getSingleFilePickerInstance(Activity activityContextInst) {
+        callingActivityStaticInst = activityContextInst;
         FileChooserBuilder pickerBuilderInst = new FileChooserBuilder(activityContextInst);
         pickerBuilderInst.setSelectionMode(SelectionModeType.SELECT_DIRECTORY_ONLY);
         pickerBuilderInst.maxSelectedFiles = 1;
@@ -179,6 +204,7 @@ public class FileChooserBuilder implements Serializable {
     }
 
     public static FileChooserBuilder getDirectoryChooserInstance(Activity activityContextInst) {
+        callingActivityStaticInst = activityContextInst;
         FileChooserBuilder pickerBuilderInst = new FileChooserBuilder(activityContextInst);
         pickerBuilderInst.setSelectionMode(SelectionModeType.SELECT_FILE);
         pickerBuilderInst.maxSelectedFiles = 1;
@@ -231,7 +257,7 @@ public class FileChooserBuilder implements Serializable {
 
     public FileChooserBuilder setPickerInitialPath(BaseFolderPathType storageAccessBase) {
         initFolderBasePathType = storageAccessBase;
-        FileChooserActivity.getFileProviderInstance().selectBaseDirectoryByType(storageAccessBase);
+        //BasicFileProvider.getInstance().selectBaseDirectoryByType(storageAccessBase);
         return this;
     }
 
@@ -342,10 +368,11 @@ public class FileChooserBuilder implements Serializable {
     public static final String FILE_PICKER_INTENT_DATA_PAYLOAD_KEY = "FilePickerSelectedIntentDataPayloadList";
 
     public <DataItemTypeT extends Object> List<DataItemTypeT> launchFilePicker() throws FileChooserException.AndroidFilePickerLightException {
-        Intent launchPickerIntent = new Intent(activityContextRef.get(), FileChooserActivity.class);
+        Intent launchPickerIntent = new Intent(activityContextRef.get().getApplicationContext(), FileChooserActivity.class);
         launchPickerIntent.setAction(Intent.ACTION_PICK_ACTIVITY);
         launchPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        launchPickerIntent.putExtra(FILE_PICKER_BUILDER_EXTRA_DATA_KEY, this);
+        //launchPickerIntent.putExtra(FILE_PICKER_BUILDER_EXTRA_DATA_KEY, this);
+        FileChooserActivity.activityBuilderLaunchedRefs.push(this);
         activityContextRef.get().startActivityForResult(launchPickerIntent, activityActionCode);
         try {
             Looper.loop();

@@ -21,7 +21,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/mainLayoutToolbarActionBar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?colorPrimaryVeryDark" />
+        android:background="?__colorPrimaryVeryDark" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -41,7 +41,7 @@
         android:layout_marginLeft="8dp"
         android:layout_gravity="right|center_vertical"
         android:gravity="right|center_vertical"
-        android:background="?colorPrimary"
+        android:background="?__colorPrimary"
         android:orientation="horizontal"
         >
 
@@ -57,12 +57,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:background="?colorPrimary"
+            android:background="?__colorPrimary"
             android:drawableLeft="@drawable/done_button_check_icon24"
             android:drawablePadding="10dp"
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
-            android:textColor="?colorAccent"
+            android:textColor="?__colorAccent"
             android:text="Done"
             android:tag="ACTION_BUTTON_DONE" />
 
@@ -72,12 +72,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:background="?colorPrimary"
+            android:background="?__colorPrimary"
             android:drawableLeft="@drawable/cancel_button_x_icon24"
             android:drawablePadding="10dp"
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
-            android:textColor="?colorAccent"
+            android:textColor="?__colorAccent"
             android:text="Cancel"
             android:tag="ACTION_BUTTON_DONE" />
 
@@ -86,7 +86,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?colorPrimaryVeryDark" />
+        android:background="?__colorPrimaryVeryDark" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -97,7 +97,7 @@
         android:layout_marginLeft="8dp"
         android:layout_gravity="right|center_vertical"
         android:gravity="right|center_vertical"
-        android:background="?colorPrimary"
+        android:background="?__colorPrimary"
         android:orientation="vertical"
         >
 
@@ -122,7 +122,7 @@
             android:layout_marginLeft="8dp"
             android:layout_gravity="center_horizontal|center_vertical"
             android:gravity="center_horizontal|center_vertical"
-            android:background="?colorPrimary"
+            android:background="?__colorPrimary"
             android:orientation="horizontal"
             >
         </LinearLayout>
@@ -132,7 +132,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?colorPrimaryVeryDark" />
+        android:background="?__colorPrimaryVeryDark" />
 
     <LinearLayout
         android:id="@+id/mainDirPrevPathsNavContainer"
@@ -144,7 +144,7 @@
         android:layout_marginLeft="8dp"
         android:layout_gravity="center_horizontal|center_vertical"
         android:gravity="center_horizontal|center_vertical"
-        android:background="?colorPrimary"
+        android:background="?__colorPrimary"
         android:orientation="horizontal"
         >
 
@@ -179,7 +179,7 @@
             android:id="@+id/mainDirNavBackTwoPathDisplayText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?colorPrimary"
+            android:background="?__colorPrimary"
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
             android:text="@string/filePickerNavBarText"
@@ -210,7 +210,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?colorPrimaryVeryDark" />
+        android:background="?__colorPrimaryVeryDark" />
 
     <ScrollView
         android:id="@+id/tools_menu_scroll_view"
@@ -221,7 +221,7 @@
         android:scrollbarSize="25dp"
         android:verticalScrollbarPosition="right">
 
-        <RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/mainRecyclerViewContainer"
             android:scrollbars="vertical"
             android:layout_width="match_parent"

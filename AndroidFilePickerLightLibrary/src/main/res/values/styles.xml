@@ -37,22 +37,22 @@
         <item name="namedFolderMediaIcon">@drawable/named_folder_media_icon32</item>
         <item name="mainToolbarBackgroundColor">@color/colorMainToolbarBackground</item>
         <item name="mainToolbarForegroundTextColor">@color/colorMainToolbarForegroundText</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorPrimaryVeryDark">@color/colorPrimaryVeryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="__colorPrimary">@color/colorPrimary</item>
+        <item name="__colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="__colorPrimaryVeryDark">@color/__colorPrimaryVeryDark</item>
+        <item name="__colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="LibraryLightTheme" parent="LibraryDefaultTheme">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="__colorPrimary">@color/colorPrimary</item>
+        <item name="__colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="__colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="LibraryDarkTheme" parent="LibraryDefaultTheme">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="__colorPrimary">@color/colorPrimary</item>
+        <item name="__colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="__colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="SelectionCheckBoxStyle">

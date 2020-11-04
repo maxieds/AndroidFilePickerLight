@@ -25,19 +25,16 @@
     <uses-permission android:name="android.permission.INTERNET" android:required="false" />
 
     <application
-        android:name=".LibraryApplication"
         android:launchMode="singleTop"
         android:noHistory="false"
         android:excludeFromRecents="false"
         android:hardwareAccelerated="true"
         android:supportsRtl="true"
-        android:manageSpaceActivity=".FileChooserActivity"
         android:defaultToDeviceProtectedStorage="true"
         android:usesCleartextTraffic="false"
         android:installLocation="preferExternal"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
-        android:allowBackup="true"
         >
 
         <activity
@@ -48,7 +45,7 @@
             android:hardwareAccelerated="true"
             android:uiOptions="none"
             android:stateNotNeeded="true"
-            android:exported="false"
+            android:exported="true"
             android:grantUriPermissions="true"
             >
 
@@ -65,8 +62,11 @@
             android:name="com.maxieds.androidfilepickerlightlibrary.BasicFileProvider"
             android:authorities="com.maxieds.androidfilepickerlightlibrary.FileChooserActivity"
             android:exported="true"
+            android:enabled="true"
             android:grantUriPermissions="true"
-            android:permission="android.permission.MANAGE_DOCUMENTS">
+            android:permission="android.permission.MANAGE_DOCUMENTS"
+            android:initOrder="100"
+            >
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>

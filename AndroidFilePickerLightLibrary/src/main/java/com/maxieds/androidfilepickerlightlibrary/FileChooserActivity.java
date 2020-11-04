@@ -27,7 +27,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Stack;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -46,11 +47,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     private static String LOGTAG = FileChooserActivity.class.getSimpleName();
 
-    private static BasicFileProvider defaultFileProviderStaticInst = new BasicFileProvider();
-    public static BasicFileProvider getFileProviderInstance() { return defaultFileProviderStaticInst; }
-
-    private static FileChooserActivity staticRunningInst = null;
+    public static FileChooserActivity staticRunningInst = null;
     public static FileChooserActivity getInstance() { return staticRunningInst; }
+
+    public static Stack<FileChooserBuilder> activityBuilderLaunchedRefs = new Stack<FileChooserBuilder>();
 
     @ColorInt
     public static int getColorVariantFromTheme(int attrID) {
@@ -83,7 +83,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         super.onCreate(lastSettingsBundle);
         setUnhandledExceptionHandler();
-        if(getIntent() == null || getIntent().getAction() == null || !getIntent().getAction().equals(Intent.ACTION_PICK_ACTIVITY)) {
+        if(getIntent() == null || getIntent().getAction() == null ||
+                !getIntent().getAction().equals(Intent.ACTION_PICK_ACTIVITY) ||
+                activityBuilderLaunchedRefs.empty()) {
             finish();
             System.exit(0);
         }
@@ -94,9 +96,11 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         AndroidPermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
         AndroidPermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
-        FileChooserBuilder fpConfig = (FileChooserBuilder) getIntent().getSerializableExtra(FileChooserBuilder.FILE_PICKER_BUILDER_EXTRA_DATA_KEY);
+        FileChooserBuilder fpConfig = activityBuilderLaunchedRefs.pop();
+
+        setTheme(R.style.LibraryDefaultTheme);
         setContentView(R.layout.main_picker_activity_base_layout);
-        configureInitialMainLayout(fpConfig);
+        //configureInitialMainLayout(fpConfig);
 
         // Keep the app from crashing when the screen rotates:
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -122,6 +126,17 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             execIdleTimeoutHandler.postDelayed(execIdleTimeoutRunner, idleTimeout);
         }
 
+        final FileChooserBuilder fpCfgConst = fpConfig;
+        Handler  execDelayedFileProviderInitHandler = new Handler();
+        Runnable execDelayedFileProviderInitRunner = new Runnable() {
+            @Override
+            public void run() {
+                configureInitialMainLayout(fpConfig);
+                BasicFileProvider.getInstance().selectBaseDirectoryByType(fpConfig.getInitialBaseFolder());
+            }
+        };
+        execDelayedFileProviderInitHandler.postDelayed(execDelayedFileProviderInitRunner, 650);
+
     }
 
     private void configureInitialMainLayout(FileChooserBuilder fpConfig) {
@@ -133,6 +148,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getWindow().setTitleColor(getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
         getWindow().setStatusBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
         getWindow().setNavigationBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
+        setSupportActionBar(actionBar);
 
         /* Initialize the next level of nav for the default folder paths selection buttons: */
         List<FileChooserBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
@@ -141,7 +157,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             FileChooserBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
             ImageButton dirNavBtn = new ImageButton(this);
             dirNavBtn.setPadding(10, 10, 10, 10);
-            dirNavBtn.setImageDrawable(FileChooserBuilder.DefaultNavFoldersType.NAV_FOLDER_ICON_RESIDS_MAP.get(baseFolderType));
+            dirNavBtn.setImageDrawable(FileChooserBuilder.resolveDrawableFromAttribute(
+                    FileChooserBuilder.DefaultNavFoldersType.NAV_FOLDER_ICON_RESIDS_MAP.get(baseFolderType).intValue()));
             dirNavBtn.setTag(baseFolderType);
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
                 @Override
@@ -207,11 +224,11 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                      GradientDrawableFactory.GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR,
                      GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
                      45.0f,
-                     getColorVariantFromTheme(R.color.colorTransparent),
+                     getColorVariantFromTheme(R.color.__colorTransparent),
                      new int[] {
-                             getColorVariantFromTheme(R.attr.colorPrimaryVeryDark),
-                             getColorVariantFromTheme(R.attr.colorAccent),
-                             getColorVariantFromTheme(R.attr.colorPrimaryDark)
+                             getColorVariantFromTheme(R.attr.__colorPrimaryVeryDark),
+                             getColorVariantFromTheme(R.attr.__colorAccent),
+                             getColorVariantFromTheme(R.attr.__colorPrimaryDark)
                      }
                 )
         );

@@ -37,7 +37,8 @@ public class AndroidPermissionsHandler {
         }
         for(int pidx = 0; pidx < permsList.length; pidx++) {
             if(!hasAccessPermission(activityCtx, permsList[pidx])) {
-                throw new FileChooserException.PermissionsErrorException();
+                //throw new FileChooserException.PermissionsErrorException();
+                return false;
             }
         }
         return true;

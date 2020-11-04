@@ -31,7 +31,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="?colorAccent" />
+        android:background="?__colorAccent" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -42,7 +42,7 @@
         android:layout_marginLeft="8dp"
         android:layout_gravity="center_horizontal|center_vertical"
         android:gravity="center_horizontal|center_vertical"
-        android:background="?colorPrimary"
+        android:background="?__colorPrimary"
         android:orientation="horizontal"
         >
 
@@ -66,11 +66,11 @@
             android:id="@+id/fileEntrySizeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?colorPrimary"
+            android:background="?__colorPrimary"
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
             android:text="0B"
-            android:textColor="?colorAccent"
+            android:textColor="?__colorAccent"
             android:textSize="10sp"
             android:textStyle="normal|bold"
             android:typeface="serif"
@@ -80,11 +80,11 @@
             android:id="@+id/fileEntryPermsSummaryText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?colorPrimary"
+            android:background="?__colorPrimary"
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
             android:text="0755"
-            android:textColor="?colorAccent"
+            android:textColor="?__colorAccent"
             android:textSize="9sp"
             android:textStyle="normal|italic"
             android:typeface="monospace"
@@ -101,11 +101,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingRight="12dp"
-            android:background="?colorPrimary"
+            android:background="?__colorPrimary"
             android:gravity="left|center_vertical"
             android:layout_gravity="left|center_vertical"
             android:text="fileBaseName.ext"
-            android:textColor="?colorAccent"
+            android:textColor="?__colorAccent"
             android:textSize="14sp"
             android:textStyle="normal"
             android:typeface="monospace"
@@ -116,6 +116,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="?colorAccent" />
+        android:background="?__colorAccent" />
 
 </LinearLayout>
