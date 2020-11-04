@@ -23,6 +23,8 @@ import android.graphics.drawable.Drawable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -86,7 +88,7 @@ public class FileTypes {
 
         public DirectoryResultContext(MatrixCursor mcResult, MatrixCursor parentDirCtx) {
             initMatrixCursorListing = mcResult;
-            directoryContentsList = getDirectoryContents(initMatrixCursorListing);
+            computeDirectoryContents();
             if(parentDirCtx != null) {
                 BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
                 activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(parentDirCtx);
@@ -98,9 +100,9 @@ public class FileTypes {
             return directoryContentsList;
         }
 
-        // TODO: Later will need to perform the filtering and sorted order operations on the returned list ...
-        private List<FileType> getDirectoryContents(MatrixCursor mcResult) {
+        public void computeDirectoryContents() {
             BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+            MatrixCursor mcResult = initMatrixCursorListing;
             mcResult.moveToFirst();
             List<FileType> filesDataList = new ArrayList<FileType>();
             for(int mcRowIdx = 0; mcRowIdx < mcResult.getCount(); mcRowIdx++) {
@@ -111,11 +113,12 @@ public class FileTypes {
                 mcResult.moveToNext();
             }
             mcResult.moveToFirst();
-            return filesDataList;
+            directoryContentsList = filesDataList;
         }
 
         public DirectoryResultContext loadNextFolderAtIndex(int posIndex) {
             BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+            directoryContentsList.clear();
             pathHistoryStack.push(this);
             MatrixCursor nextDirCursor = null;
             try {
@@ -207,6 +210,14 @@ public class FileTypes {
             isChecked = enable;
         }
 
+    }
+
+    public static class FileItemsListSortFunc {
+        public static List<FileType> sortFileItemsList(List<FileType> fileItemsList) {
+            // default is standard lexicographical ordering (override in base classes for customized sorting):
+            Collections.sort(fileItemsList, (fi1, fi2) -> { return fi1.getAbsolutePath().compareTo(fi2.getAbsolutePath()); });
+            return fileItemsList;
+        }
     }
 
 }

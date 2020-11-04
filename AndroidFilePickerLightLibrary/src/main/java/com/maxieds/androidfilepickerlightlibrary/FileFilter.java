@@ -94,7 +94,7 @@ public class FileFilter {
         }
         public boolean fileMatchesFilter(FileTypes.FileType fileItem) {
             for(int mtIdx = 0; mtIdx < defaultTypesList.size(); mtIdx++) {
-                if(true) { /* TODO */
+                if(true) {
                     throw new FilePickerException.NotImplementedException();
                 }
             }

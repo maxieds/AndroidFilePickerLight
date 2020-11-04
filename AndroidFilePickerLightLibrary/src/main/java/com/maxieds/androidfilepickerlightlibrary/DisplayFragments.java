@@ -18,6 +18,7 @@
 package com.maxieds.androidfilepickerlightlibrary;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,7 +41,7 @@ public class DisplayFragments {
         private int displayPositionIndex;
         private boolean isCheckable;
         public static RecyclerView mainFileListRecyclerView;
-        public static RecyclerView.Adapter rvAdapter;
+        public static DisplayAdapters.FileListAdapter rvAdapter;
         public static RecyclerView.LayoutManager rvLayoutManager;
 
         public FileListItemFragment(FileTypes.FileType fileItem, int displayPosition) {
@@ -54,7 +55,7 @@ public class DisplayFragments {
         public static void createNewFragmentFromView(View mainContainerLayout) {
             RecyclerView recyclerViewDisplay = (RecyclerView) FileChooserActivity.getInstance().findViewById(R.id.mainRecyclerViewContainer);
             mainFileListRecyclerView = recyclerViewDisplay;
-            //recyclerViewDisplay.setHasFixedSize(true);
+            recyclerViewDisplay.setHasFixedSize(true); // TODO: Check if this causes errors ...
             rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
             recyclerViewDisplay.setLayoutManager(rvLayoutManager);
             rvAdapter = new DisplayAdapters.FileListAdapter(new ArrayList<String>()); // TODO: Is this where we need to initialize the View with the initial dir contents?
@@ -116,13 +117,28 @@ public class DisplayFragments {
             globalNavBackBtn = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavGlobalBackBtn);
             dirsTwoBackText.setText("----");
             dirsOneBackText.setText("----");
-            // TODO: set back button onClick handler here ...
+            Button.OnClickListener backBtnClickListener = new Button.OnClickListener() {
+                @Override
+                public void onClick(View btnView) {
+                     if(FileTypes.DirectoryResultContext.pathHistoryStack.empty()) {
+                         DisplayFragments.cancelAllOperationsInProgress();
+                         FileChooserActivity.getInstance().postSelectedFilesActivityResult();
+                     }
+                     FileTypes.DirectoryResultContext lastWorkingDir = FileTypes.DirectoryResultContext.pathHistoryStack.pop();
+                     lastWorkingDir.computeDirectoryContents();
+                     DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(lastWorkingDir.getWorkingDirectoryContents());
+                }
+            };
+            globalNavBackBtn.setOnClickListener(backBtnClickListener);
             return folderNavFragment;
         }
     }
 
     public static void cancelAllOperationsInProgress() {
         // TODO: Need a way to cleanup any hanging processes with the file system before quitting the activity ...
+        // Can we run the FileProvider routines in a thread and then kill it if the user wants another op before
+        // it has finished?
+        // (Not sure if this violates the premise of calling things by Intent only ??? )
     }
 
 }

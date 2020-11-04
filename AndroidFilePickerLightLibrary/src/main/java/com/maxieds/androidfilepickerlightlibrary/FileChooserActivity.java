@@ -99,6 +99,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
+        DisplayAdapters.FileListAdapter.localFilesListFilter = fpConfig.getFileFilter();
+        DisplayAdapters.FileListAdapter.localFilesListSortFunc = fpConfig.getCustomSortFunc();
+
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FilePickerBuilder.NO_ABORT_TIMEOUT) {
             Handler execIdleTimeoutHandler = new Handler();
@@ -125,13 +128,36 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         /* Initialize the next level of nav for the default folder paths selection buttons: */
         List<FilePickerBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
-        LinearLayout fileDirsNavButtonsContainer = (LinearLayout) findViewById(R.id.mainFileNavBtnsContainer);
+        final LinearLayout fileDirsNavButtonsContainer = (LinearLayout) findViewById(R.id.mainFileNavBtnsContainer);
         for(int folderIdx = 0; folderIdx < defaultDirNavFolders.size(); folderIdx++) {
             FilePickerBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
             ImageButton dirNavBtn = new ImageButton(this);
             dirNavBtn.setPadding(10, 10, 10, 10);
             dirNavBtn.setImageDrawable(FilePickerBuilder.DefaultNavFoldersType.NAV_FOLDER_ICON_RESIDS_MAP.get(baseFolderType));
-            dirNavBtn.setTag(baseFolderType.toString());
+            dirNavBtn.setTag(baseFolderType);
+            Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
+                @Override
+                public void onClick(View btnView) {
+                    DisplayFragments.cancelAllOperationsInProgress();
+                    FileTypes.DirectoryResultContext.pathHistoryStack.clear(); // reset the directory traversal history
+                    FilePickerBuilder.BaseFolderPathType navBtnInitFolder = (FilePickerBuilder.BaseFolderPathType) btnView.getTag();
+                    FileTypes.DirectoryResultContext newCwdContext = FileTypes.DirectoryResultContext.probeAtCursoryFolderQuery(navBtnInitFolder);
+                    FileTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
+                    DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
+                    Button navBtn = (Button) btnView;
+                    navBtn.setEnabled(false);
+                    navBtn.setElevation(-1.0f);
+                    // Re-enable all of the other stock directory nav buttons:
+                    for(int btnIdx = 0; btnIdx < fileDirsNavButtonsContainer.getChildCount(); btnIdx++) {
+                        Button nextNavBtn = (Button) fileDirsNavButtonsContainer.getChildAt(btnIdx);
+                        if(!navBtn.equals(nextNavBtn)) {
+                            nextNavBtn.setEnabled(true);
+                            nextNavBtn.setElevation(0.0f);
+                        }
+                    }
+                }
+            };
+            dirNavBtn.setOnClickListener(stockDirNavBtnClickHandler);
         }
 
         /* The next level of navigation in a top down order is the action buttons to finish or cancel

@@ -69,13 +69,16 @@
 
         <provider
             android:name="com.maxieds.androidfilepickerlightlibrary.BasicFileProvider"
-            android:authorities="com.maxieds.androidfilepickerlightlibrary.documents"
+            android:authorities="com.maxieds.androidfilepickerlightlibrary.FileChooserActivity"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths_base" />
         </provider>
 
     </application>

@@ -151,6 +151,7 @@ public class FilePickerBuilder implements Serializable {
     private ContentProvider externalFilesProvider;
     private long idleTimeoutMillis;
     private FileFilter.FileFilterInterface localFileFilter;
+    private FileTypes.FileItemsListSortFunc customSortFunc;
 
     public static final long NO_ABORT_TIMEOUT = -1;
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
@@ -263,8 +264,9 @@ public class FilePickerBuilder implements Serializable {
         throw new FilePickerException.NotImplementedException();
     }
 
-    public FilePickerBuilder setFilesListSortCompareFunction() {
-        throw new FilePickerException.NotImplementedException();
+    public FilePickerBuilder setFilesListSortCompareFunction(FileTypes.FileItemsListSortFunc customSortFunc) {
+        this.customSortFunc = customSortFunc;
+        return this;
     }
 
     public FilePickerBuilder setExternalFilesProvider(ContentProvider extFileProvider) {
@@ -301,6 +303,30 @@ public class FilePickerBuilder implements Serializable {
 
     public FileFilter.FileFilterInterface getFileFilter() {
         return localFileFilter;
+    }
+
+    public FileTypes.FileItemsListSortFunc getCustomSortFunc() {
+        return customSortFunc;
+    }
+
+    public static List<FileTypes.FileType> filterAndSortFileItemsList(List<FileTypes.FileType> inputFileItems,
+                                                                      FileFilter.FileFilterInterface fileFilter, FileTypes.FileItemsListSortFunc sortCompFunc) {
+        List<FileTypes.FileType> allowedFileItemsList = new ArrayList<FileTypes.FileType>();
+        for(FileTypes.FileType fileItem : inputFileItems) {
+            if(fileFilter == null) {
+                allowedFileItemsList = inputFileItems;
+                break;
+            }
+            if(fileFilter.fileMatchesFilter(fileItem)) {
+                allowedFileItemsList.add(fileItem);
+            }
+        }
+        if(sortCompFunc != null) {
+            return sortCompFunc.sortFileItemsList(allowedFileItemsList);
+        }
+        else {
+            return allowedFileItemsList;
+        }
     }
 
     public static final String FILE_PICKER_BUILDER_EXTRA_DATA_KEY = "FilePickerBuilderExtraData";

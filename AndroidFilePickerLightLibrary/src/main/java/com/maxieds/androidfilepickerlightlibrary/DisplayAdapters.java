@@ -21,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,9 +33,12 @@ public class DisplayAdapters {
 
     public static class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHolder> {
 
-        private List<String> data;
+        public static FileFilter.FileFilterInterface localFilesListFilter = null;
+        public static FileTypes.FileItemsListSortFunc localFilesListSortFunc = null;
+
+        private List<String> fileListData;
         public FileListAdapter(List<String> data){
-            this.data = data;
+            this.fileListData = data;
         }
 
         @Override
@@ -47,12 +49,12 @@ public class DisplayAdapters {
 
         @Override
         public void onBindViewHolder(FileListAdapter.ViewHolder holder, int position) {
-            holder.textView.setText(this.data.get(position));
+            holder.textView.setText(fileListData.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return this.data.size();
+            return fileListData.size();
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -69,6 +71,14 @@ public class DisplayAdapters {
                 DisplayUtils.displayToastMessageShort(String.format(Locale.getDefault(), "POS @ %d && TEXT @ %s", getLayoutPosition(), this.textView.getText()));
             }
         }
+
+        public void displayNextDirectoryFilesList(List<FileTypes.FileType> workingDirContentsList) {
+            List<FileTypes.FileType> filteredFileContents = FilePickerBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
+            DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
+            DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText("----");
+            DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(filteredFileContents);
+        }
+
     }
 
 
