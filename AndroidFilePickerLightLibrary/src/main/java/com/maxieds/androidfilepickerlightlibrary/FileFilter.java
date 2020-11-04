@@ -29,7 +29,7 @@ public class FileFilter {
         static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FilePickerBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
         static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FilePickerBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
 
-        void setIncludeExcludeMatchesOption(boolean includeExcludeParam);
+        void    setIncludeExcludeMatchesOption(boolean includeExcludeParam);
         boolean includeFileInSearchResults(FileTypes.FileType fileItem);
         boolean fileMatchesFilter(FileTypes.FileType fileItem);
 

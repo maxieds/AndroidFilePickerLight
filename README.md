@@ -326,7 +326,7 @@ customUIDisplayCfg.setDefaultChooserIcon(Drawable replacementIcon, NamedDisplayI
 
 ```
 
-### Misc other useful utilities and examples (TODO)
+### Misc other useful utilities and customizations bundled with the main library
 
 ### Displaying a visual linear bar style progress bar for slow directory loads
 
@@ -340,14 +340,77 @@ let the user know that the directory is loading and that the client application 
 
 To invoke this progress bar display in realtime, consider calling the following code examples:
 ```java
-TODO
+DisplayUtils.DisplayProgressBar(String waitingOnProcessLabel, int curPos, int totalPos);
+DisplayUtils.EnableProgressBarDisplay(true);
+// ... Then whenever the long process completes, kill the progress bar update callbacks with: ...
+DisplayUtils.EnableProgressBarDisplay(true);
 ```
+In principle, the status bar is useful when the underlying operation takes longer than, say 8-10 seconds to complete. 
+This code is modified from a status timer to keep the user informed while scanning for a long duration read of 
+NFC tags on Android (see [the MFCToolLibrary](https://github.com/maxieds/MifareClassicToolLibrary) and 
+its demo application). The core of the progress bar is 
+shown by periodically posting Toast messages with a custom layout ``View``. Please post a new issue message 
+if anyone using this library in their own application finds this useful, or amusing too.
 
 #### Overriding the default file and directory sorting
 
+An example of how to do this is already seen by glancing through the sources. 
+In particular, we define an extendable base class as follows: 
+```java
+    public static class FileItemsListSortFunc {
+        public static List<FileType> sortFileItemsList(List<FileType> fileItemsList) {
+            // default is standard lexicographical ordering (override in base classes for customized sorting):
+            Collections.sort(fileItemsList, (fi1, fi2) -> { return fi1.getAbsolutePath().compareTo(fi2.getAbsolutePath()); });
+            return fileItemsList;
+        }
+    }
+```
+Subclasses that override the method above are free to sort the file 
+contents in the order that they are best displayed in the client application. 
+Some examples would be to override the default of placing directories at the top of the 
+files list, to perform a case-insensitive lexicographical sort (like happens on many Linux), 
+or otherwise to prioritize the file rankings where the most importantly valued presentations 
+are shown first. 
+
+Note that in the source the custom objects to filter (match, then include/exclude) the full 
+directory listings, and then sort those files that remain are applied together. See, for example, 
+the next code:
+```java
+    public static List<FileTypes.FileType> filterAndSortFileItemsList(List<FileTypes.FileType> inputFileItems,
+                                                                      FileFilter.FileFilterInterface fileFilter, FileTypes.FileItemsListSortFunc sortCompFunc) {
+        List<FileTypes.FileType> allowedFileItemsList = new ArrayList<FileTypes.FileType>();
+        for(FileTypes.FileType fileItem : inputFileItems) {
+            if(fileFilter == null) {
+                allowedFileItemsList = inputFileItems;
+                break;
+            }
+            if(fileFilter.fileMatchesFilter(fileItem)) {
+                allowedFileItemsList.add(fileItem);
+            }
+        }
+        if(sortCompFunc != null) {
+            return sortCompFunc.sortFileItemsList(allowedFileItemsList);
+        }
+        else {
+            return allowedFileItemsList;
+        }
+    }
+```
+
 #### Extending the inclusion/exclusion mechanism of files by type
 
-#### Sending the selected file to another application (or emailing the file results)
+The specification (by Java interface and a few utility derived instances) are found in the 
+library source file ``FileFilter.java``. The bulk of the interface is reproduced as 
+follows:
+```java
+    public interface FileFilterInterface {
 
-#### Extending the library as a picker to select more complicated media file types
+        static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FilePickerBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
+        static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FilePickerBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
 
+        void    setIncludeExcludeMatchesOption(boolean includeExcludeParam);
+        boolean includeFileInSearchResults(FileTypes.FileType fileItem);
+        boolean fileMatchesFilter(FileTypes.FileType fileItem);
+
+    }
+```

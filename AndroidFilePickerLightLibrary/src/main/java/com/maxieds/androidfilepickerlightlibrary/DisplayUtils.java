@@ -22,7 +22,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -56,7 +55,6 @@ public class DisplayUtils {
         }
         toastDisplay.getView().setAlpha(0.75f);
         toastDisplay.show();
-        Log.i(LOGTAG, "TOAST MSG DISPLAYED: " + toastMsg);
     }
 
     public static void displayToastMessageShort(String toastMsg) {

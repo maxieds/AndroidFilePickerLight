@@ -129,7 +129,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
         actionBar.setTitle(String.format(Locale.getDefault(), "%s | v%s", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
-        actionBar.setSubtitle(getString(R.string.filePickerTitleText)); /* TODO: Later, let the user override this default ... */
+        actionBar.setSubtitle(getString(R.string.filePickerTitleText));
         getWindow().setTitleColor(getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
         getWindow().setStatusBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
         getWindow().setNavigationBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));

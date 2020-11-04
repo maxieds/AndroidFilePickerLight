@@ -32,9 +32,6 @@ public class DisplayListeners {
 
     private static String LOGTAG = DisplayListeners.class.getSimpleName();
 
-    // when a file/directory is successfully selected, display a Toast message (LONG) :
-    // Selected FILE|DIR \"path\" ...
-
     public static class RecyclerViewTouchListener implements RecyclerView.OnItemTouchListener {
 
         public interface ClickListener {
