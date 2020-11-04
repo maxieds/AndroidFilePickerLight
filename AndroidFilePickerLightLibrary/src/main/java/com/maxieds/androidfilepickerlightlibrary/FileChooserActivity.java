@@ -60,9 +60,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     }
 
     private List<File> selectedFilePaths;
-    private Stack<FileTypes.FileType> pathHistoryStack = new Stack<FileTypes.FileType>();
     private DisplayFragments.FolderNavigationFragment mainFolderNavFragment = null;
-    private DisplayFragments.FileListItemFragment mainFileListFragment = null;
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -148,7 +146,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Button.OnClickListener quitActivityBtnClickListener = new Button.OnClickListener() {
             @Override
             public void onClick(View btnView) {
-                DisplayAdapters.cancelAllOperationsInProgress();
+                DisplayFragments.cancelAllOperationsInProgress();
                 getInstance().postSelectedFilesActivityResult();
             }
         };
@@ -185,7 +183,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                      }
                 )
         );
-        mainFileListFragment = DisplayFragments.FileListItemFragment.createNewFragmentFromView(mainFileListContainer);
+        DisplayFragments.FileListItemFragment.createNewFragmentFromView(mainFileListContainer);
 
     }
 

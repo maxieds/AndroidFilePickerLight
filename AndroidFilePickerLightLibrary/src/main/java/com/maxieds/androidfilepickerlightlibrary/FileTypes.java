@@ -17,9 +17,14 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.database.MatrixCursor;
 import android.graphics.drawable.Drawable;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 public class FileTypes {
 
@@ -70,14 +75,81 @@ public class FileTypes {
 
     }
 
+    public static class DirectoryResultContext {
+
+        public static Stack<DirectoryResultContext> pathHistoryStack = new Stack<FileTypes.DirectoryResultContext>();
+
+        private MatrixCursor initMatrixCursorListing;
+        private List<FileType> directoryContentsList;
+        private String activeCWDAbsPath;
+        private String activeDocId;
+
+        public DirectoryResultContext(MatrixCursor mcResult, MatrixCursor parentDirCtx) {
+            initMatrixCursorListing = mcResult;
+            directoryContentsList = getDirectoryContents(initMatrixCursorListing);
+            if(parentDirCtx != null) {
+                BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+                activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(parentDirCtx);
+                activeDocId = mcResult.getString(BasicFileProvider.ROOT_PROJ_DOCID_COLUMN_INDEX);
+            }
+        }
+
+        public List<FileType> getWorkingDirectoryContents() {
+            return directoryContentsList;
+        }
+
+        // TODO: Later will need to perform the filtering and sorted order operations on the returned list ...
+        private List<FileType> getDirectoryContents(MatrixCursor mcResult) {
+            BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+            mcResult.moveToFirst();
+            List<FileType> filesDataList = new ArrayList<FileType>();
+            for(int mcRowIdx = 0; mcRowIdx < mcResult.getCount(); mcRowIdx++) {
+                MatrixCursor mcRow = mcResult;
+                File fileOnDisk = fpInst.getFileAtCurrentRow(mcResult);
+                FileType nextFileItem = new FileType(fileOnDisk, this);
+                filesDataList.add(nextFileItem);
+                mcResult.moveToNext();
+            }
+            mcResult.moveToFirst();
+            return filesDataList;
+        }
+
+        public DirectoryResultContext loadNextFolderAtIndex(int posIndex) {
+            BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+            pathHistoryStack.push(this);
+            MatrixCursor nextDirCursor = null;
+            try {
+                nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(activeDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
+            } catch(Exception ioe) {
+                ioe.printStackTrace();
+                pathHistoryStack.pop();
+                return null;
+            }
+            return new DirectoryResultContext(nextDirCursor, initMatrixCursorListing);
+        }
+
+        public static DirectoryResultContext probeAtCursoryFolderQuery(FilePickerBuilder.BaseFolderPathType baseFolderChoice) {
+            BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
+            fpInst.selectBaseDirectoryByType(baseFolderChoice);
+            try {
+                MatrixCursor cursoryProbe = (MatrixCursor) fpInst.queryRoots(BasicFileProvider.DEFAULT_ROOT_PROJECTION);
+                return new DirectoryResultContext(cursoryProbe, null);
+            } catch(IOException ioe) {
+                ioe.printStackTrace();
+                return null;
+            }
+        }
+
+    }
+
     public static class FileType {
 
-        private FileType parentFolder;
+        private DirectoryResultContext parentFolder;
         private File fileOnDisk;
         private boolean isChecked;
         private Drawable fileTypeIcon;
 
-        public FileType(File fileOnDisk, FileType parentFolder) {
+        public FileType(File fileOnDisk, DirectoryResultContext parentFolder) {
             this.parentFolder = parentFolder;
             this.fileOnDisk = fileOnDisk;
             this.isChecked = false;

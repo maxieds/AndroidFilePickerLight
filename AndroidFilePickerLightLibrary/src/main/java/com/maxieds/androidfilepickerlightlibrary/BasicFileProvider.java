@@ -50,7 +50,7 @@ public class BasicFileProvider extends DocumentsProvider {
 
     private static String LOGTAG = BasicFileProvider.class.getSimpleName();
 
-    private static final String[] DEFAULT_ROOT_PROJECTION = new String[]{
+    public static final String[] DEFAULT_ROOT_PROJECTION = new String[] {
             DocumentsContract.Root.COLUMN_ROOT_ID,
             DocumentsContract.Root.COLUMN_MIME_TYPES,
             DocumentsContract.Root.COLUMN_FLAGS,
@@ -61,7 +61,9 @@ public class BasicFileProvider extends DocumentsProvider {
             DocumentsContract.Root.COLUMN_AVAILABLE_BYTES
     };
 
-    private static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[]{
+    public static final int ROOT_PROJ_DOCID_COLUMN_INDEX = 6;
+
+    public static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[] {
             DocumentsContract.Document.COLUMN_DOCUMENT_ID,
             DocumentsContract.Document.COLUMN_MIME_TYPE,
             DocumentsContract.Document.COLUMN_DISPLAY_NAME,
@@ -431,6 +433,27 @@ public class BasicFileProvider extends DocumentsProvider {
                 throw new FileNotFoundException("Missing file for " + docId + " at " + target);
             }
             return target;
+        }
+    }
+
+    public File getFileAtCurrentRow(MatrixCursor mcResult) {
+        String docId = mcResult.getString(ROOT_PROJ_DOCID_COLUMN_INDEX);
+        try {
+            return getFileForDocId(docId);
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getAbsPathAtCurrentRow(MatrixCursor mcResult) {
+        String docId = mcResult.getString(ROOT_PROJ_DOCID_COLUMN_INDEX);
+        try {
+            File curWorkingFile = getFileForDocId(docId);
+            return curWorkingFile.getAbsolutePath();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return "";
         }
     }
 

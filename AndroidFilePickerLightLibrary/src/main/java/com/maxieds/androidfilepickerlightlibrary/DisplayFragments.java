@@ -19,8 +19,15 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DisplayFragments {
 
@@ -32,6 +39,9 @@ public class DisplayFragments {
         private FileTypes.FileType localFileItem;
         private int displayPositionIndex;
         private boolean isCheckable;
+        public static RecyclerView mainFileListRecyclerView;
+        public static RecyclerView.Adapter rvAdapter;
+        public static RecyclerView.LayoutManager rvLayoutManager;
 
         public FileListItemFragment(FileTypes.FileType fileItem, int displayPosition) {
             displayPositionIndex = displayPosition;
@@ -41,8 +51,14 @@ public class DisplayFragments {
             resetLayout(fileItem, displayPositionIndex);
         }
 
-        public static FileListItemFragment createNewFragmentFromView(View mainContainerLayout) {
-            return null; // TODO
+        public static void createNewFragmentFromView(View mainContainerLayout) {
+            RecyclerView recyclerViewDisplay = (RecyclerView) FileChooserActivity.getInstance().findViewById(R.id.mainRecyclerViewContainer);
+            mainFileListRecyclerView = recyclerViewDisplay;
+            //recyclerViewDisplay.setHasFixedSize(true);
+            rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
+            recyclerViewDisplay.setLayoutManager(rvLayoutManager);
+            rvAdapter = new DisplayAdapters.FileListAdapter(new ArrayList<String>()); // TODO: Is this where we need to initialize the View with the initial dir contents?
+            recyclerViewDisplay.setAdapter(rvAdapter);
         }
 
         public void resetLayout(FileTypes.FileType fileItem, int displayPosition) {
@@ -84,11 +100,29 @@ public class DisplayFragments {
 
     public static class FolderNavigationFragment {
 
-        public FolderNavigationFragment() {}
+        private static FolderNavigationFragment folderNavFragmentStaticInst = null;
+        public static TextView dirsTwoBackText = null;
+        public static TextView dirsOneBackText = null;
+        public static ImageButton globalNavBackBtn = null;
+
+        public FolderNavigationFragment() {
+            folderNavFragmentStaticInst = this;
+        }
 
         public static FolderNavigationFragment createNewFolderNavFragment(View navBtnsContainerView) {
-            return null; // TODO
+            FolderNavigationFragment folderNavFragment = new FolderNavigationFragment();
+            dirsTwoBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackTwoPathDisplayText);
+            dirsOneBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackOnePathDisplayText);
+            globalNavBackBtn = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavGlobalBackBtn);
+            dirsTwoBackText.setText("----");
+            dirsOneBackText.setText("----");
+            // TODO: set back button onClick handler here ...
+            return folderNavFragment;
         }
+    }
+
+    public static void cancelAllOperationsInProgress() {
+        // TODO: Need a way to cleanup any hanging processes with the file system before quitting the activity ...
     }
 
 }

@@ -361,6 +361,9 @@ library to implement listing files on the local device file system.
 * [Overview of shared storage (developer docs)](https://developer.android.com/training/data-storage/shared)
 * [Requesting a shared file (developer docs)](https://developer.android.com/training/secure-file-sharing/request-file.html)
 * [MediaStore based file access(developer docs)](https://developer.android.com/reference/android/provider/MediaStore)
+* [A tutorial with pointers](https://medium.com/androiddevelopers/building-a-documentsprovider-f7f2fb38e86a) 
+   for the under documented new SAF and storage restrictions on recent Android releases
+* [A detailed discussion of changed to Android storage policy](http://thewindowsupdate.com/2020/06/03/scoped-storage-in-android-10-android-11/)
 
 ### Listing of other file picker libraries for Android
 
@@ -395,3 +398,9 @@ the Play Store review of this permission may reference the stock
 [library privacy policy](https://github.com/maxieds/AndroidFilePickerLight/blob/main/LibraryPrivacyPolicy.md) that 
 explains why these permissions are requested, and what the library does with them in handling the 
 file picker selection requests from the client application. 
+
+## TODO and feature request for future bursts of coder energy
+
+* The ``BasicFileProvider`` class has built-in functionality to query the top of the most recent 
+  documents list. Perhaps this action would make a good naviagation folder alongside the 
+  default folder paths to common directories displayed at the top of the chooser activity?

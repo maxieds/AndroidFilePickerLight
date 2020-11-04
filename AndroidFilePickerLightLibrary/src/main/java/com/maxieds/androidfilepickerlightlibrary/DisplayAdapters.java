@@ -71,9 +71,6 @@ public class DisplayAdapters {
         }
     }
 
-    public static void cancelAllOperationsInProgress() {
-        // TODO: Need a way to cleanup any hanging processes with the file system before quitting the activity ...
-    }
 
 
 
