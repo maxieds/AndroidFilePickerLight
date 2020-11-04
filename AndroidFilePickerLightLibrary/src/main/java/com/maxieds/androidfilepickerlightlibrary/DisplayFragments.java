@@ -28,7 +28,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class DisplayFragments {
 
@@ -52,7 +51,7 @@ public class DisplayFragments {
             resetLayout(fileItem, displayPositionIndex);
         }
 
-        public static void createNewFragmentFromView(View mainContainerLayout) {
+        public static void configureStaticInstanceMembers(View mainContainerLayout) {
             RecyclerView recyclerViewDisplay = (RecyclerView) FileChooserActivity.getInstance().findViewById(R.id.mainRecyclerViewContainer);
             mainFileListRecyclerView = recyclerViewDisplay;
             recyclerViewDisplay.setHasFixedSize(true); // TODO: Check if this causes errors ...
@@ -120,13 +119,7 @@ public class DisplayFragments {
             Button.OnClickListener backBtnClickListener = new Button.OnClickListener() {
                 @Override
                 public void onClick(View btnView) {
-                     if(FileTypes.DirectoryResultContext.pathHistoryStack.empty()) {
-                         DisplayFragments.cancelAllOperationsInProgress();
-                         FileChooserActivity.getInstance().postSelectedFilesActivityResult();
-                     }
-                     FileTypes.DirectoryResultContext lastWorkingDir = FileTypes.DirectoryResultContext.pathHistoryStack.pop();
-                     lastWorkingDir.computeDirectoryContents();
-                     DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(lastWorkingDir.getWorkingDirectoryContents());
+                     FileTypes.DirectoryResultContext.descendIntoNextDirectory();
                 }
             };
             globalNavBackBtn.setOnClickListener(backBtnClickListener);

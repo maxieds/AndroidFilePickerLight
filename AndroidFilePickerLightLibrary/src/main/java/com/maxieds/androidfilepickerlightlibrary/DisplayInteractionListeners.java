@@ -21,14 +21,17 @@ import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.Locale;
 
 public class DisplayInteractionListeners {
 
     private static String LOGTAG = DisplayInteractionListeners.class.getSimpleName();
 
-    // register certain long and short click listeners ...
     // when a file/directory is successfully selected, display a Toast message (LONG) :
     // Selected FILE|DIR \"path\" ...
 
@@ -53,7 +56,7 @@ public class DisplayInteractionListeners {
                 public void onLongPress(MotionEvent e) {
                     View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
                     if(child != null && clickListener != null) {
-                        clickListener.onLongClick(child,recyclerView,  recyclerView.getChildPosition(child));
+                        clickListener.onLongClick(child, recyclerView, recyclerView.getChildPosition(child));
                     }
                 }
             });
@@ -73,6 +76,80 @@ public class DisplayInteractionListeners {
 
         @Override
         public void onRequestDisallowInterceptTouchEvent(boolean state) {}
+
+    }
+
+    public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+
+        public View iconView;
+        public TextView displayText;
+        public FileTypes.FileType fileItem;
+
+        public BaseViewHolder(View v) {
+            super(v);
+            v.setOnClickListener(this);
+            v.setOnLongClickListener(this);
+            iconView = v.findViewById(R.id.fileTypeIcon);
+            displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
+        }
+
+        public void setFileItemData(FileTypes.FileType storedFileItem) {
+            fileItem = storedFileItem;
+        }
+
+        public boolean performNewFileItemClick(FileTypes.FileType fileItem) {
+            if(!fileItem.isDirectory() && !FileChooserActivity.allowSelectFiles) {
+                return false;
+            }
+            else if(fileItem.isDirectory() && !FileChooserActivity.allowSelectFolders) {
+                return false;
+            }
+            else if(fileItem.isChecked()) {
+                // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:
+                CheckBox selectionMarker = fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox);
+                selectionMarker.setChecked(false);
+                selectionMarker.setEnabled(true);
+                FileChooserActivity.activeSelectionsList.remove(fileItem);
+                FileChooserActivity.curSelectionCount--;
+                return true;
+            }
+            else if(FileChooserActivity.curSelectionCount >= FileChooserActivity.maxAllowedSelections) {
+                return false;
+            }
+            CheckBox selectionMarker = fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox);
+            selectionMarker.setChecked(true);
+            selectionMarker.setEnabled(true);
+            FileChooserActivity.activeSelectionsList.add(fileItem);
+            FileChooserActivity.curSelectionCount++;
+            return true;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if(!fileItem.isDirectory()) {
+                if(performNewFileItemClick(fileItem)) {
+                    String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
+                    DisplayUtils.displayToastMessageShort(displaySelectMsg);
+                }
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if(!fileItem.isDirectory()) {
+                if(performNewFileItemClick(fileItem)) {
+                    String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
+                    DisplayUtils.displayToastMessageShort(displaySelectMsg);
+                    return true;
+                }
+                return false;
+            }
+            // Otherwise, descend recursively into the clicked directory location:
+            FileTypes.DirectoryResultContext.descendIntoNextDirectory();
+            String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recusrively into DIR \"%s\".", fileItem.getBaseName());
+            DisplayUtils.displayToastMessageShort(displayRecurseMsg);
+            return true;
+        }
 
     }
 

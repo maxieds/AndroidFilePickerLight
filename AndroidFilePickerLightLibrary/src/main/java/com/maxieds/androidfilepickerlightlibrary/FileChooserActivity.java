@@ -32,12 +32,10 @@ import android.widget.Toolbar;
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Stack;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -59,8 +57,12 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         return getInstance().getTheme().obtainStyledAttributes(new int[] { attrID }).getColor(0, attrID);
     }
 
-    private List<File> selectedFilePaths;
-    private DisplayFragments.FolderNavigationFragment mainFolderNavFragment = null;
+    private static DisplayFragments.FolderNavigationFragment mainFolderNavFragment = null;
+    public static List<FileTypes.FileType> activeSelectionsList = new ArrayList<FileTypes.FileType>();
+    public static int maxAllowedSelections = 0;
+    public static int curSelectionCount = 0;
+    public static boolean allowSelectFiles = true;
+    public static boolean allowSelectFolders = true;
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -101,6 +103,11 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         DisplayAdapters.FileListAdapter.localFilesListFilter = fpConfig.getFileFilter();
         DisplayAdapters.FileListAdapter.localFilesListSortFunc = fpConfig.getCustomSortFunc();
+        maxAllowedSelections = fpConfig.getMaxSelectedFilesCount();
+        curSelectionCount = 0;
+        activeSelectionsList.clear();
+        allowSelectFiles = fpConfig.allowSelectFileItems();
+        allowSelectFolders = fpConfig.allowSelectFolderItems();
 
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FilePickerBuilder.NO_ABORT_TIMEOUT) {
@@ -108,7 +115,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             Runnable execIdleTimeoutRunner = new Runnable() {
                 @Override
                 public void run() {
-                    throw new FilePickerException.AbortedByTimeoutException();
+                    postSelectedFilesActivityResult();
                 }
             };
             execIdleTimeoutHandler.postDelayed(execIdleTimeoutRunner, idleTimeout);
@@ -209,7 +216,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                      }
                 )
         );
-        DisplayFragments.FileListItemFragment.createNewFragmentFromView(mainFileListContainer);
+        DisplayFragments.FileListItemFragment.configureStaticInstanceMembers(mainFileListContainer);
+        // TODO ...
+        //RecyclerViewTouchListener rviewTouchListener = new RecyclerViewTouchListener(FileChooserActivity.getInstance(), mainFileListContainer, )
 
     }
 
@@ -271,10 +280,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public Intent getSelectedFilesActivityResultIntent() {
         Intent resultIntent = new Intent();
         resultIntent.putExtra(FilePickerBuilder.FILE_PICKER_INTENT_DATA_TYPE_KEY, String.class);
-        int selectedFilesCount = selectedFilePaths != null ? selectedFilePaths.size() : 0;
+        int selectedFilesCount = activeSelectionsList != null ? activeSelectionsList.size() : 0;
         String[] filePathsList = new String[selectedFilesCount];
         for(int fileIndex = 0; fileIndex < selectedFilesCount; fileIndex++) {
-            filePathsList[fileIndex] = selectedFilePaths.get(fileIndex).getAbsolutePath();
+            filePathsList[fileIndex] = activeSelectionsList.get(fileIndex).getAbsolutePath();
         }
         resultIntent.putStringArrayListExtra(FilePickerBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY, new ArrayList<String>(Arrays.asList(filePathsList)));
         return resultIntent;

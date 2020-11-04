@@ -20,6 +20,7 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,6 +36,7 @@ public class DisplayAdapters {
 
         public static FileFilter.FileFilterInterface localFilesListFilter = null;
         public static FileTypes.FileItemsListSortFunc localFilesListSortFunc = null;
+        private List<FileTypes.FileType> adapterFileItemsMap = null;
 
         private List<String> fileListData;
         public FileListAdapter(List<String> data){
@@ -58,14 +60,12 @@ public class DisplayAdapters {
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
             private TextView textView;
             public ViewHolder(View view) {
                 super(view);
                 view.setOnClickListener(this);
                 this.textView = view.findViewById(R.id.fileEntryBaseName);
             }
-
             @Override
             public void onClick(View view) {
                 DisplayUtils.displayToastMessageShort(String.format(Locale.getDefault(), "POS @ %d && TEXT @ %s", getLayoutPosition(), this.textView.getText()));
@@ -76,12 +76,18 @@ public class DisplayAdapters {
             List<FileTypes.FileType> filteredFileContents = FilePickerBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
             DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
             DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText("----");
-            DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(filteredFileContents);
+            adapterFileItemsMap = filteredFileContents;
+            FileChooserActivity.activeSelectionsList.clear();
+            int fileItemIndex = 0;
+            for(FileTypes.FileType fileItem : filteredFileContents) {
+                DisplayFragments.FileListItemFragment.rvLayoutManager.detachViewAt(fileItemIndex);
+                DisplayFragments.FileListItemFragment.rvAdapter.notifyItemRemoved(fileItemIndex);
+                DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
+                ViewHolder viewHolder = createViewHolder((LinearLayout) fileItemUIFragment.getLayoutContainer(), 0);
+                bindViewHolder(viewHolder, fileItemIndex++);
+            }
         }
 
     }
-
-
-
 
 }

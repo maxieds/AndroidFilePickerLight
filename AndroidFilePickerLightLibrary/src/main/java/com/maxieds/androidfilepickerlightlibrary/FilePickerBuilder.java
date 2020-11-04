@@ -187,6 +187,15 @@ public class FilePickerBuilder implements Serializable {
         return pickerBuilderInst;
     }
 
+    public boolean allowSelectFileItems() {
+        return pathSelectMode.ordinal() != SelectionModeType.SELECT_DIRECTORY_ONLY.ordinal();
+    }
+
+    public boolean allowSelectFolderItems() {
+        return pathSelectMode.ordinal() == SelectionModeType.SELECT_DIRECTORY_ONLY.ordinal() ||
+                pathSelectMode.ordinal() != SelectionModeType.SELECT_FILE.ordinal();
+    }
+
     public FilePickerBuilder setDisplayUIConfig(DisplayConfigInterface uiCfg) {
         displayUIConfig = uiCfg;
         return this;

@@ -19,6 +19,7 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.database.MatrixCursor;
 import android.graphics.drawable.Drawable;
+import android.view.View;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,6 +142,16 @@ public class FileTypes {
                 ioe.printStackTrace();
                 return null;
             }
+        }
+
+        public static void descendIntoNextDirectory() {
+            if(FileTypes.DirectoryResultContext.pathHistoryStack.empty()) {
+                DisplayFragments.cancelAllOperationsInProgress();
+                FileChooserActivity.getInstance().postSelectedFilesActivityResult();
+            }
+            FileTypes.DirectoryResultContext lastWorkingDir = FileTypes.DirectoryResultContext.pathHistoryStack.pop();
+            lastWorkingDir.computeDirectoryContents();
+            DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(lastWorkingDir.getWorkingDirectoryContents());
         }
 
     }
