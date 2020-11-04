@@ -24,7 +24,6 @@ import android.view.View;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
@@ -132,7 +131,7 @@ public class FileTypes {
             return new DirectoryResultContext(nextDirCursor, initMatrixCursorListing);
         }
 
-        public static DirectoryResultContext probeAtCursoryFolderQuery(FilePickerBuilder.BaseFolderPathType baseFolderChoice) {
+        public static DirectoryResultContext probeAtCursoryFolderQuery(FileChooserBuilder.BaseFolderPathType baseFolderChoice) {
             BasicFileProvider fpInst = FileChooserActivity.getFileProviderInstance();
             fpInst.selectBaseDirectoryByType(baseFolderChoice);
             try {
@@ -158,7 +157,7 @@ public class FileTypes {
          * from scratch (reinitializing objects, starting the initial root query, and launching the
          * RecyclerView pattern making compendia on a whole new dataset):
          */
-        public static void initiateNewFolderLoad(FilePickerBuilder.BaseFolderPathType initBaseFolder) {
+        public static void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
             FileTypes.DirectoryResultContext newCwdContext = FileTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
             FileTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
             DisplayFragments.FileListItemFragment.rvAdapter.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());

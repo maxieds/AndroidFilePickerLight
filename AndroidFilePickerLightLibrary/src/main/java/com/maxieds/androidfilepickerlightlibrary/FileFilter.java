@@ -26,8 +26,8 @@ public class FileFilter {
 
     public interface FileFilterInterface {
 
-        static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FilePickerBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
-        static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FilePickerBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
+        static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
+        static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
 
         void    setIncludeExcludeMatchesOption(boolean includeExcludeParam);
         boolean includeFileInSearchResults(FileTypes.FileType fileItem);
@@ -95,7 +95,7 @@ public class FileFilter {
         public boolean fileMatchesFilter(FileTypes.FileType fileItem) {
             for(int mtIdx = 0; mtIdx < defaultTypesList.size(); mtIdx++) {
                 if(true) {
-                    throw new FilePickerException.NotImplementedException();
+                    throw new FileChooserException.NotImplementedException();
                 }
             }
             return false;

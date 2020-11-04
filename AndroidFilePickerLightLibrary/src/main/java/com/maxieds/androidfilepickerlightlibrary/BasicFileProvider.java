@@ -92,7 +92,7 @@ public class BasicFileProvider extends DocumentsProvider {
      * Also, may consider files flags:
      * Context.MODE_APPEND, Context.MODE_PRIVATE, Context.MODE_MULTI_PROCESS ;
      */
-    public File selectBaseDirectoryByType(FilePickerBuilder.BaseFolderPathType baseFolderType) {
+    public File selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
         switch(baseFolderType) {
             case BASE_PATH_TYPE_FILES_DIR:
             case BASE_PATH_DEFAULT:
@@ -139,7 +139,7 @@ public class BasicFileProvider extends DocumentsProvider {
 
     @Override
     public boolean onCreate() {
-        baseDirPath = selectBaseDirectoryByType(FilePickerBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        baseDirPath = selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
         return true;
     }
 

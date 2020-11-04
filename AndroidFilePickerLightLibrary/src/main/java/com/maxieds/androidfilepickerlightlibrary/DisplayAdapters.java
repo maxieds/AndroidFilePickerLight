@@ -74,7 +74,7 @@ public class DisplayAdapters {
         }
 
         public void displayNextDirectoryFilesList(List<FileTypes.FileType> workingDirContentsList) {
-            List<FileTypes.FileType> filteredFileContents = FilePickerBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
+            List<FileTypes.FileType> filteredFileContents = FileChooserBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
             if(!FileChooserActivity.recyclerViewAdapterInit) {
                 List<String> fileItemBasePathsList = new ArrayList<String>();
                 for(FileTypes.FileType fileItem : filteredFileContents) {

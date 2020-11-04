@@ -94,7 +94,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         AndroidPermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
         AndroidPermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
-        FilePickerBuilder fpConfig = (FilePickerBuilder) getIntent().getSerializableExtra(FilePickerBuilder.FILE_PICKER_BUILDER_EXTRA_DATA_KEY);
+        FileChooserBuilder fpConfig = (FileChooserBuilder) getIntent().getSerializableExtra(FileChooserBuilder.FILE_PICKER_BUILDER_EXTRA_DATA_KEY);
         setContentView(R.layout.main_picker_activity_base_layout);
         configureInitialMainLayout(fpConfig);
 
@@ -111,7 +111,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         allowSelectFolders = fpConfig.allowSelectFolderItems();
 
         long idleTimeout = fpConfig.getIdleTimeout();
-        if(idleTimeout != FilePickerBuilder.NO_ABORT_TIMEOUT) {
+        if(idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {
             Handler execIdleTimeoutHandler = new Handler();
             Runnable execIdleTimeoutRunner = new Runnable() {
                 @Override
@@ -124,7 +124,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     }
 
-    private void configureInitialMainLayout(FilePickerBuilder fpConfig) {
+    private void configureInitialMainLayout(FileChooserBuilder fpConfig) {
 
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
@@ -135,20 +135,20 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getWindow().setNavigationBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
 
         /* Initialize the next level of nav for the default folder paths selection buttons: */
-        List<FilePickerBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
+        List<FileChooserBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
         final LinearLayout fileDirsNavButtonsContainer = (LinearLayout) findViewById(R.id.mainFileNavBtnsContainer);
         for(int folderIdx = 0; folderIdx < defaultDirNavFolders.size(); folderIdx++) {
-            FilePickerBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
+            FileChooserBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
             ImageButton dirNavBtn = new ImageButton(this);
             dirNavBtn.setPadding(10, 10, 10, 10);
-            dirNavBtn.setImageDrawable(FilePickerBuilder.DefaultNavFoldersType.NAV_FOLDER_ICON_RESIDS_MAP.get(baseFolderType));
+            dirNavBtn.setImageDrawable(FileChooserBuilder.DefaultNavFoldersType.NAV_FOLDER_ICON_RESIDS_MAP.get(baseFolderType));
             dirNavBtn.setTag(baseFolderType);
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
                 @Override
                 public void onClick(View btnView) {
                     DisplayFragments.cancelAllOperationsInProgress();
                     FileTypes.DirectoryResultContext.pathHistoryStack.clear(); // reset the directory traversal history
-                    FilePickerBuilder.BaseFolderPathType navBtnInitFolder = (FilePickerBuilder.BaseFolderPathType) btnView.getTag();
+                    FileChooserBuilder.BaseFolderPathType navBtnInitFolder = (FileChooserBuilder.BaseFolderPathType) btnView.getTag();
                     FileTypes.DirectoryResultContext.initiateNewFolderLoad(navBtnInitFolder);
                     Button navBtn = (Button) btnView;
                     navBtn.setEnabled(false);
@@ -251,7 +251,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             new AppSettingsDialog.Builder(this).build().show();
         }
         else if(requestCode == AndroidPermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE) {
-            throw new FilePickerException.PermissionsErrorException();
+            throw new FileChooserException.PermissionsErrorException();
         }
     }
 
@@ -277,13 +277,13 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     public Intent getSelectedFilesActivityResultIntent() {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra(FilePickerBuilder.FILE_PICKER_INTENT_DATA_TYPE_KEY, String.class);
+        resultIntent.putExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_TYPE_KEY, String.class);
         int selectedFilesCount = activeSelectionsList != null ? activeSelectionsList.size() : 0;
         String[] filePathsList = new String[selectedFilesCount];
         for(int fileIndex = 0; fileIndex < selectedFilesCount; fileIndex++) {
             filePathsList[fileIndex] = activeSelectionsList.get(fileIndex).getAbsolutePath();
         }
-        resultIntent.putStringArrayListExtra(FilePickerBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY, new ArrayList<String>(Arrays.asList(filePathsList)));
+        resultIntent.putStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY, new ArrayList<String>(Arrays.asList(filePathsList)));
         return resultIntent;
     }
 

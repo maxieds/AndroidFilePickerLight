@@ -30,25 +30,25 @@ public class GradientDrawableFactory {
         defaultActivityContextRef = activityContextRef;
     }
 
-    public static int getColorFromResource(int colorRefID) throws FilePickerException.InvalidActivityContextException {
+    public static int getColorFromResource(int colorRefID) throws FileChooserException.InvalidActivityContextException {
         if(defaultActivityContextRef != null) {
             return defaultActivityContextRef.getResources().getColor(colorRefID, defaultActivityContextRef.getTheme());
         }
-        throw new FilePickerException.InvalidActivityContextException();
+        throw new FileChooserException.InvalidActivityContextException();
     }
 
-    public static Drawable getDrawableFromResource(int drawableRefID) throws FilePickerException.InvalidActivityContextException {
+    public static Drawable getDrawableFromResource(int drawableRefID) throws FileChooserException.InvalidActivityContextException {
         if(defaultActivityContextRef != null) {
             return defaultActivityContextRef.getResources().getDrawable(drawableRefID, defaultActivityContextRef.getTheme());
         }
-        throw new FilePickerException.InvalidActivityContextException();
+        throw new FileChooserException.InvalidActivityContextException();
     }
 
-    public static String getStringFromResource(int strRefID) throws FilePickerException.InvalidActivityContextException {
+    public static String getStringFromResource(int strRefID) throws FileChooserException.InvalidActivityContextException {
         if(defaultActivityContextRef != null) {
             return defaultActivityContextRef.getString(strRefID);
         }
-        throw new FilePickerException.InvalidActivityContextException();
+        throw new FileChooserException.InvalidActivityContextException();
     }
 
     public enum GradientMethodSpec {
