@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp"
+    android:marginTop="3dp"
+    android:marginBotton="3dp"
+    android:marginLeft="8dp"
+    android:marginRight="4dp"
+    >
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?colorAccent" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:gravity="center_horizontal|center_vertical"
+        android:background="?colorPrimary"
+        android:orientation="horizontal"
+        >
+
+        <CheckBox
+            android:theme="@style/SelectionCheckBoxStyle"
+            android:id="@+id/fileSelectCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_horizontal" />
+
+        <ImageView
+            android:id="@+id/fileTypeIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:src="@drawable/folder_icon32" />
+
+        <TextView
+            android:id="@+id/fileEntrySizeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?colorPrimary"
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:text="0B"
+            android:textColor="?colorAccent"
+            android:textSize="10sp"
+            android:textStyle="normal|bold"
+            android:typeface="serif"
+            />
+
+        <TextView
+            android:id="@+id/fileEntryPermsSummaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?colorPrimary"
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:text="0755"
+            android:textColor="?colorAccent"
+            android:textSize="9sp"
+            android:textStyle="normal|italic"
+            android:typeface="monospace"
+            />
+
+        <View
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent" />
+
+        <TextView
+            android:id="@+id/fileEntryBaseName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingRight="12dp"
+            android:background="?colorPrimary"
+            android:gravity="left|center_vertical"
+            android:layout_gravity="left|center_vertical"
+            android:text="fileBaseName.ext"
+            android:textColor="?colorAccent"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            android:typeface="monospace"
+            />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?colorAccent" />
+
+</LinearLayout>

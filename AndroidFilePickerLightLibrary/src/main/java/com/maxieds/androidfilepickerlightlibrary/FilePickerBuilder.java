@@ -26,13 +26,15 @@ import android.os.Looper;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 
 public class FilePickerBuilder implements Serializable {
 
-    private String LOGTAG = FilePickerBuilder.class.getSimpleName();
+    private static String LOGTAG = FilePickerBuilder.class.getSimpleName();
 
     private static WeakReference<FileChooserActivity> activityContextRef;
     public void setActivityContext(FileChooserActivity activityRef) {
@@ -40,20 +42,36 @@ public class FilePickerBuilder implements Serializable {
     }
 
     public enum DefaultNavFoldersType {
-        FOLDER_SDCARD_STORAGE("SD Card", R.attr.namedFolderSDCardIcon),
-        FOLDER_PICTURES("Pictures", R.attr.namedFolderPicsIcon),
-        FOLDER_CAMERA("Camera", R.attr.namedFolderCameraIcon),
-        FOLDER_SCREENSHOTS("Screenshots", R.attr.namedFolderScreenshotsIcon),
-        FOLDER_DOWNLOADS("Downloads", R.attr.namedFolderDownloadsIcon),
-        FOLDER_USER_HOME("Home", R.attr.namedFolderUserHomeIcon),
-        FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon);
+
+        FOLDER_SDCARD_STORAGE("SD Card", R.attr.namedFolderSDCardIcon, BaseFolderPathType.BASE_PATH_TYPE_SDCARD),
+        FOLDER_PICTURES("Pictures", R.attr.namedFolderPicsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES),
+        FOLDER_CAMERA("Camera", R.attr.namedFolderCameraIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES),
+        FOLDER_SCREENSHOTS("Screenshots", R.attr.namedFolderScreenshotsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS),
+        FOLDER_DOWNLOADS("Downloads", R.attr.namedFolderDownloadsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS),
+        FOLDER_USER_HOME("Home", R.attr.namedFolderUserHomeIcon, BaseFolderPathType.BASE_PATH_TYPE_USER_DATA_DIR),
+        FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DCIM);
+
+        public static final Map<DefaultNavFoldersType, String> NAV_FOLDER_NAME_LOOKUP_MAP = new HashMap<>();
+        public static final Map<DefaultNavFoldersType, String> NAV_FOLDER_DESC_MAP = new HashMap<>();
+        public static final Map<DefaultNavFoldersType, BaseFolderPathType> NAV_FOLDER_PATHS_MAP = new HashMap<>();
+        public static final Map<DefaultNavFoldersType, Drawable> NAV_FOLDER_ICON_RESIDS_MAP = new HashMap<>();
+        static {
+            for (DefaultNavFoldersType navType : values()) {
+                NAV_FOLDER_NAME_LOOKUP_MAP.put(navType, navType.toString());
+                NAV_FOLDER_DESC_MAP.put(navType, navType.getFolderLabel());
+                NAV_FOLDER_PATHS_MAP.put(navType, navType.getBaseFolderPathType());
+                NAV_FOLDER_ICON_RESIDS_MAP.put(navType, navType.getFolderIconDrawable());
+            }
+        }
 
         private String folderLabel;
+        private BaseFolderPathType baseFolderSpec;
         private int folderIconResId;
         private Drawable customIconObj;
 
-        DefaultNavFoldersType(String folderLabel, int folderIconResId) {
+        private DefaultNavFoldersType(String folderLabel, int folderIconResId, BaseFolderPathType baseFolderSpec) {
             this.folderLabel = folderLabel;
+            this.baseFolderSpec = baseFolderSpec;
             this.folderIconResId = folderIconResId;
             this.customIconObj = null;
         }
@@ -62,9 +80,13 @@ public class FilePickerBuilder implements Serializable {
             return folderLabel;
         }
 
+        public BaseFolderPathType getBaseFolderPathType() {
+            return baseFolderSpec;
+        }
+
         public Drawable getFolderIconDrawable() {
             if(customIconObj == null && activityContextRef != null) {
-                return activityContextRef.get().getResources().getDrawable(folderIconResId, activityContextRef.get().getTheme());
+                return GradientDrawableFactory.getDrawableFromResource(folderIconResId);
             }
             else if(customIconObj != null) {
                 return customIconObj;
@@ -72,7 +94,7 @@ public class FilePickerBuilder implements Serializable {
             throw new FilePickerException.InvalidActivityContextException();
         }
 
-        public void setFolderIconDrawable(Drawable folderIconDrawInst) {
+        public void setCustomFolderIconDrawable(Drawable folderIconDrawInst) {
             customIconObj = folderIconDrawInst;
         }
 

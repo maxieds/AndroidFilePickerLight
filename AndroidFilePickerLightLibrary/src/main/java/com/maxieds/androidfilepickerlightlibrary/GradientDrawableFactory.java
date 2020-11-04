@@ -23,9 +23,9 @@ import android.graphics.drawable.GradientDrawable;
 
 public class GradientDrawableFactory {
 
-    private String LOGTAG = GradientDrawableFactory.class.getSimpleName();
+    private static String LOGTAG = GradientDrawableFactory.class.getSimpleName();
 
-    private static Activity defaultActivityContextRef = null;
+    private static Activity defaultActivityContextRef = FileChooserActivity.getInstance();
     public static void setDefaultActivityContext(Activity activityContextRef) {
         defaultActivityContextRef = activityContextRef;
     }
@@ -118,6 +118,7 @@ public class GradientDrawableFactory {
         BORDER_STYLE_DASHED_SHORT,
         BORDER_STYLE_NONE,
     };
+
     public enum NamedGradientColorThemes {
         NAMED_COLOR_SCHEME_TURQUOISE,
         NAMED_COLOR_SCHEME_YELLOW_TO_BLUE,
@@ -130,7 +131,7 @@ public class GradientDrawableFactory {
         NAMED_COLOR_SCHEME_FIRE_BRIMSTONE,
     };
 
-    public static GradientDrawable generateNameGradientType(GradientMethodSpec gmethodSpec,
+    public static GradientDrawable generateNamedGradientType(GradientMethodSpec gmethodSpec,
                                                             GradientTypeSpec gfillTypeSpec,
                                                             BorderStyleSpec borderStyleSpec,
                                                             float gradientAngleSpec,
@@ -155,7 +156,7 @@ public class GradientDrawableFactory {
         return gradientDrawObj;
     }
 
-    public static GradientDrawable generateNameGradientType(BorderStyleSpec borderStyleSpec,
+    public static GradientDrawable generateNamedGradientType(BorderStyleSpec borderStyleSpec,
                                                             int borderColor,
                                                             NamedGradientColorThemes namedColorTheme) {
         GradientMethodSpec gmethodSpec;
@@ -174,7 +175,7 @@ public class GradientDrawableFactory {
             case NAMED_COLOR_SCHEME_YELLOW_TO_BLUE:
                 gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
                 gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 0.45f;
+                angleSpec = 45.0f;
                 colorList = new int[] {
                         0xFFFFFF00,
                         0xFF008080,
@@ -183,7 +184,7 @@ public class GradientDrawableFactory {
             case NAMED_COLOR_SCHEME_GREEN_YELLOW_GREEN:
                 gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
                 gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 0.45f;
+                angleSpec = 45.0f;
                 colorList = new int[] {
                         0xFF008000,
                         0xFFffff00,
@@ -193,7 +194,7 @@ public class GradientDrawableFactory {
             case NAMED_COLOR_SCHEME_METAL_STREAK_BILINEAR:
                 gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
                 gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 0.45f;
+                angleSpec = 45.0f;
                 colorList = new int[] {
                         0xFF000000,
                         0xFFffffff,
@@ -211,7 +212,7 @@ public class GradientDrawableFactory {
             case NAMED_COLOR_SCHEME_EVENING_SKYLINE:
                 gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
                 gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_RIGHT_LEFT;
-                angleSpec = 0.45f;
+                angleSpec = 45.0f;
                 colorList = new int[] {
                         0xFFff00ff,
                         0xFF00ffff
@@ -220,7 +221,7 @@ public class GradientDrawableFactory {
             case NAMED_COLOR_SCHEME_RAINBOW_STREAK:
                 gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_RECTANGLE;
                 gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 0.45f;
+                angleSpec = 45.0f;
                 colorList = new int[] {
                         0xFFff0000,
                         0xFFffff00,
@@ -239,7 +240,7 @@ public class GradientDrawableFactory {
             case NAMED_COLOR_SCHEME_FIRE_BRIMSTONE:
                 gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_RADIAL;
                 gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 0.45f;
+                angleSpec = 45.0f;
                 colorList = new int[] {
                         0xFFFF0000,
                         0xFFffff00,
@@ -249,12 +250,12 @@ public class GradientDrawableFactory {
             default:
                 return null;
         }
-        return generateNameGradientType(gmethodSpec, gfillTypeSpec, borderStyleSpec, angleSpec, borderColor, colorList);
+        return generateNamedGradientType(gmethodSpec, gfillTypeSpec, borderStyleSpec, angleSpec, borderColor, colorList);
     }
 
-    public static GradientDrawable generateNameGradientType(BorderStyleSpec borderStyleSpec,
+    public static GradientDrawable generateNamedGradientType(BorderStyleSpec borderStyleSpec,
                                                             NamedGradientColorThemes namedColorTheme) {
-        return generateNameGradientType(borderStyleSpec, getColorFromResource(R.attr.colorPrimaryDark), namedColorTheme);
+        return generateNamedGradientType(borderStyleSpec, getColorFromResource(R.attr.colorPrimaryDark), namedColorTheme);
     }
 
 

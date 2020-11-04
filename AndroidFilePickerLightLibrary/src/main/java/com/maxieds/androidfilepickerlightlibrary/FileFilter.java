@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class FileFilter {
 
-    private String LOGTAG = FileFilterInterface.class.getSimpleName();
+    private static String LOGTAG = FileFilterInterface.class.getSimpleName();
 
     public interface FileFilterInterface {
 

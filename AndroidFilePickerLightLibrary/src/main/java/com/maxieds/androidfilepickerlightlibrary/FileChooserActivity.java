@@ -22,27 +22,46 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Toolbar;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Stack;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.BuildConfig;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class FileChooserActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
-    private String LOGTAG = FileChooserActivity.class.getSimpleName();
+    private static String LOGTAG = FileChooserActivity.class.getSimpleName();
 
     private static BasicFileProvider defaultFileProviderStaticInst = new BasicFileProvider();
     public static BasicFileProvider getFileProviderInstance() { return defaultFileProviderStaticInst; }
 
-    private List<File> selectedFilePaths; // TODO: Need to store the UI FileType lists somewhere ...
+    private static FileChooserActivity staticRunningInst = null;
+    public static FileChooserActivity getInstance() { return staticRunningInst; }
+
+    @ColorInt
+    public static int getColorVariantFromTheme(int attrID) {
+        return getInstance().getTheme().obtainStyledAttributes(new int[] { attrID }).getColor(0, attrID);
+    }
+
+    private List<File> selectedFilePaths;
+    private Stack<FileTypes.FileType> pathHistoryStack = new Stack<FileTypes.FileType>();
+    // the directory path UI fragment should get initialized for easier updating and access here ...
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -52,7 +71,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread paramThread, Throwable paramExcpt) {
-                // TODO: Handle returning with the necessary action code ...
+                // !!! TODO: Handle returning with the necessary action code ... /// ---- 
                 localActivityContext.finish();
                 System.exit(-1);
             }
@@ -68,20 +87,20 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             finish();
             System.exit(0);
         }
+        if(staticRunningInst == null) {
+            staticRunningInst = this;
+        }
 
         AndroidPermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
         AndroidPermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
-        setContentView(R.layout.main_picker_activity_base_layout);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR); // keep app from crashing when the screen rotates
-
         FilePickerBuilder fpConfig = (FilePickerBuilder) getIntent().getSerializableExtra(FilePickerBuilder.FILE_PICKER_BUILDER_EXTRA_DATA_KEY);
+        setContentView(R.layout.main_picker_activity_base_layout);
+        configureInitialMainLayout(fpConfig);
 
-        // TODO: ...
-        // Create layout ... (including setting defaults, set default theme, etc. ) ...
-        // Need fragments for loading files in the UI nav (see the forked library code) ...
-        // need a RecyclerView interface ...
+        // Keep the app from crashing when the screen rotates:
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FilePickerBuilder.NO_ABORT_TIMEOUT) {
@@ -94,6 +113,72 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             };
             execIdleTimeoutHandler.postDelayed(execIdleTimeoutRunner, idleTimeout);
         }
+
+    }
+
+    private void configureInitialMainLayout(FilePickerBuilder fpConfig) {
+
+        /* Setup the toolbar first: */
+        Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
+        actionBar.setTitle(String.format(Locale.getDefault(), "%s | v%s", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
+        actionBar.setSubtitle(getString(R.string.filePickerTitleText)); /* TODO: Later, let the user override this default ... */
+        getWindow().setTitleColor(getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
+        getWindow().setStatusBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
+        getWindow().setNavigationBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
+
+        /* Initialize the next level of nav for the default folder paths selection buttons: */
+        List<FilePickerBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
+        LinearLayout fileDirsNavButtonsContainer = (LinearLayout) findViewById(R.id.mainFileNavBtnsContainer);
+        for(int folderIdx = 0; folderIdx < defaultDirNavFolders.size(); folderIdx++) {
+            FilePickerBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
+            ImageButton dirNavBtn = new ImageButton(this);
+            dirNavBtn.setPadding(10, 10, 10, 10);
+            dirNavBtn.setImageDrawable(FilePickerBuilder.DefaultNavFoldersType.NAV_FOLDER_ICON_RESIDS_MAP.get(baseFolderType));
+            dirNavBtn.setTag(baseFolderType.toString());
+        }
+
+        /* The next level of navigation in a top down order is the action buttons to finish or cancel
+         * the user's file selection procedure. These need onClick handlers that are mostly separate
+         * and less involved that the corresponding RecyclerView and files listing UI actions.
+         * These effectively have the same function attached to them, but for clarity of what the UI
+         * expects from the user, it's better to distinguish that "Done" does not mean to quit or
+         * "Cancel" unexpectedly.
+         */
+        Button doneActionBtn = findViewById(R.id.mainNavBtnActionDone);
+        Button cancelActionBtn = findViewById(R.id.mainNavBtnActionCancel);
+        Button.OnClickListener quitActivityBtnClickListener = new Button.OnClickListener() {
+            @Override
+            public void onClick(View btnView) {
+                DisplayAdapters.cancelAllOperationsInProgress();
+                getInstance().postSelectedFilesActivityResult();
+            }
+        };
+        doneActionBtn.setOnClickListener(quitActivityBtnClickListener);
+        cancelActionBtn.setOnClickListener(quitActivityBtnClickListener);
+
+        /*
+         * Last, there is the global back button and previous directory history display.
+         * Note that unless a completely different path trajectory is selected by the user
+         * (with the last level of directory select nav buttons), we keep a working
+         * stack of the last paths for context. If the back button is pressed and the stack is
+         * empty, this action is handled the same way as a cancel button press by the user.
+         */
+        LinearLayout dirHistoryNavContainer = (LinearLayout) findViewById(R.id.mainDirPrevPathsNavContainer);
+        dirHistoryNavContainer.setBackground(GradientDrawableFactory.generateNamedGradientType(
+                GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_DASHED_SHORT,
+                GradientDrawableFactory.NamedGradientColorThemes.NAMED_COLOR_SCHEME_STEEL_BLUE
+                )
+        );
+
+        /* Setup some theme related styling on the main file list container: */
+        LinearLayout mainFileListContainer = (LinearLayout) findViewById(R.id.mainRecyclerViewContainer);
+        mainFileListContainer.setBackground(GradientDrawableFactory.generateNamedGradientType(
+                GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
+                GradientDrawableFactory.NamedGradientColorThemes.NAMED_COLOR_SCHEME_STEEL_BLUE
+                )
+        );
+        // TODO: Need to pass an array of colors, no border, bigger rounding of corners ...
+        // TODO: Set the reference to the RecyclerView UI ...
 
     }
 

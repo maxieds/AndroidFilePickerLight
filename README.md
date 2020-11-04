@@ -323,6 +323,21 @@ customUIDisplayCfg.setDefaultChooserIcon(Drawable replacementIcon, NamedDisplayI
 
 ### Misc other useful utilities and examples (TODO)
 
+### Displaying a visual linear bar style progress bar for slow directory loads
+
+This functionality may be useful at some point for those willing to extend this code with 
+custom external file providers, e.g., to read and recurse into directories on Dropbox or GitHub. 
+I have a simple visual Toast-like display that can be updated and/or canceled in real time to 
+let the user know that the directory is loading and that the client application is just "thinking" 
+(as opposed to freezing with a runtime error). The stock progress bar looks something like the following screenshot: 
+
+<img src="" width="250" />
+
+To invoke this progress bar display in realtime, consider calling the following code examples:
+```java
+TODO
+```
+
 #### Overriding the default file and directory sorting (feature request: reserved for future use)
 
 #### Extending the inclusion/exclusion mechanism of files by type (feature request: reserved for future use)

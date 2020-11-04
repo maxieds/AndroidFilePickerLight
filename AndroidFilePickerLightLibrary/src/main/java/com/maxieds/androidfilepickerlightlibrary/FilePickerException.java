@@ -26,7 +26,7 @@ import java.util.List;
 
 public class FilePickerException {
 
-    private String LOGTAG = FilePickerException.class.getSimpleName();
+    private static String LOGTAG = FilePickerException.class.getSimpleName();
 
     public static Object DEFAULT_DATA_ITEMS_TYPE = String.class;
 

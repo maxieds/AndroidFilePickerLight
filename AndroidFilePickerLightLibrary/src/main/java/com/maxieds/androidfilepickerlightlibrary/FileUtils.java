@@ -72,6 +72,28 @@ public class FileUtils {
         }
     }
 
+    public static String filePermsStringToShortChmodStyleCode(String rwxDashPerms) {
+        if(rwxDashPerms.length() < 9) {
+            return "";
+        }
+        String[] rwxTriplet = rwxDashPerms.split("...(?!$)");
+        if(rwxTriplet.length != 3) {
+            return "";
+        }
+        String chmodStylePermsCode = "0";
+        for(String rwxTriple : rwxTriplet) {
+            rwxTriple = rwxTriple.toLowerCase(Locale.getDefault());
+            int octalBits[] = new int[] {
+                    rwxTriple.charAt(0) == 'r' ? 4 : 0,
+                    rwxTriple.charAt(1) == 'w' ? 2 : 0,
+                    rwxTriple.charAt(2) == 'x' ? 1 : 0
+            };
+            int octalCode = octalBits[0] + octalBits[1] + octalBits[2];
+            chmodStylePermsCode += String.format(Locale.getDefault(), "%d", octalCode);
+        }
+        return chmodStylePermsCode;
+    }
+
     public static String getFileSizeString(File fileOnDisk) {
         long fileSizeBytes = fileOnDisk.getTotalSpace();
         if(fileSizeBytes < 1024) {

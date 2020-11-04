@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/progress_bar_background"
+    >
+
+    <ImageView
+        android:id="@+id/progressBarImageMarker"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal|center_vertical"
+        />
+
+    <TextView
+        android:id="@+id/progressBarText"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="#b2d8d8"
+        android:fontFamily="serif-monospace"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:textSize="14sp"
+        android:textStyle="normal|bold|italic"
+        android:paddingTop="5dp"
+        />
+
+</LinearLayout>

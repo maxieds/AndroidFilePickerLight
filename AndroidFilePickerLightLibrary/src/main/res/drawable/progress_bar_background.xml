@@ -17,8 +17,27 @@
     https://github.com/maxieds/AndroidFilePickerLight
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
 
-</LinearLayout>
+    <gradient
+        android:type="linear"
+        android:gradientRadius="20%"
+        android:startColor="#3F51B5"
+        android:centerColor="#477C9C"
+        android:endColor="#03A9F4"
+        android:angle="45"/>
+
+    <corners
+        android:radius="10dp"
+        />
+
+    <padding
+        android:left="10dp"
+        android:top="10dp"
+        android:right="10dp"
+        android:bottom="10dp"
+        />
+
+    <stroke android:width="6dp" android:color="#3F51B5"/>
+
+</shape>

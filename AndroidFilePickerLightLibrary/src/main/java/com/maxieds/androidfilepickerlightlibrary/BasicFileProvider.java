@@ -48,7 +48,7 @@ import static java.util.Locale.ROOT;
  */
 public class BasicFileProvider extends DocumentsProvider {
 
-    private String LOGTAG = BasicFileProvider.class.getSimpleName();
+    private static String LOGTAG = BasicFileProvider.class.getSimpleName();
 
     private static final String[] DEFAULT_ROOT_PROJECTION = new String[]{
             DocumentsContract.Root.COLUMN_ROOT_ID,

@@ -19,7 +19,7 @@
 
 <resources>
 
-    <string name="libraryName">Android File Picker Light Library</string>
+    <string name="libraryName">Android File Picker Light</string>
     <string name="libraryDesc">A lightweight modern file selector</string>
 
     <string name="errorMsgUnknown">An unknown error occurred</string>
@@ -31,8 +31,8 @@
 
     <string name="fileProviderRootSummayDesc">Root of storage for our basic file provider implementation</string>
 
-    <string name="filePickerTitleText">Select file or directory path ...</string>
-    <string name="filePickerNavBarText">Quick Links: </string>
+    <string name="filePickerTitleText">Select files or directories ...</string>
+    <string name="filePickerNavBarText">Navigate to Folders: </string>
     <string name="filePickerDoneButtonText">Done</string>
     <string name="filePickerCancelButtonText">Cancel</string>
 

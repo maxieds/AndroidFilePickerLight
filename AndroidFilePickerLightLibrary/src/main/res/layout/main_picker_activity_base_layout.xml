@@ -21,4 +21,213 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Toolbar
+        android:id="@+id/mainLayoutToolbarActionBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:logo="none"
+        android:background="?mainToolbarBackgroundColor" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="?colorPrimaryVeryDark" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_gravity="right|center_vertical"
+        android:gravity="right|center_vertical"
+        android:background="?colorPrimary"
+        android:orientation="horizontal"
+        >
+
+        <View
+            android:layout_width="250dp"
+            android:layout_height="2dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent" />
+
+        <Button
+            style="?android:attr/borderlessButtonStyle"
+            android:id="@+id/mainNavBtnActionDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="?colorPrimary"
+            android:drawableLeft="@drawable/done_button_check_icon24"
+            android:drawablePadding="10dp"
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:textColor="?colorAccent"
+            android:text="Done"
+            android:tag="ACTION_BUTTON_DONE" />
+
+        <Button
+            style="?android:attr/borderlessButtonStyle"
+            android:id="@+id/mainNavBtnActionCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="?colorPrimary"
+            android:drawableLeft="@drawable/cancel_button_x_icon24"
+            android:drawablePadding="10dp"
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:textColor="?colorAccent"
+            android:text="Cancel"
+            android:tag="ACTION_BUTTON_DONE" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="?colorPrimaryVeryDark" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_gravity="right|center_vertical"
+        android:gravity="right|center_vertical"
+        android:background="?colorPrimary"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?colorPrimary"
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:text="@string/filePickerNavBarText"
+            android:textColor="?mainToolbarForegroundTextColor"
+            android:textSize="10sp"
+            android:textStyle="normal|bold" />
+
+        <LinearLayout
+            android:id="@+id/mainFileNavBtnsContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:gravity="center_horizontal|center_vertical"
+            android:background="?colorPrimary"
+            android:orientation="horizontal"
+            >
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="?colorPrimaryVeryDark" />
+
+    <LinearLayout
+        android:id="@+id/mainDirPrevPathsNavContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:gravity="center_horizontal|center_vertical"
+        android:background="?colorPrimary"
+        android:orientation="horizontal"
+        >
+
+        <ImageButton
+            android:id="@+id/mainDirNavGlobalBackBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/nav_back_button_icon32"
+            android:background="@android:color/transparent"
+            />
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:src="@drawable/nav_dirs_path_dotdotdot_icon48" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:src="@drawable/nav_dirs_path_separator_icon48" />
+
+        <TextView
+            android:id="@+id/mainDirNavBackTwoPathDisplayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?colorPrimary"
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:text="@string/filePickerNavBarText"
+            android:textColor="?mainToolbarForegroundTextColor"
+            android:textSize="12sp"
+            android:textStyle="normal|bold|italic" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:src="@drawable/nav_dirs_path_separator_icon48" />
+
+        <TextView
+            android:id="@+id/mainDirNavBackOnePathDisplayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?colorPrimary"
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:text="@string/filePickerNavBarText"
+            android:textColor="?mainToolbarForegroundTextColor"
+            android:textSize="12sp"
+            android:textStyle="normal|bold|italic" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="?colorPrimaryVeryDark" />
+
+    <ScrollView
+        android:id="@+id/tools_menu_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fadeScrollbars="false"
+        android:orientation="vertical"
+        android:scrollbarSize="25dp"
+        android:verticalScrollbarPosition="right">
+
+        <RecyclerView
+            android:id="@+id/mainRecyclerViewContainer"
+            android:scrollbars="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </ScrollView>
+
 </LinearLayout>
