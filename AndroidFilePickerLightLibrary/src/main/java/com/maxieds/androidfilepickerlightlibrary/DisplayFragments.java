@@ -41,6 +41,10 @@ public class DisplayFragments {
             resetLayout(fileItem, displayPositionIndex);
         }
 
+        public static FileListItemFragment createNewFragmentFromView(View mainContainerLayout) {
+            return null; // TODO
+        }
+
         public void resetLayout(FileTypes.FileType fileItem, int displayPosition) {
             displayPositionIndex = displayPosition;
             ImageView fileTypeIcon = layoutContainer.findViewById(R.id.fileTypeIcon);
@@ -76,6 +80,15 @@ public class DisplayFragments {
             return layoutContainer;
         }
 
+    }
+
+    public static class FolderNavigationFragment {
+
+        public FolderNavigationFragment() {}
+
+        public static FolderNavigationFragment createNewFolderNavFragment(View navBtnsContainerView) {
+            return null; // TODO
+        }
     }
 
 }

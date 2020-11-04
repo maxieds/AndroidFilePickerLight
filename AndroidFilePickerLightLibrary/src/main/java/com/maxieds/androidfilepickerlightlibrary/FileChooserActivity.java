@@ -61,7 +61,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     private List<File> selectedFilePaths;
     private Stack<FileTypes.FileType> pathHistoryStack = new Stack<FileTypes.FileType>();
-    // the directory path UI fragment should get initialized for easier updating and access here ...
+    private DisplayFragments.FolderNavigationFragment mainFolderNavFragment = null;
+    private DisplayFragments.FileListItemFragment mainFileListFragment = null;
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -71,9 +72,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread paramThread, Throwable paramExcpt) {
-                // !!! TODO: Handle returning with the necessary action code ... /// ---- 
-                localActivityContext.finish();
-                System.exit(-1);
+                getInstance().postSelectedFilesActivityResult((Exception) paramExcpt);
             }
         });
     }
@@ -169,16 +168,24 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 GradientDrawableFactory.NamedGradientColorThemes.NAMED_COLOR_SCHEME_STEEL_BLUE
                 )
         );
+        mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
 
         /* Setup some theme related styling on the main file list container: */
         LinearLayout mainFileListContainer = (LinearLayout) findViewById(R.id.mainRecyclerViewContainer);
         mainFileListContainer.setBackground(GradientDrawableFactory.generateNamedGradientType(
-                GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
-                GradientDrawableFactory.NamedGradientColorThemes.NAMED_COLOR_SCHEME_STEEL_BLUE
+                     GradientDrawableFactory.GradientMethodSpec.GRADIENT_METHOD_LINEAR,
+                     GradientDrawableFactory.GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR,
+                     GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
+                     45.0f,
+                     getColorVariantFromTheme(R.color.colorTransparent),
+                     new int[] {
+                             getColorVariantFromTheme(R.attr.colorPrimaryVeryDark),
+                             getColorVariantFromTheme(R.attr.colorAccent),
+                             getColorVariantFromTheme(R.attr.colorPrimaryDark)
+                     }
                 )
         );
-        // TODO: Need to pass an array of colors, no border, bigger rounding of corners ...
-        // TODO: Set the reference to the RecyclerView UI ...
+        mainFileListFragment = DisplayFragments.FileListItemFragment.createNewFragmentFromView(mainFileListContainer);
 
     }
 
@@ -252,6 +259,14 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public void postSelectedFilesActivityResult() {
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
         setResult(Activity.RESULT_OK, filesResultIntent);
+        finish();
+        System.exit(0);
+    }
+
+    public void postSelectedFilesActivityResult(Exception runtimeExcpt) {
+        runtimeExcpt.printStackTrace();
+        Intent filesResultIntent = getSelectedFilesActivityResultIntent();
+        setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
         System.exit(0);
     }

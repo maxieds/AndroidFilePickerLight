@@ -19,6 +19,8 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 public interface DisplayConfigInterface {
 
+    public static final String LOGTAG = DisplayConfigInterface.class.getSimpleName();
+
     public static DisplayConfigInterface getDefaultsInstance() {
         return null;
     }

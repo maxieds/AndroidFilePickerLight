@@ -1,5 +1,7 @@
 # Android File Picker Light Library
 
+<img src="https://github.com/maxieds/AndroidFilePickerLight/tree/master/Screenshots/LibraryProfileIconPlayStore.png" />
+
 ## About the library 
 
 A file and directory chooser widget for Android that focuses on presenting an easy to configure lightweight UI.
