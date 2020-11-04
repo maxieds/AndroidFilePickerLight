@@ -172,11 +172,13 @@ public class FileTypes {
         private File fileOnDisk;
         private boolean isChecked;
         private Drawable fileTypeIcon;
+        private View fileItemLayoutContainer;
 
         public FileType(File fileOnDisk, DirectoryResultContext parentFolder) {
             this.parentFolder = parentFolder;
             this.fileOnDisk = fileOnDisk;
             this.isChecked = false;
+            this.fileItemLayoutContainer = null;
         }
 
         public void setFileTypeIcon(Drawable fileIcon) {
@@ -229,6 +231,14 @@ public class FileTypes {
 
         public void setChecked(boolean enable) {
             isChecked = enable;
+        }
+
+        public View getLayoutContainer() {
+            return fileItemLayoutContainer;
+        }
+
+        public void setLayoutContainer(View fileItemLayoutContainer) {
+            this.fileItemLayoutContainer = fileItemLayoutContainer;
         }
 
     }

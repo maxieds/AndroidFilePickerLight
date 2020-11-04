@@ -129,7 +129,6 @@ public class DisplayFragments {
         // TODO: Need a way to cleanup any hanging processes with the file system before quitting the activity ...
         // Can we run the FileProvider routines in a thread and then kill it if the user wants another op before
         // it has finished?
-        // (Not sure if this violates the premise of calling things by Intent only ??? )
     }
 
 }

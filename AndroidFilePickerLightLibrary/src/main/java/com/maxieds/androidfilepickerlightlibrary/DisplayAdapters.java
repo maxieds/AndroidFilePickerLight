@@ -93,6 +93,7 @@ public class DisplayAdapters {
                 DisplayFragments.FileListItemFragment.rvLayoutManager.detachViewAt(fileItemIndex);
                 DisplayFragments.FileListItemFragment.rvAdapter.notifyItemRemoved(fileItemIndex);
                 DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
+                fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
                 ViewHolder viewHolder = createViewHolder((LinearLayout) fileItemUIFragment.getLayoutContainer(), 0);
                 bindViewHolder(viewHolder, fileItemIndex++);
             }

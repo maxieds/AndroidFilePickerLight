@@ -28,9 +28,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Locale;
 
-public class DisplayInteractionListeners {
+public class DisplayListeners {
 
-    private static String LOGTAG = DisplayInteractionListeners.class.getSimpleName();
+    private static String LOGTAG = DisplayListeners.class.getSimpleName();
 
     // when a file/directory is successfully selected, display a Toast message (LONG) :
     // Selected FILE|DIR \"path\" ...
