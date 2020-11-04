@@ -365,6 +365,15 @@ library to implement listing files on the local device file system.
    for the under documented new SAF and storage restrictions on recent Android releases
 * [A detailed discussion of changed to Android storage policy](http://thewindowsupdate.com/2020/06/03/scoped-storage-in-android-10-android-11/)
 
+Basically Google has invoked its power and privilege to impose a new file system access scheme from 
+Mars on developers. And that new Martian access mechanism is only loosely coupled with 
+more standardized historical ways of getting at files on local disk native to Java and its I/O functionality 
+that used to be so lovely and implicitly understandable to us native Unix folks. 
+As the development of this library 
+gets under way and Android 11+ sets into more new devices on the market, we hope to figure out how to keep up 
+with this new alien technolgy and will continue to expect small operations like reading files on 
+one's hardware to happen in finite time (on this earth).  
+
 ### Listing of other file picker libraries for Android
 
 We have also made use of some of the functionality provided in Kotlin and/or Java code from the 
@@ -404,3 +413,18 @@ file picker selection requests from the client application.
 * The ``BasicFileProvider`` class has built-in functionality to query the top of the most recent 
   documents list. Perhaps this action would make a good naviagation folder alongside the 
   default folder paths to common directories displayed at the top of the chooser activity?
+* My growing understanding of the new storage access changes on Android suggests that eventually 
+  the ``String`` and ``File`` based returned data from the picker will not be easy to 
+  turn into hooks that can actually open these obscured file paths. This means that even if you 
+  have an absolute path to a local file, the Android system may not like to let you open the 
+  file from that string reference under the new ways it limits storage access. 
+  **Note to self** to eventually explore adding functionality to the picker to return 
+  plaintext strings and byte arrays of the file contents in place of the path identifiers on disk. 
+  This should require better usages of the ``GET_CONTENT_*_TREE_*`` intent actions, and 
+  working with persistent URI data from the file provider:
+  1. Modify ``openFile(...)`` to yield ``readFileAsString`` and/or ``readFileAsBytesArray`` 
+     depending on the picker action the client code calls. 
+  2. Note that returned ``MatrixCursor`` objects have columns that describe th file contents, and then 
+     we can call ``getType(colIndex)`` to figure out whether the contents are: 
+     string / plaintext data (like with ``FIELD_TYPE_STRING``) or stored as 
+     binary data that can be read out in byte arrays (e.g., for `FIELD_TYPE_BLOB`).
