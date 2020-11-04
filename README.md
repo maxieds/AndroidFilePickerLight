@@ -5,7 +5,7 @@
 <hr /><hr />
 
 <img src="https://jitpack.io/v/maxieds/AndroidFilePickerLight.svg" /><img src="https://img.shields.io/badge/NOTE%3A-Project%20is%20a%20work%20in%20progress-orange" /><img src="https://img.shields.io/badge/Android%20API%2029%2B-It%20runs!!-brightgreen" /><img src="https://badges.frapsoft.com/os/gpl/gpl.svg?v=103" />
-<br/><img src="https://forthebadge.com/images/badges/made-with-java.svg" /><img src="https://forthebadge.com/images/badges/powered-by-coffee.svg" /><img src="https://forthebadge.com/images/badges/built-for-android.svg" /><img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" />
+<br/><img src="https://forthebadge.com/images/badges/made-with-java.svg" /><img src="https://forthebadge.com/images/badges/powered-by-coffee.svg" /><img src="https://forthebadge.com/images/badges/built-for-android.svg" /><br/><img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" />
 
 ## About the library 
 
