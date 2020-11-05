@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:state_pressed="true" >
+        <shape android:shape="rectangle"  >
+            <corners android:radius="5dip" />
+            <stroke
+                android:width="1dip"
+                android:color="@color/colorButtonStockBorder"
+                />
+            <gradient
+                android:angle="45"
+                android:endColor="@color/colorButtonStockBGToCorners"
+                android:startColor="@color/colorButtonStockBG"
+                />
+        </shape>
+    </item>
+
+    <item android:state_focused="true">
+        <shape android:shape="rectangle"  >
+            <corners android:radius="5dip" />
+            <stroke
+                android:width="1dip"
+                android:color="@color/colorButtonStockBorder"
+                />
+            <gradient
+                android:angle="45"
+                android:endColor="@color/colorButtonStockBGToCorners"
+                android:startColor="@color/colorButtonStockBG"
+                />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle"  >
+            <corners android:radius="5dip" />
+            <stroke
+                android:width="1dip"
+                android:color="@color/colorButtonStockBorder"
+                />
+            <gradient
+                android:angle="45"
+                android:endColor="@color/colorButtonStockBGToCorners"
+                android:startColor="@color/colorButtonStockBG"
+                />
+        </shape>
+    </item>
+
+</selector>

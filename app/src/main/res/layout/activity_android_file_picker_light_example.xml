@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,6 +24,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/__colorPrimary"
+    android:paddingBottom="0dp"
+    android:layout_marginBottom="0dp"
     tools:context=".AndroidFilePickerLightExampleActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -18,120 +38,137 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?colorPrimaryDark" />
+        android:background="?colorPrimaryDark"
+        android:paddingBottom="0dp"
+        android:layout_marginBottom="0dp"
+        />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:paddingTop="0dp"
+        android:layout_marginTop="0dp"
+        android:paddingBottom="0dp"
+        android:layout_marginBottom="0dp"
+        android:alpha="128"
+        android:scaleType="fitCenter"
+        android:src="@drawable/wallpaper_border"
+        />
 
     <TextView
+        style="@style/AppTheme.TextLabel"
         android:id="@+id/textview_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Launch a single folder chooser activity:"
-        app:layout_constraintBottom_toTopOf="@id/button_first"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+       />
 
     <Button
+        style="@style/AppTheme.StockButton"
         android:id="@+id/button_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|center_horizontal"
-        android:gravity="center|center_horizontal"
         android:text="GO!"
         android:onClick="actionButtonLaunchSingleFolderPickerActivity"
-        android:drawableLeft="@drawable/launcher_button1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_first" />
+        android:drawableLeft="@drawable/launcher_button1" />
 
     <TextView
+        style="@style/AppTheme.TextLabel"
         android:id="@+id/textview_second"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Launch a single directory chooser activity:"
-        app:layout_constraintBottom_toTopOf="@id/button_second"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        />
 
     <Button
+        style="@style/AppTheme.StockButton"
         android:id="@+id/button_second"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/launcher_button2"
-        android:layout_gravity="center|center_horizontal"
-        android:gravity="center|center_horizontal"
         android:text="GO!"
         android:onClick="actionButtonLaunchSingleFilePickerActivity"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_second" />
+        />
 
     <TextView
+        style="@style/AppTheme.TextLabel"
         android:id="@+id/textview_third"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Launch an omnivorous multi-path chooser:"
-        app:layout_constraintBottom_toTopOf="@id/button_third"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        />
 
     <Button
+        style="@style/AppTheme.StockButton"
         android:id="@+id/button_third"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|center_horizontal"
-        android:gravity="center|center_horizontal"
         android:drawableLeft="@drawable/launcher_button3"
         android:text="GO!"
         android:onClick="actionButtonLaunchOmnivorousMultiPickerActivity"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_third" />
+        />
 
     <TextView
+        style="@style/AppTheme.TextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Launch a multi-file chooser (different theme):" />
 
     <Button
+        style="@style/AppTheme.StockButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|center_horizontal"
-        android:gravity="center|center_horizontal"
         android:drawableLeft="@drawable/launcher_button4"
         android:text="GO!"
         android:onClick="actionButtonLaunchMultiPickerActivity" />
 
     <TextView
+        style="@style/AppTheme.TextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Launch a multi-file chooser (custom sort):" />
 
     <Button
+        style="@style/AppTheme.StockButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|center_horizontal"
-        android:gravity="center|center_horizontal"
         android:drawableLeft="@drawable/launcher_button5"
         android:text="GO!"
         android:onClick="actionButtonLaunchOmnivorousMultiPickerActivityWithCustomSort" />
 
     <TextView
+        style="@style/AppTheme.TextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Display a demo of the toast-based progress bar:" />
 
     <Button
+        style="@style/AppTheme.StockButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|center_horizontal"
         android:gravity="center|center_horizontal"
+        android:onClick="actionButtonLaunchProgressBarDemo"
         android:drawableLeft="@drawable/launcher_button6"
         android:text="GO!"
-        android:onClick="actionButtonLaunchProgressBarDemo" />
+        />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="10dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:paddingBottom="0dp"
+        android:layout_marginBottom="0dp"
+        android:alpha="128"
+        android:scaleType="fitCenter"
+        android:src="@drawable/wallpaper_border"
+        />
 
 </LinearLayout>

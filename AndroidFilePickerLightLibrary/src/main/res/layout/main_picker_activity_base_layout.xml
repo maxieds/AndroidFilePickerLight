@@ -17,139 +17,38 @@
     https://github.com/maxieds/AndroidFilePickerLight
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?__colorPrimary"
+    android:orientation="vertical"
+    android:background="@color/__colorPrimary"
+    tools:context=".FileChooserActivity"
     >
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/mainLayoutToolbarActionBar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="?mainToolbarBackgroundColor"
-        app:titleTextAppearance="@style/LibraryToolbar.TitleText"
-        app:subtitleTextAppearance="@style/LibraryToolbar.SubtitleText"
-        />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
-
     <LinearLayout
-        android:id="@+id/mainDirPrevPathsNavContainer"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:layout_marginBottom="1dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:gravity="center_horizontal|center_vertical"
-        android:background="?__colorPrimaryVeryDark"
-        android:orientation="horizontal"
-        >
+        android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/mainDirNavGlobalBackBtn"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/mainLayoutToolbarActionBar"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
-            android:layout_marginRight="5dp"
-            android:src="@drawable/nav_back_button_icon32"
-            android:background="@android:color/transparent"
+            android:background="?mainToolbarBackgroundColor"
+            app:titleTextAppearance="@style/LibraryToolbar.TitleText"
+            app:subtitleTextAppearance="@style/LibraryToolbar.SubtitleText"
             />
 
         <View
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:src="@drawable/nav_dirs_path_dotdotdot_icon48" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:src="@drawable/nav_dirs_path_separator_icon48" />
-
-        <TextView
-            android:id="@+id/mainDirNavBackTwoPathDisplayText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?__colorPrimary"
-            android:gravity="right|center_vertical"
-            android:layout_gravity="right|center_vertical"
-            android:text="---"
-            android:textColor="?__colorAccent"
-            android:textSize="12.5sp"
-            android:textStyle="normal|bold|italic"
-            android:fontFamily="serif-monospace"
-            />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:src="@drawable/nav_dirs_path_separator_icon48" />
-
-        <TextView
-            android:id="@+id/mainDirNavBackOnePathDisplayText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?colorPrimary"
-            android:gravity="right|center_vertical"
-            android:layout_gravity="right|center_vertical"
-            android:text="---"
-            android:textColor="?__colorAccent"
-            android:textSize="12.5sp"
-            android:textAllCaps="true"
-            android:textStyle="normal|bold|italic"
-            android:fontFamily="serif-monospace"
-            />
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:layout_marginBottom="1dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_gravity="right|center_vertical"
-        android:gravity="right|center_vertical"
-        android:background="?__colorPrimary"
-        android:orientation="vertical"
-        >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?colorPrimary"
-            android:gravity="left|center_vertical"
-            android:layout_gravity="left|center_vertical"
-            android:text="@string/filePickerNavBarText"
-            android:textColor="?__colorAccent"
-            android:textSize="15sp"
-            android:textAllCaps="true"
-            android:textStyle="normal|bold|italic"
-            android:fontFamily="serif-monospace" />
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?__colorPrimaryVeryDark" />
 
         <LinearLayout
-            android:id="@+id/mainFileNavBtnsContainer"
+            android:id="@+id/mainDirPrevPathsNavContainer"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
@@ -158,98 +57,222 @@
             android:layout_marginLeft="8dp"
             android:layout_gravity="center_horizontal|center_vertical"
             android:gravity="center_horizontal|center_vertical"
+            android:background="?__colorPrimaryVeryDark"
+            android:orientation="horizontal"
+            >
+
+            <ImageButton
+                android:id="@+id/mainDirNavGlobalBackBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center_vertical"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/nav_back_button_icon32"
+                android:background="@android:color/transparent"
+                />
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:src="@drawable/nav_dirs_path_dotdotdot_icon48" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:src="@drawable/nav_dirs_path_separator_icon48" />
+
+            <TextView
+                android:id="@+id/mainDirNavBackTwoPathDisplayText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?__colorPrimary"
+                android:gravity="right|center_vertical"
+                android:layout_gravity="right|center_vertical"
+                android:text="---"
+                android:textColor="?__colorAccent"
+                android:textSize="12.5sp"
+                android:textStyle="normal|bold|italic"
+                android:fontFamily="serif-monospace"
+                />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:src="@drawable/nav_dirs_path_separator_icon48" />
+
+            <TextView
+                android:id="@+id/mainDirNavBackOnePathDisplayText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?colorPrimary"
+                android:gravity="right|center_vertical"
+                android:layout_gravity="right|center_vertical"
+                android:text="---"
+                android:textColor="?__colorAccent"
+                android:textSize="12.5sp"
+                android:textAllCaps="true"
+                android:textStyle="normal|bold|italic"
+                android:fontFamily="serif-monospace"
+                />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?__colorPrimaryVeryDark" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_gravity="right|center_vertical"
+            android:gravity="right|center_vertical"
+            android:background="?__colorPrimary"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?colorPrimary"
+                android:gravity="left|center_vertical"
+                android:layout_gravity="left|center_vertical"
+                android:text="@string/filePickerNavBarText"
+                android:textColor="?__colorAccent"
+                android:textSize="15sp"
+                android:textAllCaps="true"
+                android:textStyle="normal|bold|italic"
+                android:fontFamily="serif-monospace" />
+
+            <LinearLayout
+                android:id="@+id/mainFileNavBtnsContainer"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:gravity="center_horizontal|center_vertical"
+                android:background="?__colorPrimary"
+                android:orientation="horizontal"
+                >
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?__colorPrimaryVeryDark" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?__colorPrimaryVeryDark" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?__colorPrimaryVeryDark" />
+
+        <LinearLayout
+            android:id="@+id/mainRecyclerViewContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/mainRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:background="?__colorAccent"
+                android:layout_weight="1"
+                android:gravity="top|center_horizontal"
+                android:layout_gravity="bottom|center_horizontal"
+                />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?__colorPrimaryVeryDark" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_gravity="bottom|center_vertical"
+            android:gravity="right|bottom|center_vertical"
             android:background="?__colorPrimary"
             android:orientation="horizontal"
             >
+
+            <View
+                android:layout_width="250dp"
+                android:layout_height="2dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent" />
+
+            <Button
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/mainNavBtnActionCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="6dp"
+                android:background="?__colorPrimary"
+                android:drawableLeft="@drawable/cancel_button_x_icon24"
+                android:drawablePadding="10dp"
+                android:gravity="right|center_vertical"
+                android:layout_gravity="right|center_vertical"
+                android:textColor="?__colorAccent"
+                android:text="Cancel"
+                android:textAllCaps="true"
+                android:textSize="14sp"
+                android:textStyle="normal|bold"
+                />
+
+            <Button
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/mainNavBtnActionDone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:background="?__colorPrimary"
+                android:drawableLeft="@drawable/done_button_check_icon24"
+                android:drawablePadding="10dp"
+                android:gravity="right|center_vertical"
+                android:layout_gravity="right|center_vertical"
+                android:textColor="?__colorAccent"
+                android:text="Done"
+                android:textAllCaps="true"
+                android:textSize="14sp"
+                android:textStyle="normal|bold"
+                />
+
         </LinearLayout>
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:layout_marginBottom="1dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_gravity="right|center_vertical"
-        android:gravity="right|center_vertical"
-        android:background="?__colorPrimary"
-        android:orientation="horizontal"
-        >
-
-        <View
-            android:layout_width="250dp"
-            android:layout_height="2dp"
-            android:layout_weight="1"
-            android:background="@android:color/transparent" />
-
-        <Button
-            style="?android:attr/borderlessButtonStyle"
-            android:id="@+id/mainNavBtnActionCancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:paddingLeft="12dp"
-            android:paddingRight="6dp"
-            android:background="?__colorPrimary"
-            android:drawableLeft="@drawable/cancel_button_x_icon24"
-            android:drawablePadding="10dp"
-            android:gravity="right|center_vertical"
-            android:layout_gravity="right|center_vertical"
-            android:textColor="?__colorAccent"
-            android:text="Cancel"
-            android:textAllCaps="true"
-            android:textSize="15sp"
-            android:textStyle="normal|bold"
-            android:tag="ACTION_BUTTON_CANCEL" />
-
-        <Button
-            style="?android:attr/borderlessButtonStyle"
-            android:id="@+id/mainNavBtnActionDone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
-            android:background="?__colorPrimary"
-            android:drawableLeft="@drawable/done_button_check_icon24"
-            android:drawablePadding="10dp"
-            android:gravity="right|center_vertical"
-            android:layout_gravity="right|center_vertical"
-            android:textColor="?__colorAccent"
-            android:text="Done"
-            android:textAllCaps="true"
-            android:textSize="15sp"
-            android:textStyle="normal|bold"
-            android:tag="ACTION_BUTTON_DONE" />
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/mainRecyclerViewContainer"
-        android:scrollbars="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="300dp"
-        android:background="?__colorAccent"
-        android:layout_weight="1"
-        android:gravity="top|center_horizontal"
-        android:layout_gravity="bottom|center_horizontal"
-        />
-
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

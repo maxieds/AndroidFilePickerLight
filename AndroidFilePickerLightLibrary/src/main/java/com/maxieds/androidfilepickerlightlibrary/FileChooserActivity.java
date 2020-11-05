@@ -126,11 +126,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Runnable execDelayedFileProviderInitRunner = new Runnable() {
             @Override
             public void run() {
-                //configureInitialMainLayout(fpCfgConst);
                 BasicFileProvider.getInstance().selectBaseDirectoryByType(fpConfig.getInitialBaseFolder());
             }
         };
-        execDelayedFileProviderInitHandler.postDelayed(execDelayedFileProviderInitRunner, 650);
+        execDelayedFileProviderInitHandler.postDelayed(execDelayedFileProviderInitRunner, 300);
 
     }
 
@@ -232,7 +231,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         DisplayFragments.mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
 
         /* Setup some theme related styling on the main file list container: */
-        RecyclerView mainFileListContainer = findViewById(R.id.mainRecyclerViewContainer);
+        View mainFileListContainer = findViewById(R.id.mainRecyclerViewContainer);
         mainFileListContainer.setBackgroundDrawable(GradientDrawableFactory.generateNamedGradientType(
                      GradientDrawableFactory.GradientMethodSpec.GRADIENT_METHOD_LINEAR,
                      GradientDrawableFactory.GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR,
@@ -246,7 +245,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                      }
                 )
         );
-        DisplayFragments.initializeRecyclerViewLayout(mainFileListContainer);
+        RecyclerView mainLayoutRecyclerView = findViewById(R.id.mainRecyclerView);
+        DisplayFragments.initializeRecyclerViewLayout(mainLayoutRecyclerView);
         DisplayFragments.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
     }

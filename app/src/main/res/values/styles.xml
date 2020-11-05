@@ -1,7 +1,23 @@
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
 <resources>
-    <!-- Base application theme. -->
+
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -13,7 +29,26 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.TextLabel" parent="@style/TextAppearance.AppCompat">
+        <item name="android:textSize">16dp</item>
+        <item name="android:textStyle">normal|italic</item>
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:paddingTop">3dp</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+
+    <style name="AppTheme.StockButton" parent="@style/TextAppearance.AppCompat.Button">
+        <item name="android:layout_gravity">center|center_horizontal</item>
+        <item name="android:gravity">center|center_horizontal</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:background">@drawable/stock_button_background</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal|bold</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
 
 </resources>

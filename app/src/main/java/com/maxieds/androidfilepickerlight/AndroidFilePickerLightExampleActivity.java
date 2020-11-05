@@ -1,11 +1,26 @@
+/*
+        This program (the AndroidFilePickerLight library) is free software written by
+        Maxie Dion Schmidt: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        The complete license provided with source distributions of this library is
+        available at the following link:
+        https://github.com/maxieds/AndroidFilePickerLight
+*/
+
 package com.maxieds.androidfilepickerlight;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.maxieds.androidfilepickerlightlibrary.DisplayUtils;
 import com.maxieds.androidfilepickerlightlibrary.FileChooserBuilder;
 
@@ -32,7 +47,8 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_android_file_picker_light_example);
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("    Android File Picker Light");
-        toolbar.setLogo(R.drawable.toolbar_icon32);
+        toolbar.setTitleTextColor(getColor(R.color.colorToolbarFGText));
+        toolbar.setLogo(R.drawable.toolbar_icon48);
         toolbar.setBackgroundColor(getColor(R.color.colorAccent));
         toolbar.setTitleTextColor(getColor(R.color.colorPrimaryDark));
         toolbar.setSubtitleTextColor(getColor(R.color.colorPrimaryDark));
@@ -47,8 +63,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         if(resultError) {
             adBuilder.setIcon(R.drawable.file_picker_error);
             adBuilder.setTitle("Unfortunately the file picker has failed :(");
-            adBuilder.setNegativeButton("That sucks, boo ...", null);
-            adBuilder.setNegativeButtonIcon(getDrawable(R.drawable.fp_error_dismiss_btn_on_error));
+            adBuilder.setNegativeButton("That sucks, boo [X]", null);
             adBuilder.create().show();
             return;
         }
@@ -62,8 +77,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         }
         fileSelectionsDisplayText.setText(displayText.toString());
         adBuilder.setView(fileSelectionsDisplayText);
-        adBuilder.setNegativeButton("OK, Great!", null);
-        adBuilder.setNegativeButtonIcon(getDrawable(R.drawable.fp_error_dismiss_btn_on_success));
+        adBuilder.setNegativeButton("OK, Great! [X]", null);
         adBuilder.create().show();
     }
 
