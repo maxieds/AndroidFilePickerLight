@@ -17,11 +17,11 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
-public interface DisplayConfigInterface {
+public interface ThemesConfigInterface {
 
-    public static final String LOGTAG = DisplayConfigInterface.class.getSimpleName();
+    public static final String LOGTAG = ThemesConfigInterface.class.getSimpleName();
 
-    public static DisplayConfigInterface getDefaultsInstance() {
+    public static ThemesConfigInterface getDefaultsInstance() {
         return null;
     }
 

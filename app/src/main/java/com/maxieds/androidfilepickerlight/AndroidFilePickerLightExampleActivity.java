@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
@@ -69,7 +70,12 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        FileChooserBuilder.handleActivityResult(this, requestCode, resultCode, data);
+        try {
+            List<String> selectedFilePaths = FileChooserBuilder.handleActivityResult(this, requestCode, resultCode, data);
+            showFileChooserResultsDialog(selectedFilePaths, false);
+        } catch(RuntimeException rte) {
+            showFileChooserResultsDialog(new ArrayList<String>(), true);
+        }
     }
 
     public void actionButtonLaunchSingleFilePickerActivity(View btnView) {

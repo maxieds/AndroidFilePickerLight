@@ -17,7 +17,10 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.content.Context;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -57,11 +60,31 @@ public class DisplayAdapters {
 
     }
 
-    public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, RecyclerView.OnItemTouchListener {
 
         public View iconView;
         public TextView displayText;
         public DisplayTypes.FileType fileItem;
+
+        public interface ClickListener {
+            void onClick(View view, int position);
+            void onLongClick(View view, RecyclerView recyclerView, int position);
+        }
+        private ClickListener clickListener;
+
+        private GestureDetector gestureDetector = new GestureDetector(FileChooserActivity.getInstance(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return true;
+            }
+            @Override
+            public void onLongPress(MotionEvent e) {
+                View child = DisplayFragments.mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
+                if(child != null && clickListener != null) {
+                    clickListener.onLongClick(child, DisplayFragments.mainFileListRecyclerView, DisplayFragments.mainFileListRecyclerView.getChildPosition(child));
+                }
+            }
+        });
 
         public BaseViewHolder(View v) {
             super(v);
@@ -112,12 +135,10 @@ public class DisplayAdapters {
                     DisplayUtils.displayToastMessageShort(displaySelectMsg);
                 }
             }
-            //DisplayUtils.displayToastMessageShort(String.format(Locale.getDefault(), "ON-CLICK -- POS @ %d && TEXT @ %s", getLayoutPosition(), this.getDisplayText()));
         }
 
         @Override
         public boolean onLongClick(View v) {
-            //DisplayUtils.displayToastMessageShort(String.format(Locale.getDefault(), "ON-LONG-CLICK -- POS @ %d && TEXT @ %s", getLayoutPosition(), this.getDisplayText()));
             if(!fileItem.isDirectory()) {
                 if(performNewFileItemClick(fileItem)) {
                     String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
@@ -128,10 +149,25 @@ public class DisplayAdapters {
             }
             // Otherwise, descend recursively into the clicked directory location:
             DisplayFragments.descendIntoNextDirectory();
-            String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recusrively into DIR \"%s\".", fileItem.getBaseName());
+            String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recursively into DIR \"%s\".", fileItem.getBaseName());
             DisplayUtils.displayToastMessageShort(displayRecurseMsg);
             return true;
         }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rview, MotionEvent mevt) {
+            View child = rview.findChildViewUnder(mevt.getX(), mevt.getY());
+            if(child != null && clickListener != null && gestureDetector.onTouchEvent(mevt)) {
+                clickListener.onClick(child, rview.getChildPosition(child));
+            }
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rview, MotionEvent mevt) {}
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean state) {}
 
     }
 

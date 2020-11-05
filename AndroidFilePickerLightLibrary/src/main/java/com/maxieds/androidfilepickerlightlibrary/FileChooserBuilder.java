@@ -200,7 +200,7 @@ public class FileChooserBuilder implements Serializable {
 
     private WeakReference<Activity> activityContextRef;
     private FileChooserException.AndroidFilePickerLightException defaultExceptionType;
-    private DisplayConfigInterface displayUIConfig;
+    private ThemesConfigInterface displayUIConfig;
     private int activityActionCode;
     private List<DefaultNavFoldersType> defaultNavFoldersList;
     private boolean showHidden;
@@ -220,7 +220,7 @@ public class FileChooserBuilder implements Serializable {
     public FileChooserBuilder(Activity activityContextInst) {
         activityContextRef = new WeakReference<Activity>(activityContextInst);
         defaultExceptionType = FileChooserException.CommunicateSelectionDataException.getNewInstance();
-        displayUIConfig = DisplayConfigInterface.getDefaultsInstance();
+        displayUIConfig = ThemesConfigInterface.getDefaultsInstance();
         activityActionCode = ACTIVITY_CODE_SELECT_FILE;
         defaultNavFoldersList = getDefaultNavFoldersList();
         showHidden = false;
@@ -258,7 +258,7 @@ public class FileChooserBuilder implements Serializable {
                 pathSelectMode.ordinal() != SelectionModeType.SELECT_FILE.ordinal();
     }
 
-    public FileChooserBuilder setDisplayUIConfig(DisplayConfigInterface uiCfg) {
+    public FileChooserBuilder setDisplayUIConfig(ThemesConfigInterface uiCfg) {
         displayUIConfig = uiCfg;
         return this;
     }
@@ -347,7 +347,7 @@ public class FileChooserBuilder implements Serializable {
         return idleTimeoutMillis;
     }
 
-    public DisplayConfigInterface getDisplayConfig() {
+    public ThemesConfigInterface getDisplayConfig() {
         return displayUIConfig;
     }
 
@@ -402,38 +402,12 @@ public class FileChooserBuilder implements Serializable {
     public static final String FILE_PICKER_INTENT_DATA_TYPE_KEY = "FilePickerSelectedIntentDataType";
     public static final String FILE_PICKER_INTENT_DATA_PAYLOAD_KEY = "FilePickerSelectedIntentDataPayloadList";
 
-    public <DataItemTypeT extends Object> List<DataItemTypeT> launchFilePicker() throws FileChooserException.AndroidFilePickerLightException {
+    public void launchFilePicker() throws FileChooserException.AndroidFilePickerLightException {
         Intent launchPickerIntent = new Intent(activityContextRef.get().getApplicationContext(), FileChooserActivity.class);
         launchPickerIntent.setAction(Intent.ACTION_PICK_ACTIVITY);
         launchPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         FileChooserActivity.activityBuilderLaunchedRefs.push(this);
         activityContextRef.get().startActivityForResult(launchPickerIntent, activityActionCode);
-        try {
-            Looper.loop();
-        } catch(FileChooserException.AndroidFilePickerLightException rteInst) {
-            try {
-                if(rteInst.isError()) {
-                    throw rteInst;
-                }
-                else if(!rteInst.hasDataItems()) {
-                    return new ArrayList<DataItemTypeT>();
-                }
-                List<DataItemTypeT> selectedDataItems = rteInst.getTypedDataAsList();
-                /* The next procedure is necessary because for some reason the app otherwise
-                 * freezes without bringing the original Activity context back to the front:
-                 */
-                activityContextRef.get().moveTaskToBack(false);
-                Intent bringToFrontIntent = new Intent(activityContextRef.get(), activityContextRef.get().getClass());
-                bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                activityContextRef.get().startActivity(bringToFrontIntent);
-                /* Now resume to return the data we requested: */
-                return selectedDataItems;
-            } catch(Exception ex) {
-                ex.printStackTrace();
-                throw defaultExceptionType.newExceptionInstance(rteInst.getMessage(), ex);
-            }
-        }
-        return null;
     }
 
     public static final int ACTIVITY_CODE_SELECT_FILE = 1;
@@ -443,7 +417,7 @@ public class FileChooserBuilder implements Serializable {
     /* Client code should call this method in their main Activity's onActivityResult function
      * to handle the logic there when the activity was created as a file picker instance:
      */
-    public static void handleActivityResult(Activity activityInst, int requestCode, int resultCode, Intent data) throws FileChooserException.AndroidFilePickerLightException {
+    public static List<String> handleActivityResult(Activity activityInst, int requestCode, int resultCode, Intent data) throws FileChooserException.AndroidFilePickerLightException {
         if(activityInst == null || data == null) {
             throw new FileChooserException.CommunicateNoDataException();
         }
@@ -453,8 +427,16 @@ public class FileChooserBuilder implements Serializable {
             case ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
                 if(resultCode == RESULT_OK) {
                     FileChooserException.AndroidFilePickerLightException resultOKException = new FileChooserException.CommunicateSelectionDataException();
-                    resultOKException.packageDataItemsFromIntent(data);
-                    throw resultOKException;
+                    List<String> selectedDataItems = resultOKException.packageDataItemsFromIntent(data);
+                    /* The next procedure is necessary because for some reason the app otherwise
+                     * freezes without bringing the original Activity context back to the front:
+                     */
+                    activityInst.moveTaskToBack(false);
+                    Intent bringToFrontIntent = new Intent(activityInst, activityInst.getClass());
+                    bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    activityInst.startActivity(bringToFrontIntent);
+                    /* Now resume to return the data we requested: */
+                    return selectedDataItems;
                 }
                 break;
             default:

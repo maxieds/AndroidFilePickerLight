@@ -18,10 +18,12 @@
 package com.maxieds.androidfilepickerlightlibrary;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,7 +37,7 @@ public class DisplayFragments {
     private static String LOGTAG = DisplayFragments.class.getSimpleName();
 
     public static RecyclerView mainFileListRecyclerView = null;
-    public static RecyclerView.LayoutManager rvLayoutManager = null;
+    public static LinearLayoutManager rvLayoutManager = null;
     public static DisplayAdapters.FileListAdapter rvAdapter = null;
     public static boolean recyclerViewAdapterInit = false;
 
@@ -43,7 +45,9 @@ public class DisplayFragments {
     public static int curSelectionCount = 0;
     public static boolean allowSelectFiles = true;
     public static boolean allowSelectFolders = true;
-    public static List<DisplayTypes.FileType> activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
+
+    public static  List<DisplayTypes.FileType> activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
+    private static List<String> fileItemBasePathsList = new ArrayList<String>();
 
     public static FileFilter.FileFilterInterface localFilesListFilter = null;
     public static FileFilter.FileItemsListSortFunc localFilesListSortFunc = null;
@@ -69,29 +73,37 @@ public class DisplayFragments {
     }
 
     public static void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList) {
-        List<DisplayTypes.FileType> filteredFileContents = FileChooserBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
+
         if(!recyclerViewAdapterInit) {
-            List<String> fileItemBasePathsList = new ArrayList<String>();
-            for(DisplayTypes.FileType fileItem : filteredFileContents) {
-                fileItemBasePathsList.add(fileItem.getBaseName());
-            }
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                         ViewGroup.LayoutParams.WRAP_CONTENT);
+            mainFileListRecyclerView.setLayoutParams(layoutParams);
+            rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
+            rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
             rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
             mainFileListRecyclerView.setAdapter(rvAdapter);
-            mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
             recyclerViewAdapterInit = true;
         }
         DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
         DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText("----");
         activeSelectionsList.clear();
-        mainFileListRecyclerView.removeAllViews();
+        fileItemBasePathsList.clear();
         rvAdapter.notifyDataSetChanged();
+
+        List<DisplayTypes.FileType> filteredFileContents = FileChooserBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
+        fileItemBasePathsList.clear();
+        rvLayoutManager.removeAllViews();
+
         int fileItemIndex = 0;
         for(DisplayTypes.FileType fileItem : filteredFileContents) {
+            fileItemBasePathsList.add(fileItem.getBaseName());
+            rvAdapter.notifyDataSetChanged();
             DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
             fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
-            mainFileListRecyclerView.addView(fileItemUIFragment.getLayoutContainer());
+            rvAdapter.bindViewHolder(new DisplayAdapters.BaseViewHolder(fileItemUIFragment.getLayoutContainer()), fileItemIndex);
         }
-        rvAdapter.notifyDataSetChanged();
+
     }
 
     public static class FileListItemFragment {
