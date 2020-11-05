@@ -25,7 +25,7 @@
         android:startColor="#3F51B5"
         android:centerColor="#477C9C"
         android:endColor="#03A9F4"
-        android:angle="32"/>
+        android:angle="45"/>
 
     <corners
         android:radius="6dp"

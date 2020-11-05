@@ -22,6 +22,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.text.Layout;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -86,6 +87,7 @@ public class DisplayUtils {
     };
 
     private static final int STATUS_TOAST_DISPLAY_TIME = Toast.LENGTH_SHORT;
+    private static final int STATUS_TOAST_DISPLAY_REFRESH_TIME = 250;
     private static boolean toastsDismissed = true;
     private static int progressBarPos, progressBarTotal;
     private static String progressBarSliderName;
@@ -119,7 +121,7 @@ public class DisplayUtils {
             @Override
             public void run() {
                 progressBarToast = Toast.makeText(mainAppActivity, statusBarMsg, STATUS_TOAST_DISPLAY_TIME);
-                progressBarToast.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
+                progressBarToast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 65);
                 LayoutInflater layoutInflater = mainAppActivity.getLayoutInflater();
                 View toastProgressView = layoutInflater.inflate(R.layout.progress_bar_layout, null);
                 Drawable statusBarMarkerImage = mainAppActivity.getResources().getDrawable(PROGRESS_BAR_VISUAL_MARKERS[statusBarMarkerIdx]);
@@ -127,7 +129,7 @@ public class DisplayUtils {
                 ((TextView) toastProgressView.findViewById(R.id.progressBarText)).setText(statusBarMsg);
                 progressBarToast.setView(toastProgressView);
                 if(!toastsDismissed) {
-                    progressBarDisplayHandler.postDelayed(progressBarDisplayRunnable, STATUS_TOAST_DISPLAY_TIME + 250);
+                    progressBarDisplayHandler.postDelayed(progressBarDisplayRunnable, STATUS_TOAST_DISPLAY_REFRESH_TIME);
                 }
                 progressBarToast.show();
             }

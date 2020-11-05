@@ -311,7 +311,7 @@ public class GradientDrawableFactory {
         }
 
         public Builder setGradientAngle(float gradAngle) {
-            gradientAngle = gradAngle;
+            gradientAngle = (float) Math.floor(gradAngle / 45.0f); /* Otherwise, Android throws at fatal warning if it is not a multiple of 45.0f */
             return this;
         }
 
