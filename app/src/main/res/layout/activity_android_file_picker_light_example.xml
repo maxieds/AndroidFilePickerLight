@@ -15,6 +15,11 @@
         android:background="?attr/colorPrimary"
         app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="?colorPrimaryDark" />
+
     <TextView
         android:id="@+id/textview_first"
         android:layout_width="wrap_content"

@@ -34,5 +34,7 @@ public interface ThemesConfigInterface {
     // the GradientDrawableFactory.Builder class ...
     // setup / configure the stock directory path nav btn icons
     // reset the default file type and directory folder display icons
+    // toolbar bgcolors (0-3)
+    // toolbar icon
 
 }

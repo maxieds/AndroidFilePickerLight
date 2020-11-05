@@ -36,6 +36,9 @@
         <item name="namedFolderUserHomeIcon">@drawable/named_folder_user_home_icon32</item>
         <item name="namedFolderMediaIcon">@drawable/named_folder_media_icon32</item>
         <item name="mainToolbarBackgroundColor">@color/colorMainToolbarBackground</item>
+        <item name="mainToolbarBackgroundColor2">@color/colorMainToolbarBackground2</item>
+        <item name="mainToolbarBackgroundColor3">@color/colorMainToolbarBackground3</item>
+        <item name="mainToolbarBackgroundColor4">@color/colorMainToolbarBackground4</item>
         <item name="mainToolbarForegroundTextColor">@color/colorMainToolbarForegroundText</item>
         <item name="__colorPrimary">@color/colorPrimary</item>
         <item name="__colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -61,6 +64,22 @@
         <item name="colorControlNormal">?colorPrimaryDark</item>
         <item name="colorControlActivated">?colorPrimaryDark</item>
         <item name="buttonTint">?colorPrimaryDark</item>
+    </style>
+
+    <style name="LibraryToolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">normal|bold|italic</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">serif</item>
+        <item name="android:gravity">center_vertical|left</item>
+    </style>
+
+    <style name="LibraryToolbar.SubtitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal|italic</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">serif-monospace</item>
+        <item name="android:gravity">center_vertical|center</item>
     </style>
 
 </resources>

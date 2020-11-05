@@ -215,6 +215,7 @@ public class FileChooserBuilder implements Serializable {
     private FileFilter.FileItemsListSortFunc customSortFunc;
 
     public static final long NO_ABORT_TIMEOUT = -1;
+    public static final long DEFAULT_TIMEOUT = 100 * 1000;
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
 
     public FileChooserBuilder(Activity activityContextInst) {
@@ -229,7 +230,7 @@ public class FileChooserBuilder implements Serializable {
         initFolderBasePathType = BaseFolderPathType.getInstanceByName(BaseFolderPathType.BASE_PATH_TYPE_FILES_DIR);
         pathSelectMode = SelectionModeType.SELECT_OMNIVORE;
         externalFilesProvider = null;
-        idleTimeoutMillis = NO_ABORT_TIMEOUT;
+        idleTimeoutMillis = DEFAULT_TIMEOUT;
         localFileFilter = null;
     }
 

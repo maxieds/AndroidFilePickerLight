@@ -20,6 +20,7 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -41,14 +42,14 @@ import java.util.Stack;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
-import pub.devrel.easypermissions.BuildConfig;
+import com.maxieds.androidfilepickerlightlibrary.BuildConfig;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class FileChooserActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private static String LOGTAG = FileChooserActivity.class.getSimpleName();
 
-    public static FileChooserActivity staticRunningInst = null;
+    private static FileChooserActivity staticRunningInst = null;
     public static FileChooserActivity getInstance() { return staticRunningInst; }
 
     public static Stack<FileChooserBuilder> activityBuilderLaunchedRefs = new Stack<FileChooserBuilder>();
@@ -93,6 +94,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         setTheme(R.style.LibraryDefaultTheme);
         setContentView(R.layout.main_picker_activity_base_layout);
+        configureInitialMainLayout(fpConfig);
 
         // Keep the app from crashing when the screen rotates:
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -124,7 +126,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Runnable execDelayedFileProviderInitRunner = new Runnable() {
             @Override
             public void run() {
-                configureInitialMainLayout(fpConfig);
+                //configureInitialMainLayout(fpCfgConst);
                 BasicFileProvider.getInstance().selectBaseDirectoryByType(fpConfig.getInitialBaseFolder());
             }
         };
@@ -136,12 +138,31 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
-        actionBar.setTitle(String.format(Locale.getDefault(), "%s | v%s", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
-        actionBar.setSubtitle(getString(R.string.filePickerTitleText));
+        actionBar.setTitle(String.format(Locale.getDefault(), "  %s | v%s", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
+        actionBar.setSubtitle(String.format(Locale.getDefault(), " ⇤%s⇥", getString(R.string.filePickerTitleText)));
+        actionBar.setTitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
+        actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
+        actionBar.setTitleMargin(0, 5, 5, 5);
+        actionBar.setPadding(5, 8, 5, 6);
+        actionBar.setElevation(1.25f);
+        GradientDrawable chooserToolbarGradientBg = new GradientDrawableFactory.Builder()
+                .setGradientAngle(64.0f)
+                .setGradientType(GradientDrawableFactory.GradientMethodSpec.GRADIENT_METHOD_LINEAR)
+                .setFillStyle(GradientDrawableFactory.GradientTypeSpec.GRADIENT_FILL_TYPE_LEFT_RIGHT)
+                .setBorderColor(getColor(R.color.__colorTransparent))
+                .setBorderStyle(GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE)
+                .setColorsArray(new int[] {
+                        GradientDrawableFactory.resolveColorFromAttribute(R.attr.mainToolbarBackgroundColor),
+                        GradientDrawableFactory.resolveColorFromAttribute(R.attr.mainToolbarBackgroundColor2),
+                        GradientDrawableFactory.resolveColorFromAttribute(R.attr.mainToolbarBackgroundColor3),
+                        GradientDrawableFactory.resolveColorFromAttribute(R.attr.mainToolbarBackgroundColor4),
+                })
+                .make();
+        actionBar.setBackgroundDrawable(chooserToolbarGradientBg);
+        actionBar.setLogo(getDrawable(R.drawable.file_chooser_default_toolbar_icon48));
         getWindow().setTitleColor(getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
         getWindow().setStatusBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
         getWindow().setNavigationBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
-        //setSupportActionBar(actionBar);
 
         /* Initialize the next level of nav for the default folder paths selection buttons: */
         List<FileChooserBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
@@ -203,8 +224,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
          * empty, this action is handled the same way as a cancel button press by the user.
          */
         LinearLayout dirHistoryNavContainer = (LinearLayout) findViewById(R.id.mainDirPrevPathsNavContainer);
-        dirHistoryNavContainer.setBackground(GradientDrawableFactory.generateNamedGradientType(
-                GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_DASHED_SHORT,
+        dirHistoryNavContainer.setBackgroundDrawable(GradientDrawableFactory.generateNamedGradientType(
+                GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
                 GradientDrawableFactory.NamedGradientColorThemes.NAMED_COLOR_SCHEME_STEEL_BLUE
                 )
         );
@@ -212,7 +233,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         /* Setup some theme related styling on the main file list container: */
         RecyclerView mainFileListContainer = findViewById(R.id.mainRecyclerViewContainer);
-        mainFileListContainer.setBackground(GradientDrawableFactory.generateNamedGradientType(
+        mainFileListContainer.setBackgroundDrawable(GradientDrawableFactory.generateNamedGradientType(
                      GradientDrawableFactory.GradientMethodSpec.GRADIENT_METHOD_LINEAR,
                      GradientDrawableFactory.GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR,
                      GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
@@ -225,7 +246,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                      }
                 )
         );
-        DisplayFragments.FileListItemFragment.configureStaticInstanceMembers(mainFileListContainer);
+        DisplayFragments.initializeRecyclerViewLayout(mainFileListContainer);
         DisplayFragments.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
     }

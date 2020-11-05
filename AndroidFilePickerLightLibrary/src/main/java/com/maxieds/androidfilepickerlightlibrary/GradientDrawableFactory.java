@@ -171,7 +171,7 @@ public class GradientDrawableFactory {
             gradientDrawObj.setStroke(borderWidth, borderColor, 25, 10);
         else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_DASHED_SHORT)
             gradientDrawObj.setStroke(borderWidth, borderColor, 4, 10);
-        gradientDrawObj.setUseLevel(true);
+        //gradientDrawObj.setUseLevel(true);
         return gradientDrawObj;
     }
 
@@ -325,7 +325,7 @@ public class GradientDrawableFactory {
             return this;
         }
 
-        public Builder setFileStyle(GradientTypeSpec gradFillStyle) {
+        public Builder setFillStyle(GradientTypeSpec gradFillStyle) {
             gradientFillStyle = gradFillStyle;
             return this;
         }

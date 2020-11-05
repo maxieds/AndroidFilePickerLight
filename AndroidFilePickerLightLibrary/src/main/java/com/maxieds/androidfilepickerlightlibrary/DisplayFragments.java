@@ -49,6 +49,23 @@ public class DisplayFragments {
     public static  List<DisplayTypes.FileType> activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
     private static List<String> fileItemBasePathsList = new ArrayList<String>();
 
+    public static void initializeRecyclerViewLayout(RecyclerView rview) {
+        if(!recyclerViewAdapterInit) {
+            mainFileListRecyclerView = rview;
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            mainFileListRecyclerView.setLayoutParams(layoutParams);
+            rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
+            rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
+            rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
+            mainFileListRecyclerView.setAdapter(rvAdapter);
+            recyclerViewAdapterInit = true;
+        }
+    }
+
     public static FileFilter.FileFilterInterface localFilesListFilter = null;
     public static FileFilter.FileItemsListSortFunc localFilesListSortFunc = null;
 
@@ -75,15 +92,7 @@ public class DisplayFragments {
     public static void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList) {
 
         if(!recyclerViewAdapterInit) {
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                                         ViewGroup.LayoutParams.WRAP_CONTENT);
-            mainFileListRecyclerView.setLayoutParams(layoutParams);
-            rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
-            rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
-            rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
-            mainFileListRecyclerView.setAdapter(rvAdapter);
-            recyclerViewAdapterInit = true;
+            initializeRecyclerViewLayout(mainFileListRecyclerView);
         }
         DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
         DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText("----");
@@ -119,13 +128,6 @@ public class DisplayFragments {
             localFileItem = fileItem;
             layoutContainer = View.inflate(FileChooserActivity.getInstance(), R.layout.single_file_entry_item, null);
             resetLayout(fileItem, displayPositionIndex);
-        }
-
-        public static void configureStaticInstanceMembers(View mainContainerLayout) {
-            RecyclerView recyclerViewDisplay = (RecyclerView) FileChooserActivity.getInstance().findViewById(R.id.mainRecyclerViewContainer);
-            mainFileListRecyclerView = recyclerViewDisplay;
-            rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
-            recyclerViewDisplay.setLayoutManager(rvLayoutManager);
         }
 
         public void resetLayout(DisplayTypes.FileType fileItem, int displayPosition) {

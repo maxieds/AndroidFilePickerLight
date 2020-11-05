@@ -25,19 +25,19 @@
         android:startColor="#3F51B5"
         android:centerColor="#477C9C"
         android:endColor="#03A9F4"
-        android:angle="45"/>
+        android:angle="32"/>
 
     <corners
-        android:radius="10dp"
+        android:radius="6dp"
         />
 
     <padding
-        android:left="10dp"
-        android:top="10dp"
-        android:right="10dp"
-        android:bottom="10dp"
+        android:left="2dp"
+        android:top="2dp"
+        android:right="2dp"
+        android:bottom="2dp"
         />
 
-    <stroke android:width="6dp" android:color="#3F51B5"/>
+    <stroke android:width="2dp" android:color="#3F51B5"/>
 
 </shape>
