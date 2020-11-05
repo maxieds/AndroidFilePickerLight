@@ -27,9 +27,71 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DisplayFragments {
 
     private static String LOGTAG = DisplayFragments.class.getSimpleName();
+
+    public static RecyclerView mainFileListRecyclerView = null;
+    public static RecyclerView.LayoutManager rvLayoutManager = null;
+    public static DisplayAdapters.FileListAdapter rvAdapter = null;
+    public static boolean recyclerViewAdapterInit = false;
+
+    public static int maxAllowedSelections = 0;
+    public static int curSelectionCount = 0;
+    public static boolean allowSelectFiles = true;
+    public static boolean allowSelectFolders = true;
+    public static List<FileTypes.FileType> activeSelectionsList = new ArrayList<FileTypes.FileType>();
+
+    public static FileFilter.FileFilterInterface localFilesListFilter = null;
+    public static FileTypes.FileItemsListSortFunc localFilesListSortFunc = null;
+
+    public static void descendIntoNextDirectory() {
+        if(FileTypes.DirectoryResultContext.pathHistoryStack.empty()) {
+            DisplayFragments.cancelAllOperationsInProgress();
+            FileChooserActivity.getInstance().postSelectedFilesActivityResult();
+        }
+        FileTypes.DirectoryResultContext lastWorkingDir = FileTypes.DirectoryResultContext.pathHistoryStack.pop();
+        lastWorkingDir.computeDirectoryContents();
+        DisplayFragments.displayNextDirectoryFilesList(lastWorkingDir.getWorkingDirectoryContents());
+    }
+
+    /* Re-initiate the inquisition: Static reusable wrapper function to invoke loading a new directory
+     * from scratch (reinitializing objects, starting the initial root query, and launching the
+     * RecyclerView pattern making compendia on a whole new dataset):
+     */
+    public static void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
+        FileTypes.DirectoryResultContext newCwdContext = FileTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
+        FileTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
+        DisplayFragments.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
+    }
+
+    public static void displayNextDirectoryFilesList(List<FileTypes.FileType> workingDirContentsList) {
+        List<FileTypes.FileType> filteredFileContents = FileChooserBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
+        if(!recyclerViewAdapterInit) {
+            List<String> fileItemBasePathsList = new ArrayList<String>();
+            for(FileTypes.FileType fileItem : filteredFileContents) {
+                fileItemBasePathsList.add(fileItem.getBaseName());
+            }
+            rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
+            mainFileListRecyclerView.setAdapter(rvAdapter);
+            recyclerViewAdapterInit = true;
+        }
+        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
+        DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText("----");
+        activeSelectionsList.clear();
+        mainFileListRecyclerView.removeAllViews();
+        rvAdapter.notifyDataSetChanged();
+        int fileItemIndex = 0;
+        for(FileTypes.FileType fileItem : filteredFileContents) {
+            DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
+            fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
+            mainFileListRecyclerView.addView(fileItemUIFragment.getLayoutContainer());
+        }
+        rvAdapter.notifyDataSetChanged();
+    }
 
     public static class FileListItemFragment {
 
@@ -37,9 +99,6 @@ public class DisplayFragments {
         private FileTypes.FileType localFileItem;
         private int displayPositionIndex;
         private boolean isCheckable;
-        public static RecyclerView mainFileListRecyclerView;
-        public static DisplayAdapters.FileListAdapter rvAdapter;
-        public static RecyclerView.LayoutManager rvLayoutManager;
 
         public FileListItemFragment(FileTypes.FileType fileItem, int displayPosition) {
             displayPositionIndex = displayPosition;
@@ -52,7 +111,6 @@ public class DisplayFragments {
         public static void configureStaticInstanceMembers(View mainContainerLayout) {
             RecyclerView recyclerViewDisplay = (RecyclerView) FileChooserActivity.getInstance().findViewById(R.id.mainRecyclerViewContainer);
             mainFileListRecyclerView = recyclerViewDisplay;
-            recyclerViewDisplay.setHasFixedSize(true); // TODO: Check if this causes errors ...
             rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
             recyclerViewDisplay.setLayoutManager(rvLayoutManager);
         }
@@ -94,6 +152,8 @@ public class DisplayFragments {
 
     }
 
+    public static FolderNavigationFragment mainFolderNavFragment = null;
+
     public static class FolderNavigationFragment {
 
         private static FolderNavigationFragment folderNavFragmentStaticInst = null;
@@ -115,7 +175,7 @@ public class DisplayFragments {
             Button.OnClickListener backBtnClickListener = new Button.OnClickListener() {
                 @Override
                 public void onClick(View btnView) {
-                     FileTypes.DirectoryResultContext.descendIntoNextDirectory();
+                     DisplayFragments.descendIntoNextDirectory();
                 }
             };
             globalNavBackBtn.setOnClickListener(backBtnClickListener);

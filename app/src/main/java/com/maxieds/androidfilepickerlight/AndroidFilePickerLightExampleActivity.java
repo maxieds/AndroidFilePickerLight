@@ -6,12 +6,14 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.maxieds.androidfilepickerlightlibrary.DisplayUtils;
 import com.maxieds.androidfilepickerlightlibrary.FileChooserBuilder;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
@@ -19,12 +21,16 @@ import java.util.List;
 
 public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
 
+    private static Activity runningActivityInst = null;
+    public static Activity getInstance() { return runningActivityInst; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        runningActivityInst = this;
         setContentView(R.layout.activity_android_file_picker_light_example);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Android File Picker Light");
+        toolbar.setTitle("    Android File Picker Light");
         toolbar.setLogo(R.drawable.toolbar_icon32);
         toolbar.setBackgroundColor(getColor(R.color.colorAccent));
         toolbar.setTitleTextColor(getColor(R.color.colorPrimaryDark));
@@ -88,6 +94,37 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         fpInst.showHidden(true);
         fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_SDCARD);
         fpInst.launchFilePicker();
+    }
+
+    public void actionButtonLaunchMultiPickerActivity(View btnView) {}
+
+    public void actionButtonLaunchOmnivorousMultiPickerActivityWithCustomSort(View btnView) {}
+
+    private static int progressBarDemoCount = 0;
+    private static final int progressBarDemoDelta = 50;
+    private static final int progressBarDemoUpper = 500;
+
+    private static Handler  progressBarDemoHandler = new Handler();
+    private static Runnable progressBarDemoRunner = new Runnable() {
+        @Override
+        public void run() {
+            progressBarDemoCount += progressBarDemoDelta;
+            if(progressBarDemoCount < progressBarDemoUpper) {
+                DisplayUtils.DisplayProgressBar(AndroidFilePickerLightExampleActivity.getInstance(),
+                        "My countdown:", progressBarDemoCount, progressBarDemoUpper);
+                progressBarDemoHandler.postDelayed(progressBarDemoRunner, progressBarDemoDelta);
+            }
+            else {
+                progressBarDemoHandler.removeCallbacks(progressBarDemoRunner);
+                DisplayUtils.EnableProgressBarDisplay(false);
+            }
+        }
+    };
+
+    public void actionButtonLaunchProgressBarDemo(View btnView) {
+        progressBarDemoCount = 0;
+        progressBarDemoHandler.postDelayed(progressBarDemoRunner, progressBarDemoDelta);
+        DisplayUtils.EnableProgressBarDisplay(true);
     }
 
 }

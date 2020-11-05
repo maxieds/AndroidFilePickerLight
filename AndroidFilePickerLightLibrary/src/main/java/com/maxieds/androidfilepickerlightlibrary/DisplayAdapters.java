@@ -20,6 +20,7 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,26 +34,22 @@ public class DisplayAdapters {
 
     private static String LOGTAG = DisplayAdapters.class.getSimpleName();
 
-    public static class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHolder> {
-
-        public static FileFilter.FileFilterInterface localFilesListFilter = null;
-        public static FileTypes.FileItemsListSortFunc localFilesListSortFunc = null;
-        private List<FileTypes.FileType> adapterFileItemsMap = null;
+    public static class FileListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         private List<String> fileListData;
         public FileListAdapter(List<String> data){
-            this.fileListData = data;
+            fileListData = data;
         }
 
         @Override
-        public FileListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View rowItem = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_file_entry_item, parent, false);
-            return new ViewHolder(rowItem);
+            return new BaseViewHolder(rowItem);
         }
 
         @Override
-        public void onBindViewHolder(FileListAdapter.ViewHolder holder, int position) {
-            holder.textView.setText(fileListData.get(position));
+        public void onBindViewHolder(BaseViewHolder holder, int position) {
+            holder.getDisplayText().setText(fileListData.get(position));
         }
 
         @Override
@@ -60,43 +57,82 @@ public class DisplayAdapters {
             return fileListData.size();
         }
 
-        public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-            private TextView textView;
-            public ViewHolder(View view) {
-                super(view);
-                view.setOnClickListener(this);
-                this.textView = view.findViewById(R.id.fileEntryBaseName);
-            }
-            @Override
-            public void onClick(View view) {
-                DisplayUtils.displayToastMessageShort(String.format(Locale.getDefault(), "POS @ %d && TEXT @ %s", getLayoutPosition(), this.textView.getText()));
-            }
+    }
+
+    public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+
+        public View iconView;
+        public TextView displayText;
+        public FileTypes.FileType fileItem;
+
+        public BaseViewHolder(View v) {
+            super(v);
+            v.setOnClickListener(this);
+            v.setOnLongClickListener(this);
+            iconView = v.findViewById(R.id.fileTypeIcon);
+            displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
         }
 
-        public void displayNextDirectoryFilesList(List<FileTypes.FileType> workingDirContentsList) {
-            List<FileTypes.FileType> filteredFileContents = FileChooserBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
-            if(!FileChooserActivity.recyclerViewAdapterInit) {
-                List<String> fileItemBasePathsList = new ArrayList<String>();
-                for(FileTypes.FileType fileItem : filteredFileContents) {
-                    fileItemBasePathsList.add(fileItem.getBaseName());
+        public void setFileItemData(FileTypes.FileType storedFileItem) {
+            fileItem = storedFileItem;
+        }
+
+        public TextView getDisplayText() { return displayText; }
+
+        public boolean performNewFileItemClick(FileTypes.FileType fileItem) {
+            if(!fileItem.isDirectory() && !DisplayFragments.allowSelectFiles) {
+                return false;
+            }
+            else if(fileItem.isDirectory() && !DisplayFragments.allowSelectFolders) {
+                return false;
+            }
+            else if(fileItem.isChecked()) {
+                // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:
+                CheckBox selectionMarker = fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox);
+                selectionMarker.setChecked(false);
+                selectionMarker.setEnabled(true);
+                DisplayFragments.activeSelectionsList.remove(fileItem);
+                DisplayFragments.curSelectionCount--;
+                return true;
+            }
+            else if(DisplayFragments.curSelectionCount >= DisplayFragments.maxAllowedSelections) {
+                return false;
+            }
+            CheckBox selectionMarker = fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox);
+            selectionMarker.setChecked(true);
+            selectionMarker.setEnabled(true);
+            DisplayFragments.activeSelectionsList.add(fileItem);
+            DisplayFragments.curSelectionCount++;
+            return true;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if(!fileItem.isDirectory()) {
+                if(performNewFileItemClick(fileItem)) {
+                    String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
+                    DisplayUtils.displayToastMessageShort(displaySelectMsg);
                 }
-                DisplayFragments.FileListItemFragment.rvAdapter = new DisplayAdapters.FileListAdapter(new ArrayList<String>());
-                DisplayFragments.FileListItemFragment.mainFileListRecyclerView.setAdapter(DisplayFragments.FileListItemFragment.rvAdapter);
-                FileChooserActivity.recyclerViewAdapterInit = true;
             }
-            DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
-            DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText("----");
-            adapterFileItemsMap = filteredFileContents;
-            FileChooserActivity.activeSelectionsList.clear();
-            int fileItemIndex = 0;
-            for(FileTypes.FileType fileItem : filteredFileContents) {
-                DisplayFragments.FileListItemFragment.rvLayoutManager.detachViewAt(fileItemIndex);
-                DisplayFragments.FileListItemFragment.rvAdapter.notifyItemRemoved(fileItemIndex);
-                DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
-                fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
-                ViewHolder viewHolder = createViewHolder((LinearLayout) fileItemUIFragment.getLayoutContainer(), 0);
-                bindViewHolder(viewHolder, fileItemIndex++);
+            //DisplayUtils.displayToastMessageShort(String.format(Locale.getDefault(), "ON-CLICK -- POS @ %d && TEXT @ %s", getLayoutPosition(), this.getDisplayText()));
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            //DisplayUtils.displayToastMessageShort(String.format(Locale.getDefault(), "ON-LONG-CLICK -- POS @ %d && TEXT @ %s", getLayoutPosition(), this.getDisplayText()));
+            if(!fileItem.isDirectory()) {
+                if(performNewFileItemClick(fileItem)) {
+                    String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
+                    DisplayUtils.displayToastMessageShort(displaySelectMsg);
+                    return true;
+                }
+                return false;
             }
+            // Otherwise, descend recursively into the clicked directory location:
+            DisplayFragments.descendIntoNextDirectory();
+            String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recusrively into DIR \"%s\".", fileItem.getBaseName());
+            DisplayUtils.displayToastMessageShort(displayRecurseMsg);
+            return true;
         }
 
     }

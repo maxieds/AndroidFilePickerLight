@@ -20,6 +20,7 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.util.TypedValue;
 
 public class GradientDrawableFactory {
 
@@ -49,6 +50,24 @@ public class GradientDrawableFactory {
             return defaultActivityContextRef.getString(strRefID);
         }
         throw new FileChooserException.InvalidActivityContextException();
+    }
+
+    public static int resolveColorFromAttribute(int attrID) {
+        if(FileChooserActivity.getInstance() == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
+        }
+        TypedValue typedValueAttr = new TypedValue();
+        FileChooserActivity.getInstance().getTheme().resolveAttribute(attrID, typedValueAttr, true);
+        return typedValueAttr.data;
+    }
+
+    public static Drawable resolveDrawableFromAttribute(int attrID) {
+        if(FileChooserActivity.getInstance() == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
+        }
+        TypedValue typedValueAttr = new TypedValue();
+        FileChooserActivity.getInstance().getTheme().resolveAttribute(attrID, typedValueAttr, true);
+        return FileChooserActivity.getInstance().getDrawable(typedValueAttr.resourceId);
     }
 
     public enum GradientMethodSpec {
@@ -255,7 +274,7 @@ public class GradientDrawableFactory {
 
     public static GradientDrawable generateNamedGradientType(BorderStyleSpec borderStyleSpec,
                                                             NamedGradientColorThemes namedColorTheme) {
-        return generateNamedGradientType(borderStyleSpec, getColorFromResource(R.attr.colorPrimaryDark), namedColorTheme);
+        return generateNamedGradientType(borderStyleSpec, resolveColorFromAttribute(R.attr.colorPrimaryDark), namedColorTheme);
     }
 
 

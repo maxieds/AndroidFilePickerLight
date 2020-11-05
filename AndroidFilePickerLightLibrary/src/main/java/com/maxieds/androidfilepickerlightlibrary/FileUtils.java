@@ -97,21 +97,21 @@ public class FileUtils {
     public static String getFileSizeString(File fileOnDisk) {
         long fileSizeBytes = fileOnDisk.getTotalSpace();
         if(fileSizeBytes < 1024) {
-            return String.format(Locale.getDefault(), "%ldB", fileSizeBytes);
+            return String.format(Locale.getDefault(), "%dB", fileSizeBytes);
         }
         long fileSizeKB = fileSizeBytes / 1024;
         if(fileSizeKB < 1024) {
-            return String.format(Locale.getDefault(), "%ldK", fileSizeKB);
+            return String.format(Locale.getDefault(), "%dK", fileSizeKB);
         }
         long fileSizeMB = fileSizeKB / 1024;
         if(fileSizeMB < 1024) {
-            return String.format(Locale.getDefault(), "%ldM", fileSizeMB);
+            return String.format(Locale.getDefault(), "%dM", fileSizeMB);
         }
         long fileSizeGB = fileSizeMB / 1024;
         if(fileSizeGB < 1024) {
-            return String.format(Locale.getDefault(), "%ldG", fileSizeGB);
+            return String.format(Locale.getDefault(), "%dG", fileSizeGB);
         }
-        return String.format(Locale.getDefault(), "%ldT+", fileSizeGB / 1024);
+        return String.format(Locale.getDefault(), "%dT+", fileSizeGB / 1024);
     }
 
 }

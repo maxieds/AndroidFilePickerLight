@@ -144,7 +144,7 @@ public class BasicFileProvider extends DocumentsProvider {
 
     @Override
     public boolean onCreate() {
-        if(fileProviderStaticInst != null) {
+        if(fileProviderStaticInst == null) {
             fileProviderStaticInst = this;
         }
         if(FileChooserActivity.getInstance() != null) {

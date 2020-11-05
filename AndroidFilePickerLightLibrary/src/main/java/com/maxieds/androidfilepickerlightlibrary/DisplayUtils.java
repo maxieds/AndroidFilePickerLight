@@ -36,9 +36,9 @@ public class DisplayUtils {
 
     private static String LOGTAG = DisplayUtils.class.getSimpleName();
 
-    private static void displayToastMessage(String toastMsg, int msgDuration) {
+    private static void displayToastMessage(Activity activityInst, String toastMsg, int msgDuration) {
         Toast toastDisplay = Toast.makeText(
-                FileChooserActivity.getInstance(),
+                activityInst,
                 toastMsg,
                 msgDuration
         );
@@ -57,12 +57,20 @@ public class DisplayUtils {
         toastDisplay.show();
     }
 
+    public static void displayToastMessageShort(Activity activityInst, String toastMsg) {
+        displayToastMessage(activityInst, toastMsg, Toast.LENGTH_SHORT);
+    }
+
     public static void displayToastMessageShort(String toastMsg) {
-        displayToastMessage(toastMsg, Toast.LENGTH_SHORT);
+        displayToastMessageShort(FileChooserActivity.getInstance(), toastMsg);
+    }
+
+    public static void displayToastMessageLong(Activity activityInst, String toastMsg) {
+        displayToastMessage(activityInst, toastMsg, Toast.LENGTH_LONG);
     }
 
     public static void displayToastMessageLong(String toastMsg) {
-        displayToastMessage(toastMsg, Toast.LENGTH_LONG);
+        displayToastMessageLong(FileChooserActivity.getInstance(), toastMsg);
     }
 
     private static int[] PROGRESS_BAR_VISUAL_MARKERS = new int[] {
@@ -77,26 +85,28 @@ public class DisplayUtils {
             R.drawable.progressbar_8,
     };
 
-    private static final int STATUS_TOAST_DISPLAY_TIME = Toast.LENGTH_LONG;
+    private static final int STATUS_TOAST_DISPLAY_TIME = Toast.LENGTH_SHORT;
     private static boolean toastsDismissed = true;
     private static int progressBarPos, progressBarTotal;
     private static String progressBarSliderName;
     private static Toast progressBarToast = null;
+    private static Activity activityInst = FileChooserActivity.getInstance();
     private static Handler progressBarDisplayHandler = new Handler();
     private static Runnable progressBarDisplayRunnable = new Runnable() {
         public void run() {
             if (!toastsDismissed && progressBarToast != null) {
-                DisplayProgressBar(progressBarSliderName, progressBarPos, progressBarTotal);
+                DisplayProgressBar(activityInst, progressBarSliderName, progressBarPos, progressBarTotal);
             }
         }
     };
 
-    public static void DisplayProgressBar(String thingsName, int curPos, int totalPos) {
+    public static void DisplayProgressBar(Activity activityInstInput, String thingsName, int curPos, int totalPos) {
         if(!thingsName.equals(progressBarSliderName) || curPos != progressBarPos || totalPos != progressBarTotal) {
             if(!toastsDismissed) {
                 progressBarDisplayHandler.removeCallbacks(progressBarDisplayRunnable);
             }
         }
+        activityInst = activityInstInput;
         progressBarSliderName = thingsName;
         progressBarPos = curPos;
         progressBarTotal = totalPos;
@@ -104,20 +114,21 @@ public class DisplayUtils {
                                        PROGRESS_BAR_VISUAL_MARKERS.length - 1);
         final String statusBarMsg = String.format(Locale.getDefault(), "%s % 3d / % 3d (% .2g %%)",
                 thingsName, curPos, totalPos, (float) curPos / totalPos * 100.0);
-        final Activity mainAppActivity = FileChooserActivity.getInstance();
+        final Activity mainAppActivity = activityInst;
         mainAppActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                progressBarToast = Toast.makeText(FileChooserActivity.getInstance(), statusBarMsg, STATUS_TOAST_DISPLAY_TIME);
+                progressBarToast = Toast.makeText(mainAppActivity, statusBarMsg, STATUS_TOAST_DISPLAY_TIME);
                 progressBarToast.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
                 LayoutInflater layoutInflater = mainAppActivity.getLayoutInflater();
                 View toastProgressView = layoutInflater.inflate(R.layout.progress_bar_layout, null);
                 Drawable statusBarMarkerImage = mainAppActivity.getResources().getDrawable(PROGRESS_BAR_VISUAL_MARKERS[statusBarMarkerIdx]);
+                toastProgressView.setAlpha(125);
                 ((ImageView) toastProgressView.findViewById(R.id.progressBarImageMarker)).setImageDrawable(statusBarMarkerImage);
                 ((TextView) toastProgressView.findViewById(R.id.progressBarText)).setText(statusBarMsg);
                 progressBarToast.setView(toastProgressView);
                 if(!toastsDismissed) {
-                    progressBarDisplayHandler.postDelayed(progressBarDisplayRunnable, STATUS_TOAST_DISPLAY_TIME + 1000);
+                    progressBarDisplayHandler.postDelayed(progressBarDisplayRunnable, STATUS_TOAST_DISPLAY_TIME + 250);
                 }
                 progressBarToast.show();
             }

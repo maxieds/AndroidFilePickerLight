@@ -31,6 +31,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,14 +57,6 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public static int getColorVariantFromTheme(int attrID) {
         return getInstance().getTheme().obtainStyledAttributes(new int[] { attrID }).getColor(0, attrID);
     }
-
-    private static DisplayFragments.FolderNavigationFragment mainFolderNavFragment = null;
-    public static List<FileTypes.FileType> activeSelectionsList = new ArrayList<FileTypes.FileType>();
-    public static int maxAllowedSelections = 0;
-    public static int curSelectionCount = 0;
-    public static boolean allowSelectFiles = true;
-    public static boolean allowSelectFolders = true;
-    public static boolean recyclerViewAdapterInit = false;
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -100,19 +93,19 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         setTheme(R.style.LibraryDefaultTheme);
         setContentView(R.layout.main_picker_activity_base_layout);
-        //configureInitialMainLayout(fpConfig);
 
         // Keep the app from crashing when the screen rotates:
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
-        DisplayAdapters.FileListAdapter.localFilesListFilter = fpConfig.getFileFilter();
-        DisplayAdapters.FileListAdapter.localFilesListSortFunc = fpConfig.getCustomSortFunc();
-        maxAllowedSelections = fpConfig.getMaxSelectedFilesCount();
-        curSelectionCount = 0;
-        activeSelectionsList.clear();
-        allowSelectFiles = fpConfig.allowSelectFileItems();
-        allowSelectFolders = fpConfig.allowSelectFolderItems();
+        DisplayFragments.localFilesListFilter = fpConfig.getFileFilter();
+        DisplayFragments.localFilesListSortFunc = fpConfig.getCustomSortFunc();
+
+        DisplayFragments.maxAllowedSelections = fpConfig.getMaxSelectedFilesCount();
+        DisplayFragments.curSelectionCount = 0;
+        DisplayFragments.activeSelectionsList.clear();
+        DisplayFragments.allowSelectFiles = fpConfig.allowSelectFileItems();
+        DisplayFragments.allowSelectFolders = fpConfig.allowSelectFolderItems();
 
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {
@@ -148,7 +141,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getWindow().setTitleColor(getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
         getWindow().setStatusBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
         getWindow().setNavigationBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
-        setSupportActionBar(actionBar);
+        //setSupportActionBar(actionBar);
 
         /* Initialize the next level of nav for the default folder paths selection buttons: */
         List<FileChooserBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
@@ -157,8 +150,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             FileChooserBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
             ImageButton dirNavBtn = new ImageButton(this);
             dirNavBtn.setPadding(10, 10, 10, 10);
-            dirNavBtn.setImageDrawable(FileChooserBuilder.resolveDrawableFromAttribute(
-                    FileChooserBuilder.DefaultNavFoldersType.NAV_FOLDER_ICON_RESIDS_MAP.get(baseFolderType).intValue()));
+            dirNavBtn.setImageDrawable(GradientDrawableFactory.resolveDrawableFromAttribute(
+                    FileChooserBuilder.DefaultNavFoldersType.getFolderIconResIdFromName(defaultDirNavFolders.get(folderIdx))));
             dirNavBtn.setTag(baseFolderType);
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
                 @Override
@@ -166,7 +159,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                     DisplayFragments.cancelAllOperationsInProgress();
                     FileTypes.DirectoryResultContext.pathHistoryStack.clear(); // reset the directory traversal history
                     FileChooserBuilder.BaseFolderPathType navBtnInitFolder = (FileChooserBuilder.BaseFolderPathType) btnView.getTag();
-                    FileTypes.DirectoryResultContext.initiateNewFolderLoad(navBtnInitFolder);
+                    DisplayFragments.initiateNewFolderLoad(navBtnInitFolder);
                     Button navBtn = (Button) btnView;
                     navBtn.setEnabled(false);
                     navBtn.setElevation(-1.0f);
@@ -215,10 +208,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 GradientDrawableFactory.NamedGradientColorThemes.NAMED_COLOR_SCHEME_STEEL_BLUE
                 )
         );
-        mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
+        DisplayFragments.mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
 
         /* Setup some theme related styling on the main file list container: */
-        LinearLayout mainFileListContainer = (LinearLayout) findViewById(R.id.mainRecyclerViewContainer);
+        RecyclerView mainFileListContainer = findViewById(R.id.mainRecyclerViewContainer);
         mainFileListContainer.setBackground(GradientDrawableFactory.generateNamedGradientType(
                      GradientDrawableFactory.GradientMethodSpec.GRADIENT_METHOD_LINEAR,
                      GradientDrawableFactory.GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR,
@@ -233,7 +226,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 )
         );
         DisplayFragments.FileListItemFragment.configureStaticInstanceMembers(mainFileListContainer);
-        FileTypes.DirectoryResultContext.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
+        DisplayFragments.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
     }
 
@@ -295,10 +288,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public Intent getSelectedFilesActivityResultIntent() {
         Intent resultIntent = new Intent();
         resultIntent.putExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_TYPE_KEY, String.class);
-        int selectedFilesCount = activeSelectionsList != null ? activeSelectionsList.size() : 0;
+        int selectedFilesCount = DisplayFragments.activeSelectionsList != null ? DisplayFragments.activeSelectionsList.size() : 0;
         String[] filePathsList = new String[selectedFilesCount];
         for(int fileIndex = 0; fileIndex < selectedFilesCount; fileIndex++) {
-            filePathsList[fileIndex] = activeSelectionsList.get(fileIndex).getAbsolutePath();
+            filePathsList[fileIndex] = DisplayFragments.activeSelectionsList.get(fileIndex).getAbsolutePath();
         }
         resultIntent.putStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY, new ArrayList<String>(Arrays.asList(filePathsList)));
         return resultIntent;

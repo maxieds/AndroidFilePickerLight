@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/__colorPrimary"
     tools:context=".AndroidFilePickerLightExampleActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -28,6 +29,8 @@
         android:id="@+id/button_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center|center_horizontal"
+        android:gravity="center|center_horizontal"
         android:text="GO!"
         android:onClick="actionButtonLaunchSingleFolderPickerActivity"
         android:drawableLeft="@drawable/launcher_button1"
@@ -51,6 +54,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/launcher_button2"
+        android:layout_gravity="center|center_horizontal"
+        android:gravity="center|center_horizontal"
         android:text="GO!"
         android:onClick="actionButtonLaunchSingleFilePickerActivity"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -63,7 +68,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Launch an omnivorous multi-path chooser:"
-        app:layout_constraintBottom_toTopOf="@id/button_second"
+        app:layout_constraintBottom_toTopOf="@id/button_third"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -72,12 +77,56 @@
         android:id="@+id/button_third"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center|center_horizontal"
+        android:gravity="center|center_horizontal"
         android:drawableLeft="@drawable/launcher_button3"
         android:text="GO!"
         android:onClick="actionButtonLaunchOmnivorousMultiPickerActivity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_second" />
+        app:layout_constraintTop_toBottomOf="@id/textview_third" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Launch a multi-file chooser (different theme):" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|center_horizontal"
+        android:gravity="center|center_horizontal"
+        android:drawableLeft="@drawable/launcher_button4"
+        android:text="GO!"
+        android:onClick="actionButtonLaunchMultiPickerActivity" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Launch a multi-file chooser (custom sort):" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|center_horizontal"
+        android:gravity="center|center_horizontal"
+        android:drawableLeft="@drawable/launcher_button5"
+        android:text="GO!"
+        android:onClick="actionButtonLaunchOmnivorousMultiPickerActivityWithCustomSort" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Display a demo of the toast-based progress bar:" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|center_horizontal"
+        android:gravity="center|center_horizontal"
+        android:drawableLeft="@drawable/launcher_button6"
+        android:text="GO!"
+        android:onClick="actionButtonLaunchProgressBarDemo" />
 
 </LinearLayout>

@@ -212,21 +212,10 @@
         android:layout_height="5dp"
         android:background="?__colorPrimaryVeryDark" />
 
-    <ScrollView
-        android:id="@+id/tools_menu_scroll_view"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mainRecyclerViewContainer"
+        android:scrollbars="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fadeScrollbars="false"
-        android:orientation="vertical"
-        android:scrollbarSize="25dp"
-        android:verticalScrollbarPosition="right">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/mainRecyclerViewContainer"
-            android:scrollbars="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </ScrollView>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

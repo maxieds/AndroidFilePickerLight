@@ -41,6 +41,8 @@
         <item name="__colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="__colorPrimaryVeryDark">@color/__colorPrimaryVeryDark</item>
         <item name="__colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="LibraryLightTheme" parent="LibraryDefaultTheme">
