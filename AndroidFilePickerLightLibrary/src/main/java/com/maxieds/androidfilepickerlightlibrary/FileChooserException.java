@@ -23,6 +23,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FileChooserException {
 
@@ -36,7 +37,7 @@ public class FileChooserException {
         return nextUniqueErrorCode;
     }
 
-    public static class AndroidFilePickerLightException extends RuntimeException implements CustomExceptionInterface {
+    abstract public static class AndroidFilePickerLightException extends RuntimeException implements CustomExceptionInterface {
 
         private boolean isError;
         private int errorCode;
@@ -56,7 +57,7 @@ public class FileChooserException {
         }
 
         protected static AndroidFilePickerLightException getNewInstance() {
-            return new AndroidFilePickerLightException();
+            return null;
         }
 
         public AndroidFilePickerLightException newExceptionInstance(Exception javaBaseExcpt) {
@@ -89,6 +90,7 @@ public class FileChooserException {
         public boolean isError() { return isError; }
         public int getErrorCode() { return errorCode; }
         public Intent getAsIntent() { return null; }
+        public String getCauseAsString() { return this.getClass().getName(); }
 
         public String getExceptionName() { return null; }
         public String getExceptionBaseDesc() { return null; }
@@ -148,6 +150,12 @@ public class FileChooserException {
             configureExceptionParams(UNIQUE_ERROR_CODE,
                                      "Generic exception happened while running the file picker",
                                       true, DEFAULT_DATA_ITEMS_TYPE, null);
+        }
+
+        public GenericRuntimeErrorException(String causalWhyMsg) {
+            configureExceptionParams(UNIQUE_ERROR_CODE,
+                    String.format(Locale.getDefault(), "Generic exception: %s", causalWhyMsg),
+                    true, DEFAULT_DATA_ITEMS_TYPE, null);
         }
 
     }
@@ -326,6 +334,16 @@ public class FileChooserException {
                     true, DEFAULT_DATA_ITEMS_TYPE, null);
         }
 
+    }
+
+    public static AndroidFilePickerLightException getExceptionForExitCause(String classNameCausalId, String emsg) {
+        try {
+            Class excptSubclass = Class.forName(classNameCausalId);
+            return ((AndroidFilePickerLightException) excptSubclass.newInstance()).newExceptionInstance(emsg);
+        } catch(Exception excpt) {
+            excpt.printStackTrace();
+            return null;
+        }
     }
 
 }

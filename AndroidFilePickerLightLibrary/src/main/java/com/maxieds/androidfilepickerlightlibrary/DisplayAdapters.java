@@ -66,12 +66,6 @@ public class DisplayAdapters {
         public TextView displayText;
         public DisplayTypes.FileType fileItem;
 
-        public interface ClickListener {
-            void onClick(View view, int position);
-            void onLongClick(View view, RecyclerView recyclerView, int position);
-        }
-        private ClickListener clickListener;
-
         private GestureDetector gestureDetector = new GestureDetector(FileChooserActivity.getInstance(), new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -80,8 +74,9 @@ public class DisplayAdapters {
             @Override
             public void onLongPress(MotionEvent e) {
                 View child = DisplayFragments.mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
-                if(child != null && clickListener != null) {
-                    clickListener.onLongClick(child, DisplayFragments.mainFileListRecyclerView, DisplayFragments.mainFileListRecyclerView.getChildPosition(child));
+                if(child != null) {
+                    //clickListener.onLongClick(child, DisplayFragments.mainFileListRecyclerView, DisplayFragments.mainFileListRecyclerView.getChildPosition(child));
+                    onLongClick(child);
                 }
             }
         });
@@ -148,7 +143,12 @@ public class DisplayAdapters {
                 return false;
             }
             // Otherwise, descend recursively into the clicked directory location:
-            DisplayFragments.descendIntoNextDirectory();
+            DisplayTypes.DirectoryResultContext workingFolder = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
+            if(workingFolder == null) {
+                return false;
+            }
+            workingFolder.loadNextFolderAtIndex(fileItem.getRelativeCursorPosition(), false);
+            DisplayFragments.descendIntoNextDirectory(false);
             String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recursively into DIR \"%s\".", fileItem.getBaseName());
             DisplayUtils.displayToastMessageShort(displayRecurseMsg);
             return true;
@@ -157,8 +157,9 @@ public class DisplayAdapters {
         @Override
         public boolean onInterceptTouchEvent(RecyclerView rview, MotionEvent mevt) {
             View child = rview.findChildViewUnder(mevt.getX(), mevt.getY());
-            if(child != null && clickListener != null && gestureDetector.onTouchEvent(mevt)) {
-                clickListener.onClick(child, rview.getChildPosition(child));
+            if(child != null && gestureDetector.onTouchEvent(mevt)) {
+                //clickListener.onClick(child, rview.getChildPosition(child));
+                onClick(child);
             }
             return false;
         }

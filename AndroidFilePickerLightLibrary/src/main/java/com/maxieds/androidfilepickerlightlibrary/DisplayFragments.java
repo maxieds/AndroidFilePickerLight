@@ -49,6 +49,25 @@ public class DisplayFragments {
     public static  List<DisplayTypes.FileType> activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
     private static List<String> fileItemBasePathsList = new ArrayList<String>();
 
+    private static final String EMPTY_FOLDER_HISTORY_PATH = "----";
+
+    private static String folderHistoryOneBackPath = EMPTY_FOLDER_HISTORY_PATH;
+    private static String folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
+
+    public static void updateFolderHistoryPaths(String nextFolderEntryPointPath, boolean initNewFileTree) {
+        if(nextFolderEntryPointPath == null) {
+            nextFolderEntryPointPath = EMPTY_FOLDER_HISTORY_PATH;
+        }
+        if(initNewFileTree) {
+            folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
+            folderHistoryOneBackPath = nextFolderEntryPointPath;
+        }
+        else {
+            folderHistoryTwoBackPath = folderHistoryOneBackPath;
+            folderHistoryOneBackPath = nextFolderEntryPointPath;
+        }
+    }
+
     public static void initializeRecyclerViewLayout(RecyclerView rview) {
         if(!recyclerViewAdapterInit) {
             mainFileListRecyclerView = rview;
@@ -69,14 +88,15 @@ public class DisplayFragments {
     public static FileFilter.FileFilterInterface localFilesListFilter = null;
     public static FileFilter.FileItemsListSortFunc localFilesListSortFunc = null;
 
-    public static void descendIntoNextDirectory() {
+    public static void descendIntoNextDirectory(boolean initNewFileTree) {
         if(DisplayTypes.DirectoryResultContext.pathHistoryStack.empty()) {
             DisplayFragments.cancelAllOperationsInProgress();
-            FileChooserActivity.getInstance().postSelectedFilesActivityResult();
+            FileChooserException.GenericRuntimeErrorException rte = new FileChooserException.GenericRuntimeErrorException("Empty context for folder history (no back?)");
+            FileChooserActivity.getInstance().postSelectedFilesActivityResult(rte);
         }
-        DisplayTypes.DirectoryResultContext lastWorkingDir = DisplayTypes.DirectoryResultContext.pathHistoryStack.pop();
-        lastWorkingDir.computeDirectoryContents();
-        DisplayFragments.displayNextDirectoryFilesList(lastWorkingDir.getWorkingDirectoryContents());
+        DisplayTypes.DirectoryResultContext nextFolder = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
+        nextFolder.computeDirectoryContents();
+        DisplayFragments.displayNextDirectoryFilesList(nextFolder.getWorkingDirectoryContents());
     }
 
     /* Re-initiate the inquisition: Static reusable wrapper function to invoke loading a new directory
@@ -86,6 +106,7 @@ public class DisplayFragments {
     public static void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
         DisplayTypes.DirectoryResultContext newCwdContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
         DisplayTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
+        newCwdContext.loadNextFolderAtIndex(0, true);
         DisplayFragments.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
     }
 
@@ -94,8 +115,8 @@ public class DisplayFragments {
         if(!recyclerViewAdapterInit) {
             initializeRecyclerViewLayout(mainFileListRecyclerView);
         }
-        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
-        DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText("----");
+        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
+        DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
         activeSelectionsList.clear();
         fileItemBasePathsList.clear();
         rvAdapter.notifyDataSetChanged();
@@ -110,7 +131,9 @@ public class DisplayFragments {
             rvAdapter.notifyDataSetChanged();
             DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
             fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
-            rvAdapter.bindViewHolder(new DisplayAdapters.BaseViewHolder(fileItemUIFragment.getLayoutContainer()), fileItemIndex);
+            DisplayAdapters.BaseViewHolder viewHolderAtIndex = rvAdapter.createViewHolder((ViewGroup) fileItemUIFragment.getLayoutContainer(), 0);
+            viewHolderAtIndex.setFileItemData(fileItem);
+            rvAdapter.bindViewHolder(viewHolderAtIndex, fileItemIndex);
         }
 
     }
@@ -127,6 +150,14 @@ public class DisplayFragments {
             isCheckable = true;
             localFileItem = fileItem;
             layoutContainer = View.inflate(FileChooserActivity.getInstance(), R.layout.single_file_entry_item, null);
+            TextView fileSizeText = layoutContainer.findViewById(R.id.fileEntrySizeText);
+            TextView filePermsText = layoutContainer.findViewById(R.id.fileEntryPermsSummaryText);
+            if(fileSizeText != null) {
+                fileSizeText.setText(fileItem.getFileSizeString());
+            }
+            if(filePermsText != null) {
+                filePermsText.setText(fileItem.getChmodStylePermissions());
+            }
             resetLayout(fileItem, displayPositionIndex);
         }
 
@@ -185,12 +216,15 @@ public class DisplayFragments {
             dirsTwoBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackTwoPathDisplayText);
             dirsOneBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackOnePathDisplayText);
             globalNavBackBtn = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavGlobalBackBtn);
-            dirsTwoBackText.setText("----");
-            dirsOneBackText.setText("----");
+            updateFolderHistoryPaths(null, true);
             Button.OnClickListener backBtnClickListener = new Button.OnClickListener() {
                 @Override
                 public void onClick(View btnView) {
-                     DisplayFragments.descendIntoNextDirectory();
+                     Button navBtn = (Button) btnView;
+                     // TODO: Get DirectoryResultContext for the button clicked, and push it atop the working history stack ...
+                     DisplayTypes.DirectoryResultContext nextFolderCtx = null; // TODO: call DirResCtx.load* ...
+                     DisplayTypes.DirectoryResultContext.pathHistoryStack.push(nextFolderCtx);
+                     DisplayFragments.descendIntoNextDirectory(true);
                 }
             };
             globalNavBackBtn.setOnClickListener(backBtnClickListener);

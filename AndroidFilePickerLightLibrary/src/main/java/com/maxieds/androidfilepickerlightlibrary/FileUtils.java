@@ -69,7 +69,7 @@ public class FileUtils {
         }
     }
 
-    public static String filePermsStringToShortChmodStyleCode(String rwxDashPerms) {
+    public static String filePermsStringToShortChmodStyleCode(String rwxDashPerms, boolean isDir) {
         if(rwxDashPerms.length() < 9) {
             return "";
         }
@@ -77,7 +77,7 @@ public class FileUtils {
         if(rwxTriplet.length != 3) {
             return "";
         }
-        String chmodStylePermsCode = "0";
+        String chmodStylePermsCode = !isDir ? "0" : "d";
         for(String rwxTriple : rwxTriplet) {
             rwxTriple = rwxTriple.toLowerCase(Locale.getDefault());
             int octalBits[] = new int[] {

@@ -64,6 +64,7 @@ public class DisplayTypes {
                 MatrixCursor mcRow = mcResult;
                 File fileOnDisk = fpInst.getFileAtCurrentRow(mcResult);
                 FileType nextFileItem = new FileType(fileOnDisk, this);
+                nextFileItem.setRelativeCursorPosition(mcRowIdx);
                 filesDataList.add(nextFileItem);
                 mcResult.moveToNext();
             }
@@ -71,19 +72,33 @@ public class DisplayTypes {
             directoryContentsList = filesDataList;
         }
 
-        public DirectoryResultContext loadNextFolderAtIndex(int posIndex) {
-            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+        public void clearDirectoryContentsList() {
             directoryContentsList.clear();
-            pathHistoryStack.push(this);
+        }
+
+        public DirectoryResultContext loadNextFolderAtIndex(int posIndex, boolean initNewFileTree) {
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            DisplayFragments.updateFolderHistoryPaths(activeCWDAbsPath.replace("\\(.*/\\)*/(.*)", "$0"), initNewFileTree);
             MatrixCursor nextDirCursor = null;
             try {
-                nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(activeDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
+                int curCursorIndex = initMatrixCursorListing.getPosition();
+                initMatrixCursorListing.moveToPosition(posIndex);
+                String nextActiveDocId = initMatrixCursorListing.getString(BasicFileProvider.ROOT_PROJ_DOCID_COLUMN_INDEX);
+                initMatrixCursorListing.moveToPosition(curCursorIndex);
+                nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
             } catch(Exception ioe) {
                 ioe.printStackTrace();
                 pathHistoryStack.pop();
                 return null;
             }
-            return new DirectoryResultContext(nextDirCursor, initMatrixCursorListing);
+            clearDirectoryContentsList();
+            DirectoryResultContext nextFolderCtx = new DirectoryResultContext(nextDirCursor, initMatrixCursorListing);
+            pathHistoryStack.push(nextFolderCtx);
+            return nextFolderCtx;
+        }
+
+        public DirectoryResultContext loadNextFolderAtIndex(int posIndex) {
+            return loadNextFolderAtIndex(posIndex, false);
         }
 
         public static DirectoryResultContext probeAtCursoryFolderQuery(FileChooserBuilder.BaseFolderPathType baseFolderChoice) {
@@ -107,12 +122,14 @@ public class DisplayTypes {
         private boolean isChecked;
         private Drawable fileTypeIcon;
         private View fileItemLayoutContainer;
+        private int cwdRelativeCursorPos;
 
         public FileType(File fileOnDisk, DirectoryResultContext parentFolder) {
             this.parentFolder = parentFolder;
             this.fileOnDisk = fileOnDisk;
             this.isChecked = false;
             this.fileItemLayoutContainer = null;
+            this.cwdRelativeCursorPos = -1;
         }
 
         public void setFileTypeIcon(Drawable fileIcon) {
@@ -152,19 +169,21 @@ public class DisplayTypes {
         }
 
         public String getChmodStylePermissions() {
-            return FileUtils.filePermsStringToShortChmodStyleCode(FileUtils.getFilePosixPermissionsString(fileOnDisk));
+            String filePosixPerms = FileUtils.getFilePosixPermissionsString(fileOnDisk);
+            return FileUtils.filePermsStringToShortChmodStyleCode(filePosixPerms, isDirectory());
         }
 
         public String getFileSizeString() {
-            return FileUtils.getFileSizeString(fileOnDisk);
+            if(isDirectory()) {
+                return "DIR";
+            }
+            else {
+                return FileUtils.getFileSizeString(fileOnDisk);
+            }
         }
 
         public boolean isChecked() {
             return isChecked;
-        }
-
-        public void setChecked(boolean enable) {
-            isChecked = enable;
         }
 
         public View getLayoutContainer() {
@@ -173,6 +192,14 @@ public class DisplayTypes {
 
         public void setLayoutContainer(View fileItemLayoutContainer) {
             this.fileItemLayoutContainer = fileItemLayoutContainer;
+        }
+
+        public int getRelativeCursorPosition() {
+            return cwdRelativeCursorPos;
+        }
+
+        public void setRelativeCursorPosition(int activeCursorPos) {
+            cwdRelativeCursorPos = activeCursorPos;
         }
 
     }

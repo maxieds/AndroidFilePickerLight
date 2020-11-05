@@ -76,6 +76,22 @@
             android:typeface="serif"
             />
 
+        <View
+            android:layout_width="8dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?__colorPrimary"
+            android:text=" | "
+            android:textColor="?__colorAccent"
+            android:textSize="12sp"
+            android:textStyle="normal|italic"
+            android:typeface="monospace"
+            />
+
         <TextView
             android:id="@+id/fileEntryPermsSummaryText"
             android:layout_width="wrap_content"
@@ -85,13 +101,13 @@
             android:layout_gravity="right|center_vertical"
             android:text="0755"
             android:textColor="?__colorAccent"
-            android:textSize="9sp"
+            android:textSize="12sp"
             android:textStyle="normal|italic"
             android:typeface="monospace"
             />
 
         <View
-            android:layout_width="35dp"
+            android:layout_width="15dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent" />
 

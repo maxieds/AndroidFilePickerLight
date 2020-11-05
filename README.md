@@ -53,7 +53,7 @@ Key features in the library include the following:
 
 There are a couple of quickstart items covered in the sections below to handle before this
 library can be included in the client Android application:
-* Include the library using [Jitpack.io/GitHub (TODO -- Get Link for Release)]() 
+* Include the library using [Jitpack.io/GitHub](https://jitpack.io/#maxieds/AndroidFilePickerLight) 
   in the application *build.gradle* configuration.
 * Update the project *AndroidManifest.xml* file to extend the documents provider, 
   request required permissions, and setup some helpful legacy file handling options for devices 

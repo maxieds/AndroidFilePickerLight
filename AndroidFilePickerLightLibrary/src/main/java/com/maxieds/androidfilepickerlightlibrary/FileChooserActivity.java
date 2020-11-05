@@ -115,7 +115,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             Runnable execIdleTimeoutRunner = new Runnable() {
                 @Override
                 public void run() {
-                    postSelectedFilesActivityResult();
+                    postSelectedFilesActivityResult(new FileChooserException.AbortedByTimeoutException());
                 }
             };
             execIdleTimeoutHandler.postDelayed(execIdleTimeoutRunner, idleTimeout);
@@ -209,7 +209,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             @Override
             public void onClick(View btnView) {
                 DisplayFragments.cancelAllOperationsInProgress();
-                getInstance().postSelectedFilesActivityResult();
+                getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
             }
         };
         doneActionBtn.setOnClickListener(quitActivityBtnClickListener);
@@ -328,6 +328,11 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public void postSelectedFilesActivityResult(Exception runtimeExcpt) {
         runtimeExcpt.printStackTrace();
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
+        if(runtimeExcpt instanceof FileChooserException.AndroidFilePickerLightException) {
+            FileChooserException.AndroidFilePickerLightException rteLocal = (FileChooserException.AndroidFilePickerLightException) runtimeExcpt;
+            filesResultIntent.putExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_MESSAGE_KEY, rteLocal.getMessage());
+            filesResultIntent.putExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_CAUSE_KEY, rteLocal.getCauseAsString());
+        }
         setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
         System.exit(0);

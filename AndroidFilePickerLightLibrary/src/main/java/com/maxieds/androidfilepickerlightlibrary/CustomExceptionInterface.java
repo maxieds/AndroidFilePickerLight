@@ -40,6 +40,7 @@ interface CustomExceptionInterface {
     public boolean isError();
     public int getErrorCode();
     public Intent getAsIntent();
+    public String getCauseAsString();
 
     /* Custom error messages and printing methods: */
     public String getExceptionName();

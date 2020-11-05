@@ -400,8 +400,10 @@ public class FileChooserBuilder implements Serializable {
         }
     }
 
-    public static final String FILE_PICKER_INTENT_DATA_TYPE_KEY = "FilePickerSelectedIntentDataType";
-    public static final String FILE_PICKER_INTENT_DATA_PAYLOAD_KEY = "FilePickerSelectedIntentDataPayloadList";
+    public static final String FILE_PICKER_INTENT_DATA_TYPE_KEY = "FilePickerIntentKey.SelectedIntentDataType";
+    public static final String FILE_PICKER_INTENT_DATA_PAYLOAD_KEY = "FilePickerIntentKey.SelectedIntentDataPayloadList";
+    public static final String FILE_PICKER_EXCEPTION_MESSAGE_KEY = "FilePickerIntentKey.UnexpectedExitMessage";
+    public static final String FILE_PICKER_EXCEPTION_CAUSE_KEY = "FilePickerIntentKey.ExceptionCauseDescKey";
 
     public void launchFilePicker() throws FileChooserException.AndroidFilePickerLightException {
         Intent launchPickerIntent = new Intent(activityContextRef.get().getApplicationContext(), FileChooserActivity.class);
@@ -418,7 +420,8 @@ public class FileChooserBuilder implements Serializable {
     /* Client code should call this method in their main Activity's onActivityResult function
      * to handle the logic there when the activity was created as a file picker instance:
      */
-    public static List<String> handleActivityResult(Activity activityInst, int requestCode, int resultCode, Intent data) throws FileChooserException.AndroidFilePickerLightException {
+    public static List<String> handleActivityResult(Activity activityInst, int requestCode, int resultCode, Intent data)
+            throws FileChooserException.AndroidFilePickerLightException {
         if(activityInst == null || data == null) {
             throw new FileChooserException.CommunicateNoDataException();
         }
@@ -439,6 +442,10 @@ public class FileChooserBuilder implements Serializable {
                     /* Now resume to return the data we requested: */
                     return selectedDataItems;
                 }
+                try {
+                    String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
+                    throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
+                } catch(NullPointerException npe) {}
                 break;
             default:
                 break;
