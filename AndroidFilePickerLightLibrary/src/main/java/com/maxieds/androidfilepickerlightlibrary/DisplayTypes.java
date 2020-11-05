@@ -28,58 +28,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-public class FileTypes {
+public class DisplayTypes {
 
-    public enum DefaultFileTypes {
-
-        PLAINTEXT_FILE_TYPE(R.drawable.text_file_icon32, "Text",
-                            new String[] { "txt", "out", "rtf", "sh", "py", "lst", "csv", "xml", "keys", "cfg", "dat", "log", "run" },
-                            new String[] { "text/plain", "text/*" }),
-        BINARY_FILE_TYPE(R.drawable.binary_file_icon32, "Binary",
-                          new String[] { "dmp", "dump", "hex", "bin", "mfd", "exe" },
-                          new String[] { "application/octet-stream" }),
-        DOCUMENTS_FILE_TYPE(R.drawable.document_file_icon32, "Document",
-                            new String[] { "pdf", "doc", "docx", "odt", "xls", "ppt", "numbers" },
-                            new String[] { "text/*", "application/pdf", "application/doc" }),
-        IMAGE_FILE_TYPE(R.drawable.image_file_icon32, "Image",
-                        new String[] { "bmp", "gif", "ico", "jpeg", "jpg", "pcx", "png", "psd", "tga", "tiff", "tif", "xcf" },
-                        new String[] { "image/*" }),
-        MEDIA_FILE_TYPE(R.drawable.media_file_icon32, "Media",
-                        new String[] { "aiff", "aif", "wav", "flac", "m4a", "wma", "amr", "mp2", "mp3", "wma", "aac", "mid", "m3u",
-                                       "avi", "mov", "wmv", "mkv", "3gp", "f4v", "flv", "mp4", "mpeg", "webm" },
-                        new String[] { "audio/*", "video/*" }),
-        FOLDER_FILE_TYPE(R.drawable.folder_icon32, "Folder", new String[] {},
-                         new String[] { "vnd.android.document/directory" }),
-        HIDDEN_FILE_TYPE(R.drawable.hidden_file_icon32, "Hidden", new String[] {},
-                         new String[] { "*/*" }),
-        COMPRESSED_ARCHIVE_FILE_TYPE(R.drawable.compressed_archive_file_icon32, "Archive",
-                                     new String[] { "cab", "7z", "alz", "arj", "bzip2", "bz2", "dmg", "gzip", "gz", "jar", "lz",
-                                                    "lzip", "lzma", "zip", "rar", "tar", "tgz"},
-                                     new String[] { "application/octet-stream", "text/*" }),
-        APK_FILE_TYPE(R.drawable.apk_file_icon32, "APK",
-                      new String[] { "apk", "aab" }, new String[] { "application/vnd.android.package-archive" }),
-        CUSTOM_FILE_TYPE(R.drawable.unknown_file_icon32, "Custom", new String[] {}, new String[] { "*/*" }),
-        UNKNOWN_FILE_TYPE(R.drawable.unknown_file_icon32, "Unknown", new String[] {}, new String[] { "*/*" });
-
-        private int iconResId;
-        private String typeShortDesc;
-        private String[] fileExtList;
-        private String[] supportedMimeTypes;
-
-        DefaultFileTypes(int iconResIdParam, String shortDesc, String[] fileExtListParam, String[] mimeTypesParam) {
-            iconResId = iconResIdParam;
-            typeShortDesc = shortDesc;
-            fileExtList = fileExtListParam;
-            supportedMimeTypes = mimeTypesParam;
-        }
-
-        /* TODO: Add accessor methods and ability to construct a FileFilter comparator for the type ... */
-
-    }
+    private static String LOGTAG = DisplayTypes.class.getSimpleName();
 
     public static class DirectoryResultContext {
 
-        public static Stack<DirectoryResultContext> pathHistoryStack = new Stack<FileTypes.DirectoryResultContext>();
+        public static Stack<DirectoryResultContext> pathHistoryStack = new Stack<DisplayTypes.DirectoryResultContext>();
 
         private MatrixCursor initMatrixCursorListing;
         private List<FileType> directoryContentsList;
@@ -220,14 +175,6 @@ public class FileTypes {
             this.fileItemLayoutContainer = fileItemLayoutContainer;
         }
 
-    }
-
-    public static class FileItemsListSortFunc {
-        public static List<FileType> sortFileItemsList(List<FileType> fileItemsList) {
-            // default is standard lexicographical ordering (override in base classes for customized sorting):
-            Collections.sort(fileItemsList, (fi1, fi2) -> { return fi1.getAbsolutePath().compareTo(fi2.getAbsolutePath()); });
-            return fileItemsList;
-        }
     }
 
 }

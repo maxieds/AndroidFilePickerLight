@@ -30,9 +30,6 @@ public class FileUtils {
 
     private static final String FILE_PATH_SEPARATOR = "/";
 
-    // URI: read path data (isDirectory, isMediaFile, isBlobFile, etc.) ...
-    // Construct some helper methods to send the result: in general, by email, over SMS, etc. ...
-
     public static boolean validFileBaseName(String filePath) {
         return filePath != null
                 && !filePath.equals("")

@@ -157,7 +157,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 @Override
                 public void onClick(View btnView) {
                     DisplayFragments.cancelAllOperationsInProgress();
-                    FileTypes.DirectoryResultContext.pathHistoryStack.clear(); // reset the directory traversal history
+                    DisplayTypes.DirectoryResultContext.pathHistoryStack.clear(); // reset the directory traversal history
                     FileChooserBuilder.BaseFolderPathType navBtnInitFolder = (FileChooserBuilder.BaseFolderPathType) btnView.getTag();
                     DisplayFragments.initiateNewFolderLoad(navBtnInitFolder);
                     Button navBtn = (Button) btnView;

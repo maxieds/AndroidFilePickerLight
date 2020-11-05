@@ -22,7 +22,6 @@ import android.content.ContentProvider;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
-import android.util.TypedValue;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -36,6 +35,53 @@ import static android.app.Activity.RESULT_OK;
 public class FileChooserBuilder implements Serializable {
 
     private static String LOGTAG = FileChooserBuilder.class.getSimpleName();
+
+    public enum DefaultFileTypes {
+
+        PLAINTEXT_FILE_TYPE(R.drawable.text_file_icon32, "Text",
+                new String[] { "txt", "out", "rtf", "sh", "py", "lst", "csv", "xml", "keys", "cfg", "dat", "log", "run" },
+                new String[] { "text/plain", "text/*" }),
+        BINARY_FILE_TYPE(R.drawable.binary_file_icon32, "Binary",
+                new String[] { "dmp", "dump", "hex", "bin", "mfd", "exe" },
+                new String[] { "application/octet-stream" }),
+        DOCUMENTS_FILE_TYPE(R.drawable.document_file_icon32, "Document",
+                new String[] { "pdf", "doc", "docx", "odt", "xls", "ppt", "numbers" },
+                new String[] { "text/*", "application/pdf", "application/doc" }),
+        IMAGE_FILE_TYPE(R.drawable.image_file_icon32, "Image",
+                new String[] { "bmp", "gif", "ico", "jpeg", "jpg", "pcx", "png", "psd", "tga", "tiff", "tif", "xcf" },
+                new String[] { "image/*" }),
+        MEDIA_FILE_TYPE(R.drawable.media_file_icon32, "Media",
+                new String[] { "aiff", "aif", "wav", "flac", "m4a", "wma", "amr", "mp2", "mp3", "wma", "aac", "mid", "m3u",
+                        "avi", "mov", "wmv", "mkv", "3gp", "f4v", "flv", "mp4", "mpeg", "webm" },
+                new String[] { "audio/*", "video/*" }),
+        FOLDER_FILE_TYPE(R.drawable.folder_icon32, "Folder", new String[] {},
+                new String[] { "vnd.android.document/directory" }),
+        HIDDEN_FILE_TYPE(R.drawable.hidden_file_icon32, "Hidden", new String[] {},
+                new String[] { "*/*" }),
+        COMPRESSED_ARCHIVE_FILE_TYPE(R.drawable.compressed_archive_file_icon32, "Archive",
+                new String[] { "cab", "7z", "alz", "arj", "bzip2", "bz2", "dmg", "gzip", "gz", "jar", "lz",
+                        "lzip", "lzma", "zip", "rar", "tar", "tgz"},
+                new String[] { "application/octet-stream", "text/*" }),
+        APK_FILE_TYPE(R.drawable.apk_file_icon32, "APK",
+                new String[] { "apk", "aab" }, new String[] { "application/vnd.android.package-archive" }),
+        CUSTOM_FILE_TYPE(R.drawable.unknown_file_icon32, "Custom", new String[] {}, new String[] { "*/*" }),
+        UNKNOWN_FILE_TYPE(R.drawable.unknown_file_icon32, "Unknown", new String[] {}, new String[] { "*/*" });
+
+        private int iconResId;
+        private String typeShortDesc;
+        private String[] fileExtList;
+        private String[] supportedMimeTypes;
+
+        DefaultFileTypes(int iconResIdParam, String shortDesc, String[] fileExtListParam, String[] mimeTypesParam) {
+            iconResId = iconResIdParam;
+            typeShortDesc = shortDesc;
+            fileExtList = fileExtListParam;
+            supportedMimeTypes = mimeTypesParam;
+        }
+
+        /* TODO: Add accessor methods and ability to construct a FileFilter comparator for the type ... */
+
+    }
 
     public enum DefaultNavFoldersType {
 
@@ -166,7 +212,7 @@ public class FileChooserBuilder implements Serializable {
     private ContentProvider externalFilesProvider;
     private long idleTimeoutMillis;
     private FileFilter.FileFilterInterface localFileFilter;
-    private FileTypes.FileItemsListSortFunc customSortFunc;
+    private FileFilter.FileItemsListSortFunc customSortFunc;
 
     public static final long NO_ABORT_TIMEOUT = -1;
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
@@ -248,7 +294,6 @@ public class FileChooserBuilder implements Serializable {
 
     public FileChooserBuilder setPickerInitialPath(BaseFolderPathType storageAccessBase) {
         initFolderBasePathType = storageAccessBase;
-        //BasicFileProvider.getInstance().selectBaseDirectoryByType(storageAccessBase);
         return this;
     }
 
@@ -270,7 +315,7 @@ public class FileChooserBuilder implements Serializable {
     public static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = true;
     public static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = false;
 
-    public FileChooserBuilder filterByDefaultFileTypes(List<FileTypes.DefaultFileTypes> fileTypesList, boolean includeExcludeInList) {
+    public FileChooserBuilder filterByDefaultFileTypes(List<DefaultFileTypes> fileTypesList, boolean includeExcludeInList) {
         localFileFilter = new FileFilter.FileFilterByDefaultTypesList(fileTypesList, includeExcludeInList);
         return this;
     }
@@ -289,7 +334,7 @@ public class FileChooserBuilder implements Serializable {
         throw new FileChooserException.NotImplementedException();
     }
 
-    public FileChooserBuilder setFilesListSortCompareFunction(FileTypes.FileItemsListSortFunc customSortFunc) {
+    public FileChooserBuilder setFilesListSortCompareFunction(FileFilter.FileItemsListSortFunc customSortFunc) {
         this.customSortFunc = customSortFunc;
         return this;
     }
@@ -330,14 +375,14 @@ public class FileChooserBuilder implements Serializable {
         return localFileFilter;
     }
 
-    public FileTypes.FileItemsListSortFunc getCustomSortFunc() {
+    public FileFilter.FileItemsListSortFunc getCustomSortFunc() {
         return customSortFunc;
     }
 
-    public static List<FileTypes.FileType> filterAndSortFileItemsList(List<FileTypes.FileType> inputFileItems,
-                                                                      FileFilter.FileFilterInterface fileFilter, FileTypes.FileItemsListSortFunc sortCompFunc) {
-        List<FileTypes.FileType> allowedFileItemsList = new ArrayList<FileTypes.FileType>();
-        for(FileTypes.FileType fileItem : inputFileItems) {
+    public static List<DisplayTypes.FileType> filterAndSortFileItemsList(List<DisplayTypes.FileType> inputFileItems,
+                                                                         FileFilter.FileFilterInterface fileFilter, FileFilter.FileItemsListSortFunc sortCompFunc) {
+        List<DisplayTypes.FileType> allowedFileItemsList = new ArrayList<DisplayTypes.FileType>();
+        for(DisplayTypes.FileType fileItem : inputFileItems) {
             if(fileFilter == null) {
                 allowedFileItemsList = inputFileItems;
                 break;
@@ -419,6 +464,14 @@ public class FileChooserBuilder implements Serializable {
         FileChooserException.AndroidFilePickerLightException resultNotOKException = new FileChooserException.GenericRuntimeErrorException();
         resultNotOKException.packageDataItemsFromIntent(data);
         throw resultNotOKException;
+    }
+
+    public StringBuilder readFileContentsAsString() {
+        return null;
+    }
+
+    public byte[] readFileContentsAsBytesArray() {
+        return null;
     }
 
 }

@@ -43,17 +43,17 @@ public class DisplayFragments {
     public static int curSelectionCount = 0;
     public static boolean allowSelectFiles = true;
     public static boolean allowSelectFolders = true;
-    public static List<FileTypes.FileType> activeSelectionsList = new ArrayList<FileTypes.FileType>();
+    public static List<DisplayTypes.FileType> activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
 
     public static FileFilter.FileFilterInterface localFilesListFilter = null;
-    public static FileTypes.FileItemsListSortFunc localFilesListSortFunc = null;
+    public static FileFilter.FileItemsListSortFunc localFilesListSortFunc = null;
 
     public static void descendIntoNextDirectory() {
-        if(FileTypes.DirectoryResultContext.pathHistoryStack.empty()) {
+        if(DisplayTypes.DirectoryResultContext.pathHistoryStack.empty()) {
             DisplayFragments.cancelAllOperationsInProgress();
             FileChooserActivity.getInstance().postSelectedFilesActivityResult();
         }
-        FileTypes.DirectoryResultContext lastWorkingDir = FileTypes.DirectoryResultContext.pathHistoryStack.pop();
+        DisplayTypes.DirectoryResultContext lastWorkingDir = DisplayTypes.DirectoryResultContext.pathHistoryStack.pop();
         lastWorkingDir.computeDirectoryContents();
         DisplayFragments.displayNextDirectoryFilesList(lastWorkingDir.getWorkingDirectoryContents());
     }
@@ -63,20 +63,21 @@ public class DisplayFragments {
      * RecyclerView pattern making compendia on a whole new dataset):
      */
     public static void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
-        FileTypes.DirectoryResultContext newCwdContext = FileTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
-        FileTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
+        DisplayTypes.DirectoryResultContext newCwdContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
+        DisplayTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
         DisplayFragments.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
     }
 
-    public static void displayNextDirectoryFilesList(List<FileTypes.FileType> workingDirContentsList) {
-        List<FileTypes.FileType> filteredFileContents = FileChooserBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
+    public static void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList) {
+        List<DisplayTypes.FileType> filteredFileContents = FileChooserBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc);
         if(!recyclerViewAdapterInit) {
             List<String> fileItemBasePathsList = new ArrayList<String>();
-            for(FileTypes.FileType fileItem : filteredFileContents) {
+            for(DisplayTypes.FileType fileItem : filteredFileContents) {
                 fileItemBasePathsList.add(fileItem.getBaseName());
             }
             rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
             mainFileListRecyclerView.setAdapter(rvAdapter);
+            mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
             recyclerViewAdapterInit = true;
         }
         DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText("----");
@@ -85,7 +86,7 @@ public class DisplayFragments {
         mainFileListRecyclerView.removeAllViews();
         rvAdapter.notifyDataSetChanged();
         int fileItemIndex = 0;
-        for(FileTypes.FileType fileItem : filteredFileContents) {
+        for(DisplayTypes.FileType fileItem : filteredFileContents) {
             DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
             fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
             mainFileListRecyclerView.addView(fileItemUIFragment.getLayoutContainer());
@@ -96,11 +97,11 @@ public class DisplayFragments {
     public static class FileListItemFragment {
 
         private View layoutContainer;
-        private FileTypes.FileType localFileItem;
+        private DisplayTypes.FileType localFileItem;
         private int displayPositionIndex;
         private boolean isCheckable;
 
-        public FileListItemFragment(FileTypes.FileType fileItem, int displayPosition) {
+        public FileListItemFragment(DisplayTypes.FileType fileItem, int displayPosition) {
             displayPositionIndex = displayPosition;
             isCheckable = true;
             localFileItem = fileItem;
@@ -115,7 +116,7 @@ public class DisplayFragments {
             recyclerViewDisplay.setLayoutManager(rvLayoutManager);
         }
 
-        public void resetLayout(FileTypes.FileType fileItem, int displayPosition) {
+        public void resetLayout(DisplayTypes.FileType fileItem, int displayPosition) {
             displayPositionIndex = displayPosition;
             ImageView fileTypeIcon = layoutContainer.findViewById(R.id.fileTypeIcon);
             fileTypeIcon.setImageDrawable(localFileItem.getFileTypeIcon());

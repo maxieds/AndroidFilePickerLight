@@ -123,7 +123,6 @@ public class DisplayUtils {
                 LayoutInflater layoutInflater = mainAppActivity.getLayoutInflater();
                 View toastProgressView = layoutInflater.inflate(R.layout.progress_bar_layout, null);
                 Drawable statusBarMarkerImage = mainAppActivity.getResources().getDrawable(PROGRESS_BAR_VISUAL_MARKERS[statusBarMarkerIdx]);
-                toastProgressView.setAlpha(125);
                 ((ImageView) toastProgressView.findViewById(R.id.progressBarImageMarker)).setImageDrawable(statusBarMarkerImage);
                 ((TextView) toastProgressView.findViewById(R.id.progressBarText)).setText(statusBarMsg);
                 progressBarToast.setView(toastProgressView);

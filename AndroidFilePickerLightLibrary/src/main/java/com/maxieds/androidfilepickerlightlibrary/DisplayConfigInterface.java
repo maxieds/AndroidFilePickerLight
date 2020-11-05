@@ -25,5 +25,14 @@ public interface DisplayConfigInterface {
         return null;
     }
 
+    // pickerTitleText
+    // navBarPrefixText
+    // doneActionBtnText, check mark icon
+    // cancelActionBtnTex, X mark icon
+    // bgColor, fgColor, fgAccentColor
+    // useGradientDisplays: Create the tool bar and main file display gradients with
+    // the GradientDrawableFactory.Builder class ...
+    // setup / configure the stock directory path nav btn icons
+    // reset the default file type and directory folder display icons
 
 }

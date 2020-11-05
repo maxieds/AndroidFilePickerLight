@@ -22,20 +22,20 @@ import android.content.Context;
 
 public class FileChooserApplication extends Application {
 
-    private static String LOGTAG = FileChooserApplication.class.getSimpleName();
+    public static FileChooserApplication libStaticAppInstance;
 
     @Override
     public void onCreate() {
-        appContextStaticInst = this; //getApplicationContext();
         super.onCreate();
+        libStaticAppInstance = this;
     }
-
-    private static Context appContextStaticInst = null;
-    public static Context getContext() { return appContextStaticInst; }
 
     @Override
     public Context getApplicationContext() {
         return super.getApplicationContext();
+    }
+    public static FileChooserApplication getInstance() {
+        return libStaticAppInstance;
     }
 
 }

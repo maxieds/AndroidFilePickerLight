@@ -21,12 +21,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -63,7 +61,7 @@ public class DisplayAdapters {
 
         public View iconView;
         public TextView displayText;
-        public FileTypes.FileType fileItem;
+        public DisplayTypes.FileType fileItem;
 
         public BaseViewHolder(View v) {
             super(v);
@@ -73,13 +71,13 @@ public class DisplayAdapters {
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
         }
 
-        public void setFileItemData(FileTypes.FileType storedFileItem) {
+        public void setFileItemData(DisplayTypes.FileType storedFileItem) {
             fileItem = storedFileItem;
         }
 
         public TextView getDisplayText() { return displayText; }
 
-        public boolean performNewFileItemClick(FileTypes.FileType fileItem) {
+        public boolean performNewFileItemClick(DisplayTypes.FileType fileItem) {
             if(!fileItem.isDirectory() && !DisplayFragments.allowSelectFiles) {
                 return false;
             }

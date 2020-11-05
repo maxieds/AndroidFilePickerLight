@@ -277,5 +277,78 @@ public class GradientDrawableFactory {
         return generateNamedGradientType(borderStyleSpec, resolveColorFromAttribute(R.attr.colorPrimaryDark), namedColorTheme);
     }
 
+    public static class Builder {
+
+        private int[] colorsList;
+        private GradientMethodSpec gradientType;
+        private float gradientAngle;
+        private int borderColor;
+        private BorderStyleSpec borderStyle;
+        private GradientTypeSpec gradientFillStyle;
+        private boolean useNamedColorTheme;
+        private NamedGradientColorThemes namedColorTheme;
+
+
+        public Builder() {
+            colorsList = new int[] {};
+            gradientType = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
+            gradientAngle = 90.0f;
+            borderColor = 0;
+            borderStyle = BorderStyleSpec.BORDER_STYLE_DASHED_LONG;
+            gradientFillStyle = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
+            useNamedColorTheme = false;
+            namedColorTheme = null;
+        }
+
+        public Builder setColorsArray(int[] colorsArray) {
+            colorsList = colorsArray;
+            return this;
+        }
+
+        public Builder setGradientType(GradientMethodSpec gradType) {
+            gradientType = gradType;
+            return this;
+        }
+
+        public Builder setGradientAngle(float gradAngle) {
+            gradientAngle = gradAngle;
+            return this;
+        }
+
+        public Builder setBorderColor(int bdrColor) {
+            borderColor = bdrColor;
+            return this;
+        }
+
+        public Builder setBorderStyle(BorderStyleSpec bdrStyle) {
+            borderStyle = bdrStyle;
+            return this;
+        }
+
+        public Builder setFileStyle(GradientTypeSpec gradFillStyle) {
+            gradientFillStyle = gradFillStyle;
+            return this;
+        }
+
+        public Builder setNamedColorScheme(NamedGradientColorThemes namedTheme) {
+            if(namedTheme != null) {
+                namedColorTheme = namedTheme;
+                useNamedColorTheme = true;
+            }
+            else {
+                namedColorTheme = null;
+                useNamedColorTheme = false;
+            }
+            return this;
+        }
+
+        public GradientDrawable make() {
+            if(useNamedColorTheme) {
+                return generateNamedGradientType(borderStyle, borderColor, namedColorTheme);
+            }
+            return generateNamedGradientType(gradientType, gradientFillStyle, borderStyle, gradientAngle, borderColor, colorsList);
+        }
+
+    }
 
 }
