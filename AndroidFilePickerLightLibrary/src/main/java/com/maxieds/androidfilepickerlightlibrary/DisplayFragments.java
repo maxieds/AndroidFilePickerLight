@@ -93,6 +93,13 @@ public class DisplayFragments {
         }
     }
 
+    public static void resetRecyclerViewLayoutContext() {
+        mainFileListRecyclerView = null;
+        rvLayoutManager = null;
+        rvAdapter = null;
+        recyclerViewAdapterInit = false;
+    }
+
     public static FileFilter.FileFilterInterface localFilesListFilter = null;
     public static FileFilter.FileItemsListSortFunc localFilesListSortFunc = null;
 
@@ -114,7 +121,7 @@ public class DisplayFragments {
     public static void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
         DisplayTypes.DirectoryResultContext newCwdContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
         DisplayTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
-        newCwdContext.loadNextFolderAtIndex(0, true);
+        //newCwdContext.loadNextFolderAtIndex(true);
         DisplayFragments.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
     }
 

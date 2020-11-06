@@ -73,10 +73,10 @@ public class DisplayAdapters {
             }
             @Override
             public void onLongPress(MotionEvent e) {
-                View child = DisplayFragments.mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
-                if(child != null) {
+                View childView = DisplayFragments.mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
+                if(childView != null) {
                     //clickListener.onLongClick(child, DisplayFragments.mainFileListRecyclerView, DisplayFragments.mainFileListRecyclerView.getChildPosition(child));
-                    onLongClick(child);
+                    onLongClick(childView);
                 }
             }
         });
@@ -96,7 +96,10 @@ public class DisplayAdapters {
         public TextView getDisplayText() { return displayText; }
 
         public boolean performNewFileItemClick(DisplayTypes.FileType fileItem) {
-            if(!fileItem.isDirectory() && !DisplayFragments.allowSelectFiles) {
+            if(fileItem == null) {
+                return false;
+            }
+            else if(!fileItem.isDirectory() && !DisplayFragments.allowSelectFiles) {
                 return false;
             }
             else if(fileItem.isDirectory() && !DisplayFragments.allowSelectFolders) {
@@ -124,7 +127,7 @@ public class DisplayAdapters {
 
         @Override
         public void onClick(View v) {
-            if(!fileItem.isDirectory()) {
+            if(fileItem != null && !fileItem.isDirectory()) {
                 if(performNewFileItemClick(fileItem)) {
                     String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
                     DisplayUtils.displayToastMessageShort(displaySelectMsg);
@@ -134,7 +137,7 @@ public class DisplayAdapters {
 
         @Override
         public boolean onLongClick(View v) {
-            if(!fileItem.isDirectory()) {
+            if(fileItem != null && !fileItem.isDirectory()) {
                 if(performNewFileItemClick(fileItem)) {
                     String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
                     DisplayUtils.displayToastMessageShort(displaySelectMsg);
@@ -147,19 +150,22 @@ public class DisplayAdapters {
             if(workingFolder == null) {
                 return false;
             }
-            workingFolder.loadNextFolderAtIndex(fileItem.getRelativeCursorPosition(), false);
-            DisplayFragments.descendIntoNextDirectory(false);
-            String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recursively into DIR \"%s\".", fileItem.getBaseName());
-            DisplayUtils.displayToastMessageShort(displayRecurseMsg);
-            return true;
+            if(fileItem != null) {
+                workingFolder.loadNextFolderAtIndex(fileItem.getRelativeCursorPosition(), false);
+                DisplayFragments.descendIntoNextDirectory(false);
+                String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recursively into DIR \"%s\".", fileItem.getBaseName());
+                DisplayUtils.displayToastMessageShort(displayRecurseMsg);
+                return true;
+            }
+            return false;
         }
 
         @Override
         public boolean onInterceptTouchEvent(RecyclerView rview, MotionEvent mevt) {
-            View child = rview.findChildViewUnder(mevt.getX(), mevt.getY());
-            if(child != null && gestureDetector.onTouchEvent(mevt)) {
+            View childView = rview.findChildViewUnder(mevt.getX(), mevt.getY());
+            if(childView != null && gestureDetector.onTouchEvent(mevt)) {
                 //clickListener.onClick(child, rview.getChildPosition(child));
-                onClick(child);
+                onClick(childView);
             }
             return false;
         }

@@ -53,6 +53,9 @@ public class DisplayTypes {
         }
 
         public List<FileType> getWorkingDirectoryContents() {
+            if(directoryContentsList.size() == 0) {
+                computeDirectoryContents();
+            }
             return directoryContentsList;
         }
 
@@ -100,6 +103,10 @@ public class DisplayTypes {
 
         public DirectoryResultContext loadNextFolderAtIndex(int posIndex) {
             return loadNextFolderAtIndex(posIndex, false);
+        }
+
+        public DirectoryResultContext loadNextFolderAtIndex(boolean initNewFiletree) {
+            return loadNextFolderAtIndex(initMatrixCursorListing.getPosition(), initNewFiletree);
         }
 
         public static DirectoryResultContext probeAtCursoryFolderQuery(FileChooserBuilder.BaseFolderPathType baseFolderChoice) {

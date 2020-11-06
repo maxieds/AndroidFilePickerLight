@@ -19,10 +19,9 @@
 
 <resources>
 
-    <!-- Base application theme (Default "green-ish" theme) -->
     <style name="LibraryDefaultTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="filePickerTitleText"></item>
-        <item name="filePickerNavBarText"></item>
+        <item name="filePickerTitleText">@string/filePickerTitleText</item>
+        <item name="filePickerNavBarText">@string/filePickerNavBarText</item>
         <item name="filePickerDoneButtonText">@string/filePickerDoneButtonText</item>
         <item name="filePickerCancelButtonText">@string/filePickerCancelButtonText</item>
         <item name="namedFolderSDCardIcon">@drawable/named_folder_sdcard_icon32</item>
@@ -44,44 +43,15 @@
         <item name="__colorPrimaryDark">@color/__colorPrimaryDark</item>
         <item name="__colorPrimaryVeryDark">@color/__colorPrimaryVeryDark</item>
         <item name="__colorAccentLight">@color/__colorAccentLight</item>
-        <item name="__colorAccent">@color/colorAccent</item>
+        <item name="__colorAccent">@color/__colorAccent</item>
+        <item name="__colorAccentMedium">@color/__colorAccentMedium</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="LibraryLightTheme" parent="LibraryDefaultTheme">
-        <item name="mainToolbarBackgroundColor">@color/colorMainToolbarBackground</item>
-        <item name="mainToolbarBackgroundColor2">@color/colorMainToolbarBackground2</item>
-        <item name="mainToolbarBackgroundColor3">@color/colorMainToolbarBackground3</item>
-        <item name="mainToolbarBackgroundColor4">@color/colorMainToolbarBackground4</item>
-        <item name="mainToolbarForegroundTextColor">@color/colorMainToolbarForegroundText</item>
-        <item name="__colorPrimary">@color/__colorPrimary</item>
-        <item name="__colorPrimaryDark">@color/__colorPrimaryDark</item>
-        <item name="__colorPrimaryVeryDark">@color/__colorPrimaryVeryDark</item>
-        <item name="__colorAccent">@color/colorAccent</item>
-        <item name="__colorAccentLight">@color/__colorAccentLight</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="LibraryDarkTheme" parent="LibraryDefaultTheme">
-        <item name="mainToolbarBackgroundColor">@color/colorMainToolbarBackground</item>
-        <item name="mainToolbarBackgroundColor2">@color/colorMainToolbarBackground2</item>
-        <item name="mainToolbarBackgroundColor3">@color/colorMainToolbarBackground3</item>
-        <item name="mainToolbarBackgroundColor4">@color/colorMainToolbarBackground4</item>
-        <item name="mainToolbarForegroundTextColor">@color/colorMainToolbarForegroundText</item>
-        <item name="__colorPrimary">@color/__colorPrimary</item>
-        <item name="__colorPrimaryDark">@color/__colorPrimaryDark</item>
-        <item name="__colorPrimaryVeryDark">@color/__colorPrimaryVeryDark</item>
-        <item name="__colorAccent">@color/colorAccent</item>
-        <item name="__colorAccentLight">@color/__colorAccentLight</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="SelectionCheckBoxStyle">
-        <item name="colorControlNormal">?colorPrimaryDark</item>
-        <item name="colorControlActivated">?colorPrimaryDark</item>
+    <style name="SelectionCheckBoxStyle" parent="LibraryDefaultTheme">
+        <item name="colorControlNormal">?__colorAccentMedium</item>
+        <item name="colorControlActivated">?__colorAccentMedium</item>
         <item name="buttonTint">?colorPrimary</item>
     </style>
 
@@ -91,6 +61,7 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:fontFamily">serif</item>
         <item name="android:gravity">center_vertical|left</item>
+        <item name="android:paddingLeft">10sp</item>
     </style>
 
     <style name="LibraryToolbar.SubtitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
@@ -99,6 +70,7 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:fontFamily">serif-monospace</item>
         <item name="android:gravity">center_vertical|center</item>
+        <item name="android:paddingLeft">10sp</item>
     </style>
 
 </resources>

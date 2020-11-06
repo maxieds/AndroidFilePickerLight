@@ -339,7 +339,12 @@ public class FileChooserException {
     public static AndroidFilePickerLightException getExceptionForExitCause(String classNameCausalId, String emsg) {
         try {
             Class excptSubclass = Class.forName(classNameCausalId);
-            return ((AndroidFilePickerLightException) excptSubclass.newInstance()).newExceptionInstance(emsg);
+            if(emsg != null) {
+                return ((AndroidFilePickerLightException) excptSubclass.newInstance()).newExceptionInstance(emsg);
+            }
+            else {
+                return (AndroidFilePickerLightException) excptSubclass.newInstance();
+            }
         } catch(Exception excpt) {
             excpt.printStackTrace();
             return null;

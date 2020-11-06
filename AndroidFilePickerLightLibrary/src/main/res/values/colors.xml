@@ -30,6 +30,7 @@
     <color name="__colorPrimaryDark">#215270</color>
     <color name="__colorPrimaryVeryDark">#061B29</color>
     <color name="__colorAccent">#A7CEE6</color>
-    <color name="__colorAccentLight">#D3DCE2</color>
+    <color name="__colorAccentMedium">#7A97A9</color>
+    <color name="__colorAccentLight">#E9EEF1</color>
     <color name="__colorTransparent">@android:color/transparent</color>
 </resources>

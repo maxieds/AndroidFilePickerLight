@@ -137,11 +137,11 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
-        actionBar.setTitle(String.format(Locale.getDefault(), "  %s | v%s", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
+        actionBar.setTitle(String.format(Locale.getDefault(), " %s | v%s", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
         actionBar.setSubtitle(String.format(Locale.getDefault(), "⇤%s⇥", getString(R.string.filePickerTitleText)));
         actionBar.setTitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
         actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
-        actionBar.setTitleMargin(0, 5, 5, 5);
+        actionBar.setTitleMargin(10, 3, 5, 3);
         actionBar.setPadding(5, 8, 5, 6);
         actionBar.setElevation(1.25f);
         GradientDrawable chooserToolbarGradientBg = new GradientDrawableFactory.Builder()
@@ -223,11 +223,11 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
          * empty, this action is handled the same way as a cancel button press by the user.
          */
         LinearLayout dirHistoryNavContainer = (LinearLayout) findViewById(R.id.mainDirPrevPathsNavContainer);
-        dirHistoryNavContainer.setBackgroundDrawable(GradientDrawableFactory.generateNamedGradientType(
-                GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
-                GradientDrawableFactory.NamedGradientColorThemes.NAMED_COLOR_SCHEME_STEEL_BLUE
-                )
-        );
+        //dirHistoryNavContainer.setBackgroundDrawable(GradientDrawableFactory.generateNamedGradientType(
+        //        GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
+        //        GradientDrawableFactory.NamedGradientColorThemes.NAMED_COLOR_SCHEME_STEEL_BLUE
+        //        )
+        //);
         DisplayFragments.mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
 
         /* Setup some theme related styling on the main file list container: */
@@ -322,7 +322,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
         setResult(Activity.RESULT_OK, filesResultIntent);
         finish();
-        System.exit(0);
+        DisplayFragments.resetRecyclerViewLayoutContext();
+        //System.exit(0);
     }
 
     public void postSelectedFilesActivityResult(Exception runtimeExcpt) {
@@ -335,7 +336,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         }
         setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
-        System.exit(0);
+        DisplayFragments.resetRecyclerViewLayoutContext();
+        //System.exit(0);
     }
 
 }
