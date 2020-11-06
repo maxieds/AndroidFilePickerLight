@@ -34,6 +34,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
 
@@ -58,18 +59,27 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
 
     }
 
-    public void showFileChooserResultsDialog(List<String> fileItemsList, boolean resultError) {
+    public void showFileChooserResultsDialog(List<String> fileItemsList, String onErrorMsg) {
         AlertDialog.Builder adBuilder = new AlertDialog.Builder(this);
-        if(resultError) {
+        boolean resultIsError = onErrorMsg == null;
+        if(resultIsError) {
             adBuilder.setIcon(R.drawable.file_picker_error);
             adBuilder.setTitle("Unfortunately the file picker has failed :(");
+            TextView errorRationaleDisplayText = new TextView(this);
+            String errorDisplayText = String.format(Locale.getDefault(), "Error Rationale: %s", onErrorMsg);
+            errorRationaleDisplayText.setTextColor(R.color.colorOnErrorDisplayText);
+            errorRationaleDisplayText.setText(errorDisplayText.toString());
+            adBuilder.setView(errorRationaleDisplayText);
             adBuilder.setNegativeButton("That sucks, boo [X]", null);
             adBuilder.create().show();
             return;
         }
         adBuilder.setIcon(R.drawable.file_picker_success);
         adBuilder.setTitle("Success selecting your files :)");
-        adBuilder.setMessage("The stylized file picker worked. Congratulations!\n\nHere is a list of your favorites:\n");
+        String descTrailingPathsList = fileItemsList.size() > 0 ?
+                "Here is a list of your favorites:\n" :
+                "No file nor directory paths were selected.";
+        adBuilder.setMessage(String.format(Locale.getDefault(), "The stylized file picker worked. Congratulations!\n\n%s", descTrailingPathsList));
         TextView fileSelectionsDisplayText = new TextView(this);
         StringBuilder displayText = new StringBuilder();
         for(String fileItem : fileItemsList) {
@@ -86,9 +96,13 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         try {
             List<String> selectedFilePaths = FileChooserBuilder.handleActivityResult(this, requestCode, resultCode, data);
-            showFileChooserResultsDialog(selectedFilePaths, false);
+            showFileChooserResultsDialog(selectedFilePaths, null);
         } catch(RuntimeException rte) {
-            showFileChooserResultsDialog(new ArrayList<String>(), true);
+            String errorExitMsg = data.getStringExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_MESSAGE_KEY);
+            if(errorExitMsg == null) {
+                errorExitMsg = "Unknown reason for exception.";
+            }
+            showFileChooserResultsDialog(new ArrayList<String>(), errorExitMsg);
         }
     }
 

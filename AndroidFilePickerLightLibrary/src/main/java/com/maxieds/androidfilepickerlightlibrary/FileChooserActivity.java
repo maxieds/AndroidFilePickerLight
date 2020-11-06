@@ -138,7 +138,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
         actionBar.setTitle(String.format(Locale.getDefault(), "  %s | v%s", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
-        actionBar.setSubtitle(String.format(Locale.getDefault(), " ⇤%s⇥", getString(R.string.filePickerTitleText)));
+        actionBar.setSubtitle(String.format(Locale.getDefault(), "⇤%s⇥", getString(R.string.filePickerTitleText)));
         actionBar.setTitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
         actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
         actionBar.setTitleMargin(0, 5, 5, 5);
@@ -157,7 +157,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                         GradientDrawableFactory.resolveColorFromAttribute(R.attr.mainToolbarBackgroundColor4),
                 })
                 .make();
-        actionBar.setBackgroundDrawable(chooserToolbarGradientBg);
+        //actionBar.setBackgroundDrawable(chooserToolbarGradientBg);
         actionBar.setLogo(getDrawable(R.drawable.file_chooser_default_toolbar_icon48));
         getWindow().setTitleColor(getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
         getWindow().setStatusBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
@@ -170,8 +170,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             FileChooserBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
             ImageButton dirNavBtn = new ImageButton(this);
             dirNavBtn.setPadding(10, 10, 10, 10);
-            dirNavBtn.setImageDrawable(GradientDrawableFactory.resolveDrawableFromAttribute(
-                    FileChooserBuilder.DefaultNavFoldersType.getFolderIconResIdFromName(defaultDirNavFolders.get(folderIdx))));
+            //dirNavBtn.setImageDrawable(GradientDrawableFactory.resolveDrawableFromAttribute(
+            //        FileChooserBuilder.DefaultNavFoldersType.getFolderIconResIdFromName(defaultDirNavFolders.get(folderIdx))));
             dirNavBtn.setTag(baseFolderType);
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
                 @Override

@@ -39,7 +39,6 @@ public class DisplayTypes {
         private MatrixCursor initMatrixCursorListing;
         private List<FileType> directoryContentsList;
         private String activeCWDAbsPath;
-        private String activeDocId;
 
         public DirectoryResultContext(MatrixCursor mcResult, MatrixCursor parentDirCtx) {
             initMatrixCursorListing = mcResult;
@@ -47,7 +46,9 @@ public class DisplayTypes {
             if(parentDirCtx != null) {
                 BasicFileProvider fpInst = BasicFileProvider.getInstance();
                 activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(parentDirCtx);
-                activeDocId = mcResult.getString(BasicFileProvider.ROOT_PROJ_DOCID_COLUMN_INDEX);
+            }
+            else {
+                activeCWDAbsPath = "";
             }
         }
 

@@ -17,12 +17,13 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 
 public class FileChooserApplication extends Application {
 
-    public static FileChooserApplication libStaticAppInstance;
+    private static FileChooserApplication libStaticAppInstance;
 
     @Override
     public void onCreate() {
@@ -36,6 +37,10 @@ public class FileChooserApplication extends Application {
     }
     public static FileChooserApplication getInstance() {
         return libStaticAppInstance;
+    }
+
+    public static Activity getDefaultActivityInstance() {
+        return FileChooserActivity.getInstance();
     }
 
 }

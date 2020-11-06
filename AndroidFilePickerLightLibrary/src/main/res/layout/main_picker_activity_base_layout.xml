@@ -31,7 +31,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="0dp"
+        android:padding="0dp"
+        >
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/mainLayoutToolbarActionBar"
@@ -40,7 +43,56 @@
             android:background="?mainToolbarBackgroundColor"
             app:titleTextAppearance="@style/LibraryToolbar.TitleText"
             app:subtitleTextAppearance="@style/LibraryToolbar.SubtitleText"
+            android:overScrollMode="never"
             />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?__colorPrimaryVeryDark" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_gravity="right|center_vertical"
+            android:gravity="right|center_vertical"
+            android:background="?__colorPrimary"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?__colorPrimary"
+                android:gravity="left|center_vertical"
+                android:layout_gravity="left|center_vertical"
+                android:text="@string/filePickerNavBarText"
+                android:textColor="?__colorAccent"
+                android:textSize="15sp"
+                android:textAllCaps="true"
+                android:textStyle="normal|bold|italic"
+                android:fontFamily="serif-monospace" />
+
+            <LinearLayout
+                android:id="@+id/mainFileNavBtnsContainer"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:gravity="center_horizontal|center_vertical"
+                android:background="?__colorPrimary"
+                android:orientation="horizontal"
+                >
+            </LinearLayout>
+
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -55,9 +107,9 @@
             android:layout_marginBottom="1dp"
             android:layout_marginRight="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_gravity="left|center_vertical"
             android:gravity="center_horizontal|center_vertical"
-            android:background="?__colorPrimaryVeryDark"
+            android:background="?__colorAccentLight"
             android:orientation="horizontal"
             >
 
@@ -112,7 +164,7 @@
                 android:id="@+id/mainDirNavBackOnePathDisplayText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="?colorPrimary"
+                android:background="?__colorPrimary"
                 android:gravity="right|center_vertical"
                 android:layout_gravity="right|center_vertical"
                 android:text="---"
@@ -131,67 +183,10 @@
             android:background="?__colorPrimaryVeryDark" />
 
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:layout_marginBottom="1dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_gravity="right|center_vertical"
-            android:gravity="right|center_vertical"
-            android:background="?__colorPrimary"
-            android:orientation="vertical"
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?colorPrimary"
-                android:gravity="left|center_vertical"
-                android:layout_gravity="left|center_vertical"
-                android:text="@string/filePickerNavBarText"
-                android:textColor="?__colorAccent"
-                android:textSize="15sp"
-                android:textAllCaps="true"
-                android:textStyle="normal|bold|italic"
-                android:fontFamily="serif-monospace" />
-
-            <LinearLayout
-                android:id="@+id/mainFileNavBtnsContainer"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:layout_marginBottom="1dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:gravity="center_horizontal|center_vertical"
-                android:background="?__colorPrimary"
-                android:orientation="horizontal"
-                >
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="?__colorPrimaryVeryDark" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="?__colorPrimaryVeryDark" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="?__colorPrimaryVeryDark" />
-
-        <LinearLayout
             android:id="@+id/mainRecyclerViewContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -200,9 +195,10 @@
                 android:layout_height="wrap_content"
                 android:overScrollMode="never"
                 android:background="?__colorAccent"
-                android:layout_weight="1"
                 android:gravity="top|center_horizontal"
                 android:layout_gravity="bottom|center_horizontal"
+                android:layout_margin="0dp"
+                android:padding="0dp"
                 />
 
         </LinearLayout>
@@ -221,8 +217,9 @@
             android:layout_marginLeft="8dp"
             android:layout_gravity="bottom|center_vertical"
             android:gravity="right|bottom|center_vertical"
-            android:background="?__colorPrimary"
+            android:background="?__colorAccentLight"
             android:orientation="horizontal"
+            android:overScrollMode="never"
             >
 
             <View

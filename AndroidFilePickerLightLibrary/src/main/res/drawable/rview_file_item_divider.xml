@@ -17,16 +17,24 @@
     https://github.com/maxieds/AndroidFilePickerLight
 -->
 
-<resources>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle"
+    >
 
-    <color name="colorPrimary">#e4e7ff</color>
-    <color name="colorPrimaryDark">#31354c</color>
-    <color name="colorAccent">#5c64b9</color>
-    <color name="colorToolbarFGText">#dbdfff</color>
-    <color name="colorButtonStockBG">#737bb3</color>
-    <color name="colorButtonStockBGToCorners">#f6f7ff</color>
-    <color name="colorButtonStockBorder">#31354c</color>
-    <color name="colorButtonStockBGPressedState">#838dcc</color>
-    <color name="colorOnErrorDisplayText">#7A1A1D</color>
+    <corners android:radius="2dip" />
 
-</resources>
+    <stroke
+        android:width="1dip"
+        android:color="@color/colorFileListDivider_border"
+        />
+
+    <gradient
+        android:angle="45"
+        android:endColor="@color/colorFileListDivider_gradientEnd"
+        android:startColor="@color/colorFileListDivider_gradientStart"
+        />
+
+    <size android:height="2dp"/>
+
+</shape>

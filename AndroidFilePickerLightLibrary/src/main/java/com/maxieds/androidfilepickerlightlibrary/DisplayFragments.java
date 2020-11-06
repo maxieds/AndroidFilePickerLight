@@ -17,6 +17,10 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -26,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,7 +60,7 @@ public class DisplayFragments {
     private static String folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
 
     public static void updateFolderHistoryPaths(String nextFolderEntryPointPath, boolean initNewFileTree) {
-        if(nextFolderEntryPointPath == null) {
+        if(nextFolderEntryPointPath == null || nextFolderEntryPointPath.equals("")) {
             nextFolderEntryPointPath = EMPTY_FOLDER_HISTORY_PATH;
         }
         if(initNewFileTree) {
@@ -79,6 +84,9 @@ public class DisplayFragments {
             rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
             rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
+            mainFileListRecyclerView.addItemDecoration(
+                    new CustomDividerItemDecoration(rview.getContext(), R.drawable.rview_file_item_divider)
+            );
             rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
             mainFileListRecyclerView.setAdapter(rvAdapter);
             recyclerViewAdapterInit = true;
@@ -136,6 +144,51 @@ public class DisplayFragments {
             rvAdapter.bindViewHolder(viewHolderAtIndex, fileItemIndex);
         }
 
+    }
+
+    public static class CustomDividerItemDecoration extends RecyclerView.ItemDecoration {
+
+        private static final int[] DIVIDER_DEFAULT_ATTRS = new int[]{
+                android.R.attr.listDivider,
+                android.R.attr.verticalDivider,
+                android.R.attr.horizontalDivider
+        };
+        private Drawable listingsDivider;
+
+        public static final int LIST_DIVIDER_STYLE_INDEX = 0;
+        public static final int DEFAULT_DIVIDER_STYLE_INDEX = 1;
+
+        public CustomDividerItemDecoration(Context context, int dividerTypeIndex, boolean dividerTypeIsVertical) {
+            final TypedArray styledDefaultAttributes = context.obtainStyledAttributes(DIVIDER_DEFAULT_ATTRS);
+            if(dividerTypeIndex != LIST_DIVIDER_STYLE_INDEX) {
+                dividerTypeIndex = DEFAULT_DIVIDER_STYLE_INDEX + (dividerTypeIsVertical ? 0 : 1);
+            }
+            listingsDivider = styledDefaultAttributes.getDrawable(dividerTypeIndex);
+            styledDefaultAttributes.recycle();
+        }
+
+        public CustomDividerItemDecoration(Context context, int resId) {
+            listingsDivider = GradientDrawableFactory.getDrawableFromResource(resId);
+        }
+
+        @Override
+        public void onDraw(Canvas displayCanvas, RecyclerView parentContainerView, RecyclerView.State rvState) {
+
+            int leftMargin = parentContainerView.getPaddingLeft();
+            int rightMargin = parentContainerView.getWidth() - parentContainerView.getPaddingRight();
+
+            for (int i = 0; i < parentContainerView.getChildCount(); i++) {
+
+                View childView = parentContainerView.getChildAt(i);
+                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) childView.getLayoutParams();
+                int topMargin = childView.getBottom() + params.bottomMargin;
+                int bottomMargin = topMargin + listingsDivider.getIntrinsicHeight();
+                listingsDivider.setBounds(leftMargin, topMargin, rightMargin, bottomMargin);
+                listingsDivider.draw(displayCanvas);
+
+            }
+
+        }
     }
 
     public static class FileListItemFragment {

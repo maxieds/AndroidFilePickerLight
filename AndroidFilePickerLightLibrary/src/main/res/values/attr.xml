@@ -33,6 +33,7 @@
     <attr name="__colorPrimaryDark" format="reference|color" />
     <attr name="__colorPrimaryVeryDark" format="reference|color" />
     <attr name="__colorAccent" format="reference|color" />
+    <attr name="__colorAccentLight" format="reference|color" />
 
     <attr name="defaultFileIcon" format="reference" />
     <attr name="defaultHiddenFileIcon" format="reference" />
