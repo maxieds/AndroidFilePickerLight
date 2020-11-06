@@ -13,7 +13,8 @@
         <activity
             android:name=".AndroidFilePickerLightExampleActivity"
             android:label="@string/title_activity_android_file_picker_light_example"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            >
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

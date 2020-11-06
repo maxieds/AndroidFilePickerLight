@@ -34,7 +34,7 @@
     <style name="AppTheme.TextLabel" parent="@style/TextAppearance.AppCompat">
         <item name="android:textSize">16dp</item>
         <item name="android:textStyle">normal|italic</item>
-        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:typeface">serif</item>
         <item name="android:paddingTop">3dp</item>
         <item name="android:paddingBottom">2dp</item>
     </style>
@@ -48,7 +48,7 @@
         <item name="android:background">@drawable/stock_button_background</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal|bold</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:typeface">serif</item>
     </style>
 
 </resources>

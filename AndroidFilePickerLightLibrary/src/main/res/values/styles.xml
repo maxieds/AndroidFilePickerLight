@@ -59,7 +59,7 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">normal|bold|italic</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:fontFamily">serif</item>
+        <item name="android:typeface">serif</item>
         <item name="android:gravity">center_vertical|left</item>
         <item name="android:paddingLeft">10sp</item>
     </style>
@@ -68,7 +68,7 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal|italic|bold</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:fontFamily">serif-monospace</item>
+        <item name="android:typeface">serif</item>
         <item name="android:gravity">center_vertical|center</item>
         <item name="android:paddingLeft">10sp</item>
     </style>

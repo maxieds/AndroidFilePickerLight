@@ -47,6 +47,8 @@
             android:stateNotNeeded="true"
             android:exported="true"
             android:grantUriPermissions="true"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
             >
 
             <intent-filter android:priority="1000">

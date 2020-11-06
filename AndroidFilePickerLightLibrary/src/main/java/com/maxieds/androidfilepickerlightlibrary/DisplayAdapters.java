@@ -50,8 +50,13 @@ public class DisplayAdapters {
         }
 
         @Override
-        public void onBindViewHolder(BaseViewHolder holder, int position) {
-            holder.getDisplayText().setText(fileListData.get(position));
+        public void onBindViewHolder(BaseViewHolder bvHolder, int posIndex) {
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText()));
+            bvHolder.getDisplayText().setText(fileListData.get(posIndex));
+            DisplayTypes.FileType fileItem = DisplayFragments.activeFileItemsDataList.get(posIndex);
+            bvHolder.setFileItemData(fileItem);
+            View viewItemContainer = bvHolder.getMainViewLayoutContainer();
+            DisplayFragments.FileListItemFragment.resetLayout(viewItemContainer, fileItem, posIndex);
         }
 
         @Override
@@ -95,7 +100,7 @@ public class DisplayAdapters {
 
         public void setFileItemData(DisplayTypes.FileType storedFileItem) {
             fileItem = storedFileItem;
-            fileItemContainerView.setTag(fileItem);
+            //fileItemContainerView.setTag(fileItem);
         }
 
         public DisplayTypes.FileType getFileItemReference() {
@@ -103,6 +108,8 @@ public class DisplayAdapters {
         }
 
         public TextView getDisplayText() { return displayText; }
+
+        public View getMainViewLayoutContainer() { return fileItemContainerView; }
 
         public boolean performNewFileItemClick(DisplayTypes.FileType fileItem) {
             return performNewFileItemClick(fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox), fileItem);
@@ -119,6 +126,9 @@ public class DisplayAdapters {
                 return false;
             }
             CheckBox selectionMarker = cbView;
+            if(!cbView.isEnabled()) {
+                return false;
+            }
             boolean isChecked = fileItem.isChecked();
             if(isChecked) {
                 // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:

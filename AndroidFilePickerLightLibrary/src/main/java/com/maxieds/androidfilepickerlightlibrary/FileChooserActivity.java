@@ -32,6 +32,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -50,7 +51,34 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     private static String LOGTAG = FileChooserActivity.class.getSimpleName();
 
     private static FileChooserActivity staticRunningInst = null;
-    public static FileChooserActivity getInstance() { return staticRunningInst; }
+    public static  FileChooserActivity getInstance() { return staticRunningInst; }
+
+    private static Activity clientActivityReference = null;
+    public  static Activity getClientActivityReference() { return clientActivityReference; }
+
+    /*
+     * Delay closing the chooser activity for a short delay so there is not a noticable
+     * gap in transitioning from the closed Activity, back to the home screen, and then
+     * back to the calling client Activity while it is being restored to the top in the
+     * background. This function should get called to wrap up and close out the last
+     * File Chooser instance by the client code after the onActivityResult handler is finished.
+     */
+    private static final int FILE_CHOOSER_EXIT_DELAY_SHORT = 0;
+    public static void exitRunningActivityWithCode(int exitCode) {
+        FileChooserActivity thisActivity = getInstance();
+        if(thisActivity == null) {
+            return;
+        }
+        final int finalExitCode = exitCode;
+        Handler  postDelayedExitHandler = new Handler();
+        Runnable exitWithCodeRunner = new Runnable() {
+            @Override
+            public void run() {
+                System.exit(finalExitCode);
+            }
+        };
+        postDelayedExitHandler.postDelayed(exitWithCodeRunner, FILE_CHOOSER_EXIT_DELAY_SHORT);
+    }
 
     public static Stack<FileChooserBuilder> activityBuilderLaunchedRefs = new Stack<FileChooserBuilder>();
 
@@ -90,7 +118,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         AndroidPermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
         AndroidPermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
-        FileChooserBuilder fpConfig = activityBuilderLaunchedRefs.pop();
+        FileChooserBuilder fpConfig = activityBuilderLaunchedRefs.peek();
+        clientActivityReference = fpConfig.getClientActivityReference();
 
         setTheme(R.style.LibraryDefaultTheme);
         setContentView(R.layout.main_picker_activity_base_layout);
@@ -126,14 +155,41 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Runnable execDelayedFileProviderInitRunner = new Runnable() {
             @Override
             public void run() {
-                BasicFileProvider.getInstance().selectBaseDirectoryByType(fpConfig.getInitialBaseFolder());
+                DisplayFragments.resetViewportMaxFilesCount((View) DisplayFragments.mainFileListRecyclerView.getParent());
             }
         };
-        execDelayedFileProviderInitHandler.postDelayed(execDelayedFileProviderInitRunner, 300);
+        execDelayedFileProviderInitHandler.postDelayed(execDelayedFileProviderInitRunner, 325);
+        activityBuilderLaunchedRefs.push(fpConfig);
 
     }
 
+    /*
+     * These variables will be invoked once the observer created in
+     * DisplayFragments.resetViewportMaxFilesCount is done measuring the RecyclerView's capacity
+     * to hold distinct visible file items. Since this constant needs to be reset before the
+     * initial directory loads complete, we will delay initializing the layout display (or, rather,
+     * populating it) with the first set of FileType file items for the initial folder.
+     * This seems a little kludgy and clumsy to work with, but it is a reliable way to make sure that
+     * every layout parameter is getting initialized in the correct order before we actually do anything
+     * useful with it by posting the file entries.
+     */
+    public static final Handler  loadInitialBaseFolderHandler = new Handler();
+    public static final Runnable loadInitialBaseFolderRunner = new Runnable() {
+        @Override
+        public void run() {
+            FileChooserBuilder fpConfig = activityBuilderLaunchedRefs.pop();
+            BasicFileProvider.getInstance().selectBaseDirectoryByType(fpConfig.getInitialBaseFolder());
+            DisplayFragments.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
+
+        }
+    };
+
     private void configureInitialMainLayout(FileChooserBuilder fpConfig) {
+
+        /* Reset any previous static instances of the layout configuration before
+         * initiating another instance that will reuse these static context variables:
+         */
+        //DisplayFragments.resetRecyclerViewLayoutContext();
 
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
@@ -231,23 +287,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         DisplayFragments.mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
 
         /* Setup some theme related styling on the main file list container: */
-        View mainFileListContainer = findViewById(R.id.mainRecyclerViewContainer);
-        mainFileListContainer.setBackgroundDrawable(GradientDrawableFactory.generateNamedGradientType(
-                     GradientDrawableFactory.GradientMethodSpec.GRADIENT_METHOD_LINEAR,
-                     GradientDrawableFactory.GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR,
-                     GradientDrawableFactory.BorderStyleSpec.BORDER_STYLE_NONE,
-                     45.0f,
-                     getColorVariantFromTheme(R.color.__colorTransparent),
-                     new int[] {
-                             getColorVariantFromTheme(R.attr.__colorPrimaryVeryDark),
-                             getColorVariantFromTheme(R.attr.__colorAccent),
-                             getColorVariantFromTheme(R.attr.__colorPrimaryDark)
-                     }
-                )
-        );
         RecyclerView mainLayoutRecyclerView = findViewById(R.id.mainRecyclerView);
         DisplayFragments.initializeRecyclerViewLayout(mainLayoutRecyclerView);
-        DisplayFragments.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
     }
 
@@ -322,8 +363,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
         setResult(Activity.RESULT_OK, filesResultIntent);
         finish();
-        DisplayFragments.resetRecyclerViewLayoutContext();
-        System.exit(0);
+        //DisplayFragments.resetRecyclerViewLayoutContext();
+        //FileChooserBuilder.finishActivityResultHandler(getClientActivityReference());
+        //System.exit(0);
     }
 
     public void postSelectedFilesActivityResult(Exception runtimeExcpt) {
@@ -336,8 +378,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         }
         setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
-        DisplayFragments.resetRecyclerViewLayoutContext();
-        System.exit(0);
+        //DisplayFragments.resetRecyclerViewLayoutContext();
+        //FileChooserBuilder.finishActivityResultHandler(getClientActivityReference());
+        //ActivityCompat.finishAffinity(this);
+        //System.exit(0);
     }
 
 }

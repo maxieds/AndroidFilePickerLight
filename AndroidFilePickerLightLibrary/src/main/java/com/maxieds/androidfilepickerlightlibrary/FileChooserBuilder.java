@@ -24,6 +24,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -207,6 +210,10 @@ public class FileChooserBuilder implements Serializable {
     }
 
     private WeakReference<Activity> activityContextRef;
+    public Activity getClientActivityReference() {
+        return activityContextRef.get();
+    }
+
     private FileChooserException.AndroidFilePickerLightException defaultExceptionType;
     private ThemesConfigInterface displayUIConfig;
     private int activityActionCode;
@@ -435,25 +442,22 @@ public class FileChooserBuilder implements Serializable {
         if(activityInst == null || data == null) {
             throw new FileChooserException.CommunicateNoDataException();
         }
-        switch (requestCode) {
+        //FileChooserBuilder.finishActivityResultHandler(activityInst);
+        //ActivityCompat.finishAffinity(FileChooserActivity.getInstance());
+        DisplayFragments.resetRecyclerViewLayoutContext();
+        switch(requestCode) {
             case ACTIVITY_CODE_SELECT_FILE:
             case ACTIVITY_CODE_SELECT_DIRECTORY_ONLY:
             case ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
                 if(resultCode == RESULT_OK) {
                     FileChooserException.AndroidFilePickerLightException resultOKException = new FileChooserException.CommunicateSelectionDataException();
                     List<String> selectedDataItems = resultOKException.packageDataItemsFromIntent(data);
-                    /* The next procedure is necessary because for some reason the app otherwise
-                     * freezes without bringing the original Activity context back to the front:
-                     */
-                    activityInst.moveTaskToBack(false);
-                    Intent bringToFrontIntent = new Intent(activityInst, activityInst.getClass());
-                    bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    activityInst.startActivity(bringToFrontIntent);
-                    /* Now resume to return the data we requested: */
+                    //finishActivityResultHandler(activityInst);
                     return selectedDataItems;
                 }
                 try {
                     String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
+                    //finishActivityResultHandler(activityInst);
                     throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
                 } catch(NullPointerException npe) {}
                 break;
@@ -463,7 +467,18 @@ public class FileChooserBuilder implements Serializable {
         }
         FileChooserException.AndroidFilePickerLightException resultNotOKException = new FileChooserException.GenericRuntimeErrorException();
         resultNotOKException.packageDataItemsFromIntent(data);
+        //finishActivityResultHandler(activityInst);
         throw resultNotOKException;
+    }
+
+    /* The next procedure is necessary because for some reason the app otherwise
+     * freezes without bringing the original Activity context back to the front:
+     */
+    public static void finishActivityResultHandler(Activity activityInst) {
+        activityInst.moveTaskToBack(false);
+        Intent bringToFrontIntent = new Intent(activityInst, activityInst.getClass());
+        bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        FileChooserActivity.getInstance().startActivity(bringToFrontIntent);
     }
 
     public StringBuilder readFileContentsAsString() {

@@ -56,7 +56,6 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         toolbar.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         toolbar.setTitleMargin(15, 5, 15, 5);
         setSupportActionBar(toolbar);
-
     }
 
     public void showFileChooserResultsDialog(List<String> fileItemsList, String onErrorMsg) {

@@ -123,12 +123,7 @@ public class FileChooserException {
         }
 
         public List<String> packageDataItemsFromIntent(Intent fileItemsIntent) {
-            Class dataTypeClass = (Class) fileItemsIntent.getSerializableExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_TYPE_KEY);
-            Object[] fileDataItems = (Object[]) fileItemsIntent.getSerializableExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY);
-            List<String> selectedFilePathsList = new ArrayList<String>();
-            for(int didx = 0; didx < fileDataItems.length; didx++) {
-                selectedFilePathsList.add(resolveFilePathFromObjectType(fileDataItems[didx]));
-            }
+            ArrayList<String> selectedFilePathsList = fileItemsIntent.getStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY);
             return selectedFilePathsList;
         }
 

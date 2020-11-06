@@ -50,6 +50,10 @@ public class DisplayTypes {
         public static final long NO_TIMEOUT = 0;
         public static final long DEFAULT_TIMEOUT = 5 * 1000; // 5000 milliseconds = 5 seconds
 
+        public boolean getRunningDataThreadStatus() {
+            return ((fetchNewDataThread != null) && fetchNewDataThread.isAlive()) || fetchDataThreadInUseLock.isLocked();
+        }
+
         public boolean interruptFetchDataThread(long tryLockTimeout) {
             try {
                 if(tryLockTimeout > NO_TIMEOUT && !fetchDataThreadInUseLock.tryLock(tryLockTimeout, TimeUnit.MILLISECONDS)) {
@@ -72,6 +76,9 @@ public class DisplayTypes {
             }
         }
 
+        private static DirectoryResultContext lastDataThreadRef = null;
+        public static DirectoryResultContext getLastDataThreadReference() { return lastDataThreadRef; }
+
         private MatrixCursor initMatrixCursorListing;
         private List<FileType> directoryContentsList;
         private String activeCWDAbsPath;
@@ -79,35 +86,71 @@ public class DisplayTypes {
         public DirectoryResultContext(MatrixCursor mcResult, MatrixCursor parentDirCtx) {
             fetchDataThreadInUseLock = new ReentrantLock();
             fetchNewDataThread = null;
+            directoryContentsList = new ArrayList<FileType>();
             initMatrixCursorListing = mcResult;
-            computeDirectoryContents();
+            mcResult.moveToFirst();
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(mcResult, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
             Log.i(LOGTAG, String.format(Locale.getDefault(), "Initializing new folder at path: \"%s\" ... ", activeCWDAbsPath));
         }
 
+        public MatrixCursor getInitialMatrixCursor() { return initMatrixCursorListing; }
+
         public List<FileType> getWorkingDirectoryContents() {
-            if(directoryContentsList.size() == 0) {
-                computeDirectoryContents();
-            }
             return directoryContentsList;
         }
 
-        public void computeDirectoryContents() {
-            BasicFileProvider fpInst = BasicFileProvider.getInstance();
-            MatrixCursor mcResult = initMatrixCursorListing;
-            mcResult.moveToFirst();
-            List<FileType> filesDataList = new ArrayList<FileType>();
-            for(int mcRowIdx = 0; mcRowIdx < mcResult.getCount(); mcRowIdx++) {
-                MatrixCursor mcRow = mcResult;
-                File fileOnDisk = fpInst.getFileAtCurrentRow(mcResult, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
-                FileType nextFileItem = new FileType(fileOnDisk, this);
-                nextFileItem.setRelativeCursorPosition(mcRowIdx);
-                filesDataList.add(nextFileItem);
-                mcResult.moveToNext();
+        public void setNextDirectoryContents(List<FileType> nextFolderFiles) { directoryContentsList = nextFolderFiles; }
+
+        public void computeDirectoryContents(int startIndexPos, int maxIndexPos) {
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "STARTING: Computing dir contents [%d, %d] -- %s", startIndexPos, maxIndexPos, activeCWDAbsPath));
+            if((fetchNewDataThread != null && fetchNewDataThread.isAlive()) || fetchDataThreadInUseLock.isLocked()) {
+                Log.e(LOGTAG, "APPEARS that the previous fetch data thread is still alive and running ... ");
+                return;
             }
-            mcResult.moveToFirst();
-            directoryContentsList = filesDataList;
+            try {
+                if(!fetchDataThreadInUseLock.tryLock(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                    Log.e(LOGTAG, "RETURNING tryLock failed ... ");
+                    return;
+                }
+            } catch(Exception excpt) {
+                excpt.printStackTrace();
+                return;
+            }
+            if(startIndexPos >= getInitialMatrixCursor().getCount() || maxIndexPos < startIndexPos) {
+                Log.e(LOGTAG, String.format("RETURNING cursor positions out of range %d / [%d, %d] ... ", getInitialMatrixCursor().getCount(), startIndexPos, maxIndexPos));
+                directoryContentsList.clear();
+                return;
+            }
+            lastDataThreadRef = this;
+            final DirectoryResultContext thisCtx = this;
+            final int startIndexFinal = startIndexPos;
+            final int maxIndexFinal = maxIndexPos;
+            fetchNewDataThread = new Thread() {
+                @Override
+                public void run() {
+                    Log.i(LOGTAG, String.format(Locale.getDefault(), "INSIDE DATA THREAD: Computing dir contents [%d, %d]", startIndexFinal, maxIndexFinal));
+                    BasicFileProvider fpInst = BasicFileProvider.getInstance();
+                    MatrixCursor mcResult = getInitialMatrixCursor();
+                    mcResult.moveToFirst();
+                    mcResult.moveToPosition(maxIndexFinal);
+                    List<FileType> filesDataList = new ArrayList<FileType>();
+                    for(int mcRowIdx = startIndexFinal; mcRowIdx < Math.min(mcResult.getCount(), maxIndexFinal); mcRowIdx++) {
+                        MatrixCursor mcRow = mcResult;
+                        File fileOnDisk = fpInst.getFileAtCurrentRow(mcResult, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+                        FileType nextFileItem = new FileType(fileOnDisk, thisCtx);
+                        nextFileItem.setRelativeCursorPosition(mcRowIdx - maxIndexFinal);
+                        filesDataList.add(nextFileItem);
+                        mcResult.moveToNext();
+                    }
+                    DirectoryResultContext extFolderCtx = getLastDataThreadReference();
+                    extFolderCtx.setNextDirectoryContents(filesDataList);
+                }
+            };
+            fetchNewDataThread.start();
+            // post the status once the thread completes:
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "DONE / POSTING: Computing dir contents [%d, %d] -- %s", startIndexPos, maxIndexPos, activeCWDAbsPath));
+            DisplayFragments.displayNextDirectoryFilesList(this, getWorkingDirectoryContents());
         }
 
         public void clearDirectoryContentsList() {
@@ -155,7 +198,8 @@ public class DisplayTypes {
                 String parentDocsId = cursoryProbe.getString(BasicFileProvider.ROOT_PROJ_ROOTID_COLUMN_INDEX);
                 MatrixCursor expandedFolderContents = (MatrixCursor) fpInst.queryChildDocuments(parentDocsId, BasicFileProvider.DEFAULT_ROOT_PROJECTION, "");
                 return new DirectoryResultContext(expandedFolderContents, null);
-            } catch(IOException ioe) {
+            }
+            catch(IOException ioe) {
                 ioe.printStackTrace();
                 return null;
             }
