@@ -24,10 +24,13 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+
+import androidx.annotation.IdRes;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.ColorInt;
@@ -82,6 +85,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     public static Stack<FileChooserBuilder> activityBuilderLaunchedRefs = new Stack<FileChooserBuilder>();
 
+    private static View activityMainContentView = null;
+    public static View getMainContentView() { return activityMainContentView; }
+
     @ColorInt
     public static int getColorVariantFromTheme(int attrID) {
         return getInstance().getTheme().obtainStyledAttributes(new int[] { attrID }).getColor(0, attrID);
@@ -118,7 +124,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         AndroidPermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
         AndroidPermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
-        FileChooserBuilder fpConfig = activityBuilderLaunchedRefs.peek();
+        FileChooserBuilder fpConfig = activityBuilderLaunchedRefs.pop();
         clientActivityReference = fpConfig.getClientActivityReference();
 
         setTheme(R.style.LibraryDefaultTheme);
@@ -150,16 +156,19 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             execIdleTimeoutHandler.postDelayed(execIdleTimeoutRunner, idleTimeout);
         }
 
-        final FileChooserBuilder fpCfgConst = fpConfig;
-        Handler  execDelayedFileProviderInitHandler = new Handler();
-        Runnable execDelayedFileProviderInitRunner = new Runnable() {
-            @Override
-            public void run() {
-                DisplayFragments.resetViewportMaxFilesCount((View) DisplayFragments.mainFileListRecyclerView.getParent());
-            }
-        };
-        execDelayedFileProviderInitHandler.postDelayed(execDelayedFileProviderInitRunner, 325);
-        activityBuilderLaunchedRefs.push(fpConfig);
+        final FileChooserBuilder fpCfgFinal = fpConfig;
+        //final View rviewLayoutContainer = findViewById(R.id.mainRecyclerViewContainer);
+        activityMainContentView = findViewById(android.R.id.content);
+        activityMainContentView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        //FileChooserActivity.loadInitialBaseFolderHandler.post(FileChooserActivity.loadInitialBaseFolderRunner);
+                        //DisplayFragments.resetViewportMaxFilesCount(rviewLayoutContainer);
+                        BasicFileProvider.getInstance().selectBaseDirectoryByType(fpCfgFinal.getInitialBaseFolder());
+                        DisplayFragments.initiateNewFolderLoad(fpCfgFinal.getInitialBaseFolder());
+                    }
+                });
 
     }
 
@@ -180,16 +189,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             FileChooserBuilder fpConfig = activityBuilderLaunchedRefs.pop();
             BasicFileProvider.getInstance().selectBaseDirectoryByType(fpConfig.getInitialBaseFolder());
             DisplayFragments.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
-
         }
     };
 
     private void configureInitialMainLayout(FileChooserBuilder fpConfig) {
-
-        /* Reset any previous static instances of the layout configuration before
-         * initiating another instance that will reuse these static context variables:
-         */
-        //DisplayFragments.resetRecyclerViewLayoutContext();
 
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);

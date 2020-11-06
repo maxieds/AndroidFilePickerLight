@@ -50,6 +50,7 @@ public class DisplayFragments {
     public static LinearLayoutManager rvLayoutManager = null;
     public static DisplayAdapters.FileListAdapter rvAdapter = null;
     public static boolean recyclerViewAdapterInit = false;
+    public static boolean viewportCapacityMesaured = false;
 
     public static int maxAllowedSelections = 0;
     public static int curSelectionCount = 0;
@@ -73,26 +74,14 @@ public class DisplayFragments {
         viewportMaxFileItemsCount = viewportFilesCap;
     }
 
-    public static View tempViewportLayoutParam = null;
-
     public static void resetViewportMaxFilesCount(View parentViewContainer) {
-        View fileItemDisplay = View.inflate(FileChooserActivity.getInstance(), R.layout.single_file_entry_item, null);
-        tempViewportLayoutParam = fileItemDisplay;
-        final LinearLayout subjLayout = (LinearLayout) parentViewContainer;
-        final ViewTreeObserver vtObserver = subjLayout.getViewTreeObserver();
-        vtObserver.addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        int fileItemDisplayHeight = DisplayFragments.tempViewportLayoutParam.getMeasuredHeight();
-                        int viewportDisplayHeight = parentViewContainer.getMeasuredHeight();
-                        DisplayFragments.setViewportMaxFilesCount((int) Math.ceil((double) viewportDisplayHeight / fileItemDisplayHeight));
-                        Log.i(LOGTAG, String.format("VP Height = %d, FItemDisp Height = %d   ====>  %d", viewportDisplayHeight, fileItemDisplayHeight, DisplayFragments.getViewportMaxFilesCount()));
-                        vtObserver.removeOnGlobalLayoutListener(this);
-                        DisplayFragments.tempViewportLayoutParam = null;
-                        FileChooserActivity.loadInitialBaseFolderHandler.post(FileChooserActivity.loadInitialBaseFolderRunner);
-                    }
-                });
+        final Context ctx = parentViewContainer.getContext();
+        final View fileItemDisplay = View.inflate(ctx, R.layout.single_file_entry_item, null);
+        int viewportDisplayHeight = parentViewContainer.getMeasuredHeight();
+        int fileItemDisplayHeight = fileItemDisplay.getHeight();
+        DisplayFragments.setViewportMaxFilesCount((int) Math.ceil((double) viewportDisplayHeight / fileItemDisplayHeight));
+        Log.i(LOGTAG, String.format("DELAYED RESPONSE: VP Height = %d, FItemDisp Height = %d   ====>  %d", viewportDisplayHeight,
+                fileItemDisplayHeight, DisplayFragments.getViewportMaxFilesCount()));
     }
 
     private static final String EMPTY_FOLDER_HISTORY_PATH = "----";
@@ -151,6 +140,9 @@ public class DisplayFragments {
                 LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (!cwdFolderContext.getRunningDataThreadStatus()) {
                     if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == activeFileItemsDataList.size() - 1) {
+                        if(!viewportCapacityMesaured) {
+                            DisplayFragments.resetViewportMaxFilesCount((View) mainFileListRecyclerView.getParent());
+                        }
                         cwdFolderContext.computeDirectoryContents(lastFileDataEndIndex + 1, lastFileDataEndIndex + getViewportMaxFilesCount());
                         isLoadingFileData = true;
                     }
@@ -171,6 +163,7 @@ public class DisplayFragments {
         viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
         rvAdapter = null;
         recyclerViewAdapterInit = false;
+        viewportCapacityMesaured = false;
     }
 
     public static FileFilter.FileFilterInterface localFilesListFilter = null;
@@ -218,7 +211,7 @@ public class DisplayFragments {
         List<DisplayTypes.FileType> filteredFileContents = workingDirContentsList;
         fileItemBasePathsList.clear();
         //rvLayoutManager.removeAllViews();
-        //rvAdapter.notifyDataSetChanged();
+        rvAdapter.notifyDataSetChanged();
 
         int fileItemIndex = 0;
         for(DisplayTypes.FileType fileItem : filteredFileContents) {
@@ -231,14 +224,14 @@ public class DisplayFragments {
             //rvAdapter.bindViewHolder(viewHolderAtIndex, fileItemIndex);
             //rvAdapter.notifyDataSetChanged();
         }
-        //rvAdapter.notifyItemRangeInserted(0, fileItemBasePathsList.size() - 1);
-        //rvAdapter.notifyDataSetChanged();
-        rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
-        mainFileListRecyclerView.setAdapter(rvAdapter);
-        rvLayoutManager = new LinearLayoutManager(mainFileListRecyclerView.getContext());
-        rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        rvAdapter.notifyItemRangeInserted(0, fileItemBasePathsList.size() - 1);
+        rvAdapter.notifyDataSetChanged();
+        //rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
+        //mainFileListRecyclerView.setAdapter(rvAdapter);
+        //rvLayoutManager = new LinearLayoutManager(mainFileListRecyclerView.getContext());
+        //rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         //rvLayoutManager.setAutoMeasureEnabled(false);
-        mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
+        //mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
 
     }
 
@@ -383,6 +376,9 @@ public class DisplayFragments {
     }
 
     public static void cancelAllOperationsInProgress() {
+        if(DisplayTypes.DirectoryResultContext.pathHistoryStack.empty()) {
+            return;
+        }
         DisplayTypes.DirectoryResultContext cwdCtx = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
         if(cwdCtx != null) {
             cwdCtx.interruptFetchDataThread(DisplayTypes.DirectoryResultContext.DEFAULT_TIMEOUT);

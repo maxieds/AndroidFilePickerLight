@@ -172,21 +172,34 @@
         android:layout_height="5dp"
         android:background="?__colorPrimaryVeryDark" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/mainRecyclerView"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/mainRecyclerViewContainer"
+        android:layout_width="fill_parent"
         android:layout_height="100dp"
-        android:layout_gravity="bottom|center_horizontal"
         android:layout_margin="0dp"
-        android:layout_weight="1"
-        android:background="?__colorPrimary"
-        android:gravity="top|center_horizontal"
-        android:orientation="vertical"
-        android:overScrollMode="never"
-        android:padding="0dp"
-        android:paddingBottom="6dp"
-        android:fillViewport="true"
-        />
+        android:padding="2dp"
+        android:layout_gravity="left|center_vertical"
+        android:gravity="left|center_vertical"
+        android:background="?__colorAccentLight"
+        android:orientation="horizontal"
+        >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/mainRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_margin="0dp"
+            android:background="?__colorPrimary"
+            android:gravity="top|center_horizontal"
+            android:orientation="vertical"
+            android:overScrollMode="never"
+            android:padding="0dp"
+            android:paddingBottom="6dp"
+            android:fillViewport="true"
+            />
+
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

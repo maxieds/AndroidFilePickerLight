@@ -131,20 +131,20 @@ public class DisplayTypes {
                 public void run() {
                     Log.i(LOGTAG, String.format(Locale.getDefault(), "INSIDE DATA THREAD: Computing dir contents [%d, %d]", startIndexFinal, maxIndexFinal));
                     BasicFileProvider fpInst = BasicFileProvider.getInstance();
-                    MatrixCursor mcResult = getInitialMatrixCursor();
+                    DirectoryResultContext extFolderCtx = getLastDataThreadReference();
+                    MatrixCursor mcResult = extFolderCtx.getInitialMatrixCursor();
                     mcResult.moveToFirst();
-                    mcResult.moveToPosition(maxIndexFinal);
+                    mcResult.moveToPosition(startIndexFinal);
                     List<FileType> filesDataList = new ArrayList<FileType>();
                     for(int mcRowIdx = startIndexFinal; mcRowIdx < Math.min(mcResult.getCount(), maxIndexFinal); mcRowIdx++) {
-                        MatrixCursor mcRow = mcResult;
                         File fileOnDisk = fpInst.getFileAtCurrentRow(mcResult, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
                         FileType nextFileItem = new FileType(fileOnDisk, thisCtx);
                         nextFileItem.setRelativeCursorPosition(mcRowIdx - maxIndexFinal);
                         filesDataList.add(nextFileItem);
                         mcResult.moveToNext();
                     }
-                    DirectoryResultContext extFolderCtx = getLastDataThreadReference();
                     extFolderCtx.setNextDirectoryContents(filesDataList);
+                    this.interrupt();
                 }
             };
             fetchNewDataThread.start();
