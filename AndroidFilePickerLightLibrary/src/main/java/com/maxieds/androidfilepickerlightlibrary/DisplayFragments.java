@@ -17,10 +17,12 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -34,6 +36,7 @@ import androidx.annotation.DrawableRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +56,20 @@ public class DisplayFragments {
 
     public static  List<DisplayTypes.FileType> activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
     private static List<String> fileItemBasePathsList = new ArrayList<String>();
+
+    private static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 10;
+    private static int viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
+
+    public static int getViewportMaxFilesCount() {
+        return viewportMaxFileItemsCount;
+    }
+
+    public static void resetViewportMaxFilesCount(View parentViewContainer) {
+        View fileItemDisplay = View.inflate(FileChooserActivity.getInstance(), R.layout.single_file_entry_item, null);
+        int fileItemDisplayHeight = fileItemDisplay.getMeasuredHeight();
+        int viewportDisplayHeight = parentViewContainer.getMeasuredHeight();
+        viewportMaxFileItemsCount = (int) Math.ceil((double) viewportDisplayHeight / fileItemDisplayHeight);
+    }
 
     private static final String EMPTY_FOLDER_HISTORY_PATH = "----";
 
@@ -76,6 +93,7 @@ public class DisplayFragments {
     public static void initializeRecyclerViewLayout(RecyclerView rview) {
         if(!recyclerViewAdapterInit) {
             mainFileListRecyclerView = rview;
+            resetViewportMaxFilesCount((View) rview.getParent());
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
@@ -104,6 +122,7 @@ public class DisplayFragments {
     public static void resetRecyclerViewLayoutContext() {
         mainFileListRecyclerView = null;
         rvLayoutManager = null;
+        viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
         rvAdapter = null;
         recyclerViewAdapterInit = false;
     }
@@ -114,7 +133,7 @@ public class DisplayFragments {
     public static void descendIntoNextDirectory(boolean initNewFileTree) {
         if(DisplayTypes.DirectoryResultContext.pathHistoryStack.empty()) {
             DisplayFragments.cancelAllOperationsInProgress();
-            FileChooserException.GenericRuntimeErrorException rte = new FileChooserException.GenericRuntimeErrorException("Empty context for folder history (no back?)");
+            FileChooserException.GenericRuntimeErrorException rte = new FileChooserException.GenericRuntimeErrorException("Empty context for folder history ( no more history ??? )");
             FileChooserActivity.getInstance().postSelectedFilesActivityResult(rte);
         }
         DisplayTypes.DirectoryResultContext nextFolder = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
@@ -131,6 +150,8 @@ public class DisplayFragments {
         DisplayTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
         DisplayFragments.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
     }
+
+    private static final int VIEW_TYPE_FILE_ITEM = 0;
 
     public static void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList) {
 
@@ -153,7 +174,7 @@ public class DisplayFragments {
             rvAdapter.notifyDataSetChanged();
             DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
             fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
-            DisplayAdapters.BaseViewHolder viewHolderAtIndex = rvAdapter.createViewHolder((ViewGroup) fileItemUIFragment.getLayoutContainer(), 0);
+            DisplayAdapters.BaseViewHolder viewHolderAtIndex = rvAdapter.createViewHolder((ViewGroup) fileItemUIFragment.getLayoutContainer(), VIEW_TYPE_FILE_ITEM);
             viewHolderAtIndex.setFileItemData(fileItem);
             rvAdapter.bindViewHolder(viewHolderAtIndex, fileItemIndex);
         }
@@ -225,6 +246,7 @@ public class DisplayFragments {
         private boolean isCheckable;
 
         public FileListItemFragment(DisplayTypes.FileType fileItem, int displayPosition) {
+
             displayPositionIndex = displayPosition;
             isCheckable = true;
             localFileItem = fileItem;
@@ -237,7 +259,37 @@ public class DisplayFragments {
             if(filePermsText != null) {
                 filePermsText.setText(fileItem.getChmodStylePermissions());
             }
+
+            CheckBox selectionBox = layoutContainer.findViewById(R.id.fileSelectCheckBox);
+            selectionBox.setTag(displayPosition);
+            selectionBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View cboxView) {
+                    CheckBox cbItem = (CheckBox) cboxView;
+                    int fileItemDisplayPos = (int) cbItem.getTag();
+                    DisplayTypes.FileType fileItemForCB = ((DisplayAdapters.BaseViewHolder)
+                            mainFileListRecyclerView.findViewHolderForAdapterPosition(fileItemDisplayPos)).getFileItemReference();
+                    DisplayAdapters.BaseViewHolder.performNewFileItemClick(cbItem, fileItemForCB);
+                }
+            });
+            selectionBox.setOnTouchListener(new View.OnTouchListener() {
+                final WeakReference<DisplayTypes.FileType> fileItemRef = new WeakReference<>(fileItem);
+                @Override
+                public boolean onTouch(View cboxView, MotionEvent event) {
+                    if(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
+                        CheckBox cbItem = (CheckBox) cboxView;
+                        int fileItemDisplayPos = (int) cbItem.getTag();
+                        DisplayTypes.FileType fileItemForCB = ((DisplayAdapters.BaseViewHolder)
+                                mainFileListRecyclerView.findViewHolderForAdapterPosition(fileItemDisplayPos)).getFileItemReference();
+                        DisplayAdapters.BaseViewHolder.performNewFileItemClick(cbItem, fileItemForCB);
+                        return true; // prevents the checkbox from changing state automatically
+                    }
+                    return false;
+                }
+            });
+
             resetLayout(fileItem, displayPositionIndex);
+
         }
 
         public void resetLayout(DisplayTypes.FileType fileItem, int displayPosition) {
@@ -254,20 +306,6 @@ public class DisplayFragments {
             if(!isCheckable) {
                 selectFileCheckBox.setEnabled(false);
                 selectFileCheckBox.setVisibility(View.INVISIBLE);
-            }
-        }
-
-        public void setSelectable(boolean enabled, boolean updateUI) {
-            isCheckable = enabled;
-            if(updateUI && !enabled) {
-                CheckBox selectFileCheckBox = layoutContainer.findViewById(R.id.fileSelectCheckBox);
-                selectFileCheckBox.setEnabled(false);
-                selectFileCheckBox.setVisibility(View.INVISIBLE);
-            }
-            else if(updateUI) {
-                CheckBox selectFileCheckBox = layoutContainer.findViewById(R.id.fileSelectCheckBox);
-                selectFileCheckBox.setEnabled(true);
-                selectFileCheckBox.setVisibility(View.VISIBLE);
             }
         }
 
@@ -315,6 +353,9 @@ public class DisplayFragments {
         // TODO: Need a way to cleanup any hanging processes with the file system before quitting the activity ...
         // Can we run the FileProvider routines in a thread and then kill it if the user wants another op before
         // it has finished?
+        // When an action button, or other abort type operation is invoked while we are in the process of
+        // fetching a new list of FileType items data from the FileProvider, the fetching is running in a new
+        // thread ... Need to interrupt this thread and cleanup anything it leaves hanging before we return. (TODO)
     }
 
 }

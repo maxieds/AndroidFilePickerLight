@@ -18,6 +18,7 @@
 package com.maxieds.androidfilepickerlightlibrary;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -62,6 +63,7 @@ public class DisplayAdapters {
 
     public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, RecyclerView.OnItemTouchListener {
 
+        private View fileItemContainerView;
         public View iconView;
         public TextView displayText;
         public DisplayTypes.FileType fileItem;
@@ -83,6 +85,7 @@ public class DisplayAdapters {
 
         public BaseViewHolder(View v) {
             super(v);
+            fileItemContainerView = v;
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             iconView = v.findViewById(R.id.fileTypeIcon);
@@ -92,37 +95,50 @@ public class DisplayAdapters {
 
         public void setFileItemData(DisplayTypes.FileType storedFileItem) {
             fileItem = storedFileItem;
+            fileItemContainerView.setTag(fileItem);
+        }
+
+        public DisplayTypes.FileType getFileItemReference() {
+            return fileItem;
         }
 
         public TextView getDisplayText() { return displayText; }
 
         public boolean performNewFileItemClick(DisplayTypes.FileType fileItem) {
-            if(fileItem == null) {
+            return performNewFileItemClick(fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox), fileItem);
+        }
+
+        public static boolean performNewFileItemClick(CheckBox cbView, DisplayTypes.FileType fileItem) {
+            boolean isDir = fileItem.isDirectory();
+            if(!isDir && !DisplayFragments.allowSelectFiles) {
+                Log.i(LOGTAG, "Blocking file item selection I");
                 return false;
             }
-            else if(!fileItem.isDirectory() && !DisplayFragments.allowSelectFiles) {
+            else if(isDir && !DisplayFragments.allowSelectFolders) {
+                Log.i(LOGTAG, "Blocking file item selection II");
                 return false;
             }
-            else if(fileItem.isDirectory() && !DisplayFragments.allowSelectFolders) {
-                return false;
-            }
-            else if(fileItem.isChecked()) {
+            CheckBox selectionMarker = cbView;
+            boolean isChecked = fileItem.isChecked();
+            if(isChecked) {
                 // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:
-                CheckBox selectionMarker = fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox);
+                fileItem.setChecked(false);
                 selectionMarker.setChecked(false);
                 selectionMarker.setEnabled(true);
                 DisplayFragments.activeSelectionsList.remove(fileItem);
                 DisplayFragments.curSelectionCount--;
+                Log.i(LOGTAG, "DE-Selected next checkbox (file item)");
                 return true;
             }
             else if(DisplayFragments.curSelectionCount >= DisplayFragments.maxAllowedSelections) {
                 return false;
             }
-            CheckBox selectionMarker = fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox);
+            fileItem.setChecked(true);
             selectionMarker.setChecked(true);
             selectionMarker.setEnabled(true);
             DisplayFragments.activeSelectionsList.add(fileItem);
             DisplayFragments.curSelectionCount++;
+            Log.i(LOGTAG, "Selected next checkbox (file item)");
             return true;
         }
 

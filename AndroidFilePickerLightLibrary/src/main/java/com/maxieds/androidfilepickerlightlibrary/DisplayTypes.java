@@ -19,6 +19,8 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.database.MatrixCursor;
 import android.graphics.drawable.Drawable;
+import android.icu.util.LocaleData;
+import android.icu.util.Measure;
 import android.util.Log;
 import android.view.View;
 
@@ -29,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DisplayTypes {
 
@@ -40,11 +44,41 @@ public class DisplayTypes {
 
         public static Stack<DirectoryResultContext> pathHistoryStack = new Stack<DisplayTypes.DirectoryResultContext>();
 
+        private ReentrantLock fetchDataThreadInUseLock = new ReentrantLock();
+        private Thread fetchNewDataThread;
+
+        public static final long NO_TIMEOUT = 0;
+        public static final long DEFAULT_TIMEOUT = 5 * 1000; // 5000 milliseconds = 5 seconds
+
+        public boolean interruptFetchDataThread(long tryLockTimeout) {
+            try {
+                if(tryLockTimeout > NO_TIMEOUT && !fetchDataThreadInUseLock.tryLock(tryLockTimeout, TimeUnit.MILLISECONDS)) {
+                    return false;
+                }
+                else if(tryLockTimeout > NO_TIMEOUT) {
+                    return false;
+                }
+                else if (tryLockTimeout == NO_TIMEOUT) {
+                    fetchDataThreadInUseLock.lockInterruptibly();
+                }
+                // now hold the lock:
+                fetchNewDataThread.interrupt();
+                fetchDataThreadInUseLock.unlock();
+                return true;
+            } catch(Exception excpt) {
+                excpt.printStackTrace();
+                fetchDataThreadInUseLock.unlock();
+                return false;
+            }
+        }
+
         private MatrixCursor initMatrixCursorListing;
         private List<FileType> directoryContentsList;
         private String activeCWDAbsPath;
 
         public DirectoryResultContext(MatrixCursor mcResult, MatrixCursor parentDirCtx) {
+            fetchDataThreadInUseLock = new ReentrantLock();
+            fetchNewDataThread = null;
             initMatrixCursorListing = mcResult;
             computeDirectoryContents();
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
@@ -196,6 +230,10 @@ public class DisplayTypes {
 
         public boolean isChecked() {
             return isChecked;
+        }
+
+        public void setChecked(boolean enable) {
+            isChecked = enable;
         }
 
         public void setFileTypeIcon(Drawable fileIcon) {

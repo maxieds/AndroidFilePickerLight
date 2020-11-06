@@ -26,13 +26,13 @@
 
     <stroke
         android:width="1dip"
-        android:color="@color/colorFileListDivider_border"
+        android:color="@color/__colorPrimary"
         />
 
     <gradient
         android:angle="45"
-        android:endColor="@color/colorFileListDivider_gradientEnd"
-        android:startColor="@color/colorFileListDivider_gradientStart"
+        android:endColor="@color/__colorPrimary"
+        android:startColor="@color/__colorPrimary"
         />
 
     <size android:height="3dp"/>
