@@ -18,6 +18,7 @@
 -->
 
 <resources>
+
     <color name="colorMainToolbarBackground">#031B29</color>
     <color name="colorMainToolbarBackground2">#1C323E</color>
     <color name="colorMainToolbarBackground3">#354954</color>
@@ -33,4 +34,5 @@
     <color name="__colorAccentMedium">#7A97A9</color>
     <color name="__colorAccentLight">#E9EEF1</color>
     <color name="__colorTransparent">@android:color/transparent</color>
+
 </resources>

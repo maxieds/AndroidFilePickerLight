@@ -62,6 +62,11 @@
             android:padding="5dp"
             android:src="@drawable/folder_icon32" />
 
+        <View
+            android:layout_width="6dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent" />
+
         <TextView
             android:id="@+id/fileEntrySizeText"
             android:layout_width="wrap_content"
@@ -75,15 +80,10 @@
             android:typeface="serif"
             />
 
-        <View
-            android:layout_width="8dp"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="|"
+            android:text=" | "
             android:textColor="?__colorAccent"
             android:textSize="10sp"
             android:textStyle="normal|bold"

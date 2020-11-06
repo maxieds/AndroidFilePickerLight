@@ -22,12 +22,14 @@ import android.content.ContentProvider;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
@@ -174,15 +176,21 @@ public class FileChooserBuilder implements Serializable {
         BASE_PATH_DEFAULT,
         BASE_PATH_EXTERNAL_PROVIDER;
 
-        public static final Map<Integer, BaseFolderPathType> NAV_FOLDER_ICON_RESIDS_MAP = new HashMap<>();
+        public static final Map<Integer, BaseFolderPathType> NAV_FOLDER_INDEX_TO_INST_MAP = new HashMap<>();
+        public static final Map<String, BaseFolderPathType> NAV_FOLDER_NAME_TO_INST_MAP = new HashMap<>();
         static {
             for (BaseFolderPathType folderType : values()) {
-                NAV_FOLDER_ICON_RESIDS_MAP.put(folderType.ordinal(), folderType);
+                 NAV_FOLDER_INDEX_TO_INST_MAP.put(folderType.ordinal(), folderType);
+                 NAV_FOLDER_NAME_TO_INST_MAP.put(folderType.name(), folderType);
             }
         }
 
-        public static BaseFolderPathType getInstanceByName(BaseFolderPathType folderTypeName) {
-            return BaseFolderPathType.NAV_FOLDER_ICON_RESIDS_MAP.get(folderTypeName.ordinal());
+        public static BaseFolderPathType getInstanceByName(String folderTypeName) {
+            return BaseFolderPathType.NAV_FOLDER_INDEX_TO_INST_MAP.get(folderTypeName);
+        }
+
+        public static BaseFolderPathType getInstanceByType(BaseFolderPathType folderType) {
+            return BaseFolderPathType.NAV_FOLDER_INDEX_TO_INST_MAP.get(folderType.ordinal());
         }
 
     }
@@ -227,7 +235,7 @@ public class FileChooserBuilder implements Serializable {
         showHidden = false;
         maxSelectedFiles = DEFAULT_MAX_SELECTED_FILES;
         localThemeResId = R.style.LibraryDefaultTheme;
-        initFolderBasePathType = BaseFolderPathType.getInstanceByName(BaseFolderPathType.BASE_PATH_TYPE_FILES_DIR);
+        initFolderBasePathType = BaseFolderPathType.getInstanceByType(BaseFolderPathType.BASE_PATH_TYPE_FILES_DIR);
         pathSelectMode = SelectionModeType.SELECT_OMNIVORE;
         externalFilesProvider = null;
         idleTimeoutMillis = DEFAULT_TIMEOUT;
@@ -382,6 +390,8 @@ public class FileChooserBuilder implements Serializable {
 
     public static List<DisplayTypes.FileType> filterAndSortFileItemsList(List<DisplayTypes.FileType> inputFileItems,
                                                                          FileFilter.FileFilterInterface fileFilter, FileFilter.FileItemsListSortFunc sortCompFunc) {
+        Log.i(LOGTAG, String.format(Locale.getDefault(), "Sorting lst of size = %d : %s", inputFileItems.size(),
+                inputFileItems.size() == 0 ? "[NO PATHS TO SHOW]" : inputFileItems.get(0).getAbsolutePath()));
         List<DisplayTypes.FileType> allowedFileItemsList = new ArrayList<DisplayTypes.FileType>();
         for(DisplayTypes.FileType fileItem : inputFileItems) {
             if(fileFilter == null) {

@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -54,6 +55,9 @@ public class BasicFileProvider extends DocumentsProvider {
     private static BasicFileProvider fileProviderStaticInst = null;
     public static  BasicFileProvider getInstance() { return fileProviderStaticInst; }
 
+    public static final int ROOT_PROJ_ROOTID_COLUMN_INDEX = 6;
+    public static final int ROOT_PROJ_DOCID_COLUMN_INDEX = 6;
+
     public static final String[] DEFAULT_ROOT_PROJECTION = new String[] {
             DocumentsContract.Root.COLUMN_ROOT_ID,
             DocumentsContract.Root.COLUMN_MIME_TYPES,
@@ -65,7 +69,7 @@ public class BasicFileProvider extends DocumentsProvider {
             DocumentsContract.Root.COLUMN_AVAILABLE_BYTES
     };
 
-    public static final int ROOT_PROJ_DOCID_COLUMN_INDEX = 6;
+    public static final int DOCS_PROJ_PARENTID_COLUMN_INDEX = 0;
 
     public static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[] {
             DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -88,7 +92,7 @@ public class BasicFileProvider extends DocumentsProvider {
      * -> getNoBackupFilesDirectory()
      * -> getExternalStorageState() [Lengthy list of state inidcator constants]
      * -> isDeviceProtectedStorage()
-     * ->isExternalStorageEmulated()
+     * -> isExternalStorageEmulated()
      * -> isExternalStorageLegacy()
      * -> isExternalStorageManager()
      * -> isExternalStorageRemovable()
@@ -96,8 +100,23 @@ public class BasicFileProvider extends DocumentsProvider {
      * Also, may consider files flags:
      * Context.MODE_APPEND, Context.MODE_PRIVATE, Context.MODE_MULTI_PROCESS ;
      */
-    public File selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
+    private boolean setLegacyBaseFolderByName(String namedSubFolder) {
+        String userPathSep = "//";
+        int pathSepCharCount = userPathSep.length();
+        String storageRelPath =
+                userPathSep + "sdcard" + userPathSep;
+        String absFullFolderPath = String.format(Locale.getDefault(), "%s%s", storageRelPath, namedSubFolder);
+        File nextFileByPath = new File(absFullFolderPath);
+        if(nextFileByPath == null || !nextFileByPath.exists()) {
+            return false;
+        }
+        baseDirPath = nextFileByPath;
+        return true;
+    }
+
+    public void selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
         Context appCtx = FileChooserActivity.getInstance();
+        File nextFileByPath = null;
         switch(baseFolderType) {
             case BASE_PATH_TYPE_FILES_DIR:
             case BASE_PATH_DEFAULT:
@@ -108,25 +127,32 @@ public class BasicFileProvider extends DocumentsProvider {
                 baseDirPath = appCtx.getCacheDir();
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                setLegacyBaseFolderByName("Download");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+                setLegacyBaseFolderByName("Movies");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MUSIC:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+                setLegacyBaseFolderByName("Music");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOCUMENTS:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+                setLegacyBaseFolderByName("Documents");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DCIM:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DCIM);
+                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DCIM);
+                setLegacyBaseFolderByName("DCIM");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                setLegacyBaseFolderByName("Pictures");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
+                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
+                setLegacyBaseFolderByName("Pictures//Screenshots");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_CACHE_DIR:
             case BASE_PATH_TYPE_SDCARD:
@@ -134,12 +160,12 @@ public class BasicFileProvider extends DocumentsProvider {
                 break;
             case BASE_PATH_TYPE_USER_DATA_DIR:
                 baseDirPath = appCtx.getDataDir();
+                break;
             case BASE_PATH_TYPE_MEDIA_STORE:
             case BASE_PATH_EXTERNAL_PROVIDER:
             default:
-                break;
+                return;
         }
-        return baseDirPath;
     }
 
     @Override
@@ -148,7 +174,7 @@ public class BasicFileProvider extends DocumentsProvider {
             fileProviderStaticInst = this;
         }
         if(FileChooserActivity.getInstance() != null) {
-            baseDirPath = selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+            selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
         }
         return true;
     }
@@ -167,7 +193,7 @@ public class BasicFileProvider extends DocumentsProvider {
         row.add(DocumentsContract.Root.COLUMN_TITLE, getContext().getString(R.string.libraryName));
         row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, getDocIdForFile(baseDirPath));
         row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, getChildMimeTypes(baseDirPath));
-        row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, baseDirPath.getFreeSpace());
+        row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, baseDirPath != null ? baseDirPath.getFreeSpace() : 0);
         row.add(DocumentsContract.Root.COLUMN_ICON, R.drawable.library_profile_icon_round_background);
 
         return mcResult;
@@ -368,6 +394,9 @@ public class BasicFileProvider extends DocumentsProvider {
     }
 
     private String getDocIdForFile(File file) {
+        if(file == null) {
+            return null;
+        }
         String path = file.getAbsolutePath();
 
         // Start at first char of path under root
@@ -446,8 +475,20 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
-    public File getFileAtCurrentRow(MatrixCursor mcResult) {
-        String docId = mcResult.getString(ROOT_PROJ_DOCID_COLUMN_INDEX);
+    public static final boolean CURSOR_TYPE_IS_ROOT = true;
+    public static final boolean CURSOR_TYPE_IS_DOCUMENT = false;
+
+    public File getFileAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+        if(mcResult.getCount() == 0) {
+            return null;
+        }
+        String docId = "";
+        if(cursorType == CURSOR_TYPE_IS_ROOT) {
+            docId = mcResult.getString(ROOT_PROJ_ROOTID_COLUMN_INDEX);
+        }
+        else {
+            docId = mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX);
+        }
         try {
             return getFileForDocId(docId);
         } catch(IOException ioe) {
@@ -456,11 +497,44 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
-    public String getAbsPathAtCurrentRow(MatrixCursor mcResult) {
-        String docId = mcResult.getString(ROOT_PROJ_DOCID_COLUMN_INDEX);
+    public File getFileAtCurrentRow(MatrixCursor mcResult) {
+        return getFileAtCurrentRow(mcResult, CURSOR_TYPE_IS_DOCUMENT);
+    }
+
+    public String getAbsPathAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+        if(mcResult.getCount() == 0) {
+            return null;
+        }
+        String docId = "";
+        if(cursorType == CURSOR_TYPE_IS_ROOT) {
+            docId = mcResult.getString(ROOT_PROJ_ROOTID_COLUMN_INDEX);
+        }
+        else {
+            docId = mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX);
+        }
         try {
             File curWorkingFile = getFileForDocId(docId);
             return curWorkingFile.getAbsolutePath();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return "";
+        }
+    }
+
+    public String getBaseNameAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+        if(mcResult.getCount() == 0) {
+            return null;
+        }
+        String docId = "";
+        if(cursorType == CURSOR_TYPE_IS_ROOT) {
+            docId = mcResult.getString(ROOT_PROJ_DOCID_COLUMN_INDEX);
+        }
+        else {
+            docId = mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX);
+        }
+        try {
+            File curWorkingFile = getFileForDocId(docId);
+            return curWorkingFile.getName();
         } catch(IOException ioe) {
             ioe.printStackTrace();
             return "";

@@ -28,7 +28,9 @@ import java.util.Locale;
 
 public class FileUtils {
 
-    private static final String FILE_PATH_SEPARATOR = "/";
+    private static String LOGTAG = FileUtils.class.getSimpleName();
+
+    public static final String FILE_PATH_SEPARATOR = "/";
 
     public static boolean validFileBaseName(String filePath) {
         return filePath != null
@@ -36,6 +38,14 @@ public class FileUtils {
                 && !filePath.contains(FILE_PATH_SEPARATOR)
                 && !filePath.equals(".")
                 && !filePath.equals("..");
+    }
+
+    public static String getFileBaseNameFromPath(String absPath) {
+        if(absPath == null) {
+            return "";
+        }
+        int lastPathSep = absPath.lastIndexOf(FILE_PATH_SEPARATOR);
+        return absPath.substring(lastPathSep + 1);
     }
 
     public static boolean isHiddenFile(String filePath) {
@@ -62,7 +72,7 @@ public class FileUtils {
 
     public static String getFilePosixPermissionsString(File fileOnDisk) {
         try {
-            return Files.getPosixFilePermissions(fileOnDisk.toPath()).toString();
+            return Files.getPosixFilePermissions(fileOnDisk.toPath().replaceAll(FileUtils.FILE_PATH_SEPARATOR, "//")).toString();
         } catch(IOException ioe) {
             ioe.printStackTrace();
             return "";

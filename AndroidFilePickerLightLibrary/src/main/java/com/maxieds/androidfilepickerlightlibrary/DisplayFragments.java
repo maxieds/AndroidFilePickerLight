@@ -121,7 +121,6 @@ public class DisplayFragments {
     public static void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
         DisplayTypes.DirectoryResultContext newCwdContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
         DisplayTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
-        //newCwdContext.loadNextFolderAtIndex(true);
         DisplayFragments.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
     }
 
@@ -280,11 +279,11 @@ public class DisplayFragments {
             Button.OnClickListener backBtnClickListener = new Button.OnClickListener() {
                 @Override
                 public void onClick(View btnView) {
-                     Button navBtn = (Button) btnView;
-                     // TODO: Get DirectoryResultContext for the button clicked, and push it atop the working history stack ...
-                     DisplayTypes.DirectoryResultContext nextFolderCtx = null; // TODO: call DirResCtx.load* ...
-                     DisplayTypes.DirectoryResultContext.pathHistoryStack.push(nextFolderCtx);
-                     DisplayFragments.descendIntoNextDirectory(true);
+                     ImageButton navBtn = (ImageButton) btnView;
+                     String baseFolderTypeName = btnView.getTag().toString();
+                     FileChooserBuilder.BaseFolderPathType baseFolderPathType = FileChooserBuilder.BaseFolderPathType.getInstanceByName(baseFolderTypeName);
+                     BasicFileProvider.getInstance().selectBaseDirectoryByType(baseFolderPathType);
+                     DisplayFragments.initiateNewFolderLoad(baseFolderPathType);
                 }
             };
             globalNavBackBtn.setOnClickListener(backBtnClickListener);

@@ -19,6 +19,7 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.database.MatrixCursor;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Stack;
 
 public class DisplayTypes {
@@ -33,6 +35,8 @@ public class DisplayTypes {
     private static String LOGTAG = DisplayTypes.class.getSimpleName();
 
     public static class DirectoryResultContext {
+
+        private static String LOGTAG = DirectoryResultContext.class.getSimpleName();
 
         public static Stack<DirectoryResultContext> pathHistoryStack = new Stack<DisplayTypes.DirectoryResultContext>();
 
@@ -43,13 +47,9 @@ public class DisplayTypes {
         public DirectoryResultContext(MatrixCursor mcResult, MatrixCursor parentDirCtx) {
             initMatrixCursorListing = mcResult;
             computeDirectoryContents();
-            if(parentDirCtx != null) {
-                BasicFileProvider fpInst = BasicFileProvider.getInstance();
-                activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(parentDirCtx);
-            }
-            else {
-                activeCWDAbsPath = "";
-            }
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(mcResult, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "Initializing new folder at path: \"%s\" ... ", activeCWDAbsPath));
         }
 
         public List<FileType> getWorkingDirectoryContents() {
@@ -66,7 +66,7 @@ public class DisplayTypes {
             List<FileType> filesDataList = new ArrayList<FileType>();
             for(int mcRowIdx = 0; mcRowIdx < mcResult.getCount(); mcRowIdx++) {
                 MatrixCursor mcRow = mcResult;
-                File fileOnDisk = fpInst.getFileAtCurrentRow(mcResult);
+                File fileOnDisk = fpInst.getFileAtCurrentRow(mcResult, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
                 FileType nextFileItem = new FileType(fileOnDisk, this);
                 nextFileItem.setRelativeCursorPosition(mcRowIdx);
                 filesDataList.add(nextFileItem);
@@ -82,14 +82,14 @@ public class DisplayTypes {
 
         public DirectoryResultContext loadNextFolderAtIndex(int posIndex, boolean initNewFileTree) {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
-            DisplayFragments.updateFolderHistoryPaths(activeCWDAbsPath.replace("\\(.*/\\)*/(.*)", "$0"), initNewFileTree);
+            DisplayFragments.updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(activeCWDAbsPath), initNewFileTree);
             MatrixCursor nextDirCursor = null;
             try {
                 int curCursorIndex = initMatrixCursorListing.getPosition();
                 initMatrixCursorListing.moveToPosition(posIndex);
                 String nextActiveDocId = initMatrixCursorListing.getString(BasicFileProvider.ROOT_PROJ_DOCID_COLUMN_INDEX);
                 initMatrixCursorListing.moveToPosition(curCursorIndex);
-                nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
+                nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_ROOT_PROJECTION, "");
             } catch(Exception ioe) {
                 ioe.printStackTrace();
                 pathHistoryStack.pop();
@@ -114,7 +114,13 @@ public class DisplayTypes {
             fpInst.selectBaseDirectoryByType(baseFolderChoice);
             try {
                 MatrixCursor cursoryProbe = (MatrixCursor) fpInst.queryRoots(BasicFileProvider.DEFAULT_ROOT_PROJECTION);
-                return new DirectoryResultContext(cursoryProbe, null);
+                cursoryProbe.moveToFirst();
+                String initDirBaseName = fpInst.getBaseNameAtCurrentRow(cursoryProbe, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+                DisplayFragments.updateFolderHistoryPaths(initDirBaseName, false);
+                Log.i(LOGTAG, String.format(Locale.getDefault(), "Updating history nav to: %s", initDirBaseName));
+                String parentDocsId = cursoryProbe.getString(BasicFileProvider.ROOT_PROJ_ROOTID_COLUMN_INDEX);
+                MatrixCursor expandedFolderContents = (MatrixCursor) fpInst.queryChildDocuments(parentDocsId, BasicFileProvider.DEFAULT_ROOT_PROJECTION, "");
+                return new DirectoryResultContext(expandedFolderContents, null);
             } catch(IOException ioe) {
                 ioe.printStackTrace();
                 return null;
@@ -124,6 +130,8 @@ public class DisplayTypes {
     }
 
     public static class FileType {
+
+        private static String LOGTAG = FileType.class.getSimpleName();
 
         private DirectoryResultContext parentFolder;
         private File fileOnDisk;
@@ -140,12 +148,8 @@ public class DisplayTypes {
             this.cwdRelativeCursorPos = -1;
         }
 
-        public void setFileTypeIcon(Drawable fileIcon) {
-            fileTypeIcon = fileIcon;
-        }
-
-        public Drawable getFileTypeIcon() {
-            return fileTypeIcon;
+        public DirectoryResultContext getParentFolderContext() {
+            return parentFolder;
         }
 
         public String getAbsolutePath() {
@@ -192,6 +196,14 @@ public class DisplayTypes {
 
         public boolean isChecked() {
             return isChecked;
+        }
+
+        public void setFileTypeIcon(Drawable fileIcon) {
+            fileTypeIcon = fileIcon;
+        }
+
+        public Drawable getFileTypeIcon() {
+            return fileTypeIcon;
         }
 
         public View getLayoutContainer() {

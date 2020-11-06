@@ -146,8 +146,8 @@
                 android:text="---"
                 android:textColor="?__colorPrimaryDark"
                 android:textSize="12.5sp"
-                android:textStyle="normal|bold|italic"
-                android:fontFamily="serif-monospace"
+                android:textStyle="normal|bold"
+                android:fontFamily="sans-serif-condensed"
                 />
 
             <ImageView
@@ -166,8 +166,8 @@
                 android:textColor="?__colorPrimaryDark"
                 android:textSize="12.5sp"
                 android:textAllCaps="true"
-                android:textStyle="normal|bold|italic"
-                android:fontFamily="serif-monospace"
+                android:textStyle="normal|bold"
+                android:fontFamily="sans-serif-condensed"
                 />
 
         </LinearLayout>

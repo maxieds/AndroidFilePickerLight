@@ -127,9 +127,10 @@ public class DisplayAdapters {
 
         @Override
         public void onClick(View v) {
-            if(fileItem != null && !fileItem.isDirectory()) {
+            if(fileItem != null && (!fileItem.isDirectory() || DisplayFragments.allowSelectFolders)) {
                 if(performNewFileItemClick(fileItem)) {
-                    String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
+                    String filePathType = fileItem.isDirectory() ? "DIR" : "FILE";
+                    String displaySelectMsg = String.format(Locale.getDefault(), "Selected %s \"%s\".", filePathType, fileItem.getBaseName());
                     DisplayUtils.displayToastMessageShort(displaySelectMsg);
                 }
             }
@@ -146,13 +147,21 @@ public class DisplayAdapters {
                 return false;
             }
             // Otherwise, descend recursively into the clicked directory location:
-            DisplayTypes.DirectoryResultContext workingFolder = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
-            if(workingFolder == null) {
-                return false;
-            }
             if(fileItem != null) {
-                workingFolder.loadNextFolderAtIndex(fileItem.getRelativeCursorPosition(), false);
-                DisplayFragments.descendIntoNextDirectory(false);
+                DisplayTypes.DirectoryResultContext nextFolder = fileItem.getParentFolderContext();
+                if(nextFolder == null) {
+                    return false;
+                }
+                DisplayTypes.DirectoryResultContext workingFolder = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
+                DisplayTypes.DirectoryResultContext.pathHistoryStack.push(nextFolder);
+                if(workingFolder == null) {
+                    workingFolder.loadNextFolderAtIndex(true);
+                    DisplayFragments.descendIntoNextDirectory(true);
+                }
+                else {
+                    workingFolder.loadNextFolderAtIndex(fileItem.getRelativeCursorPosition(), false);
+                    DisplayFragments.descendIntoNextDirectory(false);
+                }
                 String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recursively into DIR \"%s\".", fileItem.getBaseName());
                 DisplayUtils.displayToastMessageShort(displayRecurseMsg);
                 return true;

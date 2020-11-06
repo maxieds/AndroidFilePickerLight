@@ -70,7 +70,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
             errorRationaleDisplayText.setTextColor(R.color.colorOnErrorDisplayText);
             errorRationaleDisplayText.setText(errorDisplayText.toString());
             adBuilder.setView(errorRationaleDisplayText);
-            adBuilder.setNegativeButton("That sucks, boo [X]", null);
+            adBuilder.setNegativeButton("[X] That sucks, boo.", null);
             adBuilder.create().show();
             return;
         }
@@ -87,7 +87,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         }
         fileSelectionsDisplayText.setText(displayText.toString());
         adBuilder.setView(fileSelectionsDisplayText);
-        adBuilder.setNegativeButton("OK, Great! [X]", null);
+        adBuilder.setNegativeButton("[X] OK, Great!", null);
         adBuilder.create().show();
     }
 
@@ -98,7 +98,10 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
             List<String> selectedFilePaths = FileChooserBuilder.handleActivityResult(this, requestCode, resultCode, data);
             showFileChooserResultsDialog(selectedFilePaths, null);
         } catch(RuntimeException rte) {
-            String errorExitMsg = data.getStringExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_MESSAGE_KEY);
+            String errorExitMsg = null;
+            if(data != null) {
+                errorExitMsg = data.getStringExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_MESSAGE_KEY);
+            }
             if(errorExitMsg == null) {
                 errorExitMsg = "Unknown reason for exception.";
             }

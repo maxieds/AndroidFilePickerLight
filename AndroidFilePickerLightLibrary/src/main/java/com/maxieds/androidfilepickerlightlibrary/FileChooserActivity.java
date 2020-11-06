@@ -172,7 +172,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             dirNavBtn.setPadding(10, 10, 10, 10);
             //dirNavBtn.setImageDrawable(GradientDrawableFactory.resolveDrawableFromAttribute(
             //        FileChooserBuilder.DefaultNavFoldersType.getFolderIconResIdFromName(defaultDirNavFolders.get(folderIdx))));
-            dirNavBtn.setTag(baseFolderType);
+            dirNavBtn.setTag(baseFolderType.name());
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
                 @Override
                 public void onClick(View btnView) {
@@ -323,7 +323,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         setResult(Activity.RESULT_OK, filesResultIntent);
         finish();
         DisplayFragments.resetRecyclerViewLayoutContext();
-        //System.exit(0);
+        System.exit(0);
     }
 
     public void postSelectedFilesActivityResult(Exception runtimeExcpt) {
@@ -337,7 +337,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
         DisplayFragments.resetRecyclerViewLayoutContext();
-        //System.exit(0);
+        System.exit(0);
     }
 
 }
