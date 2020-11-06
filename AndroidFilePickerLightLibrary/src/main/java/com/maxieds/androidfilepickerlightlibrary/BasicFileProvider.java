@@ -101,7 +101,7 @@ public class BasicFileProvider extends DocumentsProvider {
      * Context.MODE_APPEND, Context.MODE_PRIVATE, Context.MODE_MULTI_PROCESS ;
      */
     private boolean setLegacyBaseFolderByName(String namedSubFolder) {
-        String userPathSep = "//";
+        String userPathSep = FileUtils.FILE_LEGACY_PATH_SEPARATOR;
         int pathSepCharCount = userPathSep.length();
         String storageRelPath =
                 userPathSep + "sdcard" + userPathSep;
@@ -127,31 +127,31 @@ public class BasicFileProvider extends DocumentsProvider {
                 baseDirPath = appCtx.getCacheDir();
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS:
-                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
                 setLegacyBaseFolderByName("Download");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES:
-                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
                 setLegacyBaseFolderByName("Movies");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MUSIC:
-                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
                 setLegacyBaseFolderByName("Music");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOCUMENTS:
-                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
                 setLegacyBaseFolderByName("Documents");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DCIM:
-                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DCIM);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DCIM);
                 setLegacyBaseFolderByName("DCIM");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES:
-                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
                 setLegacyBaseFolderByName("Pictures");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS:
-                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
+                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
                 setLegacyBaseFolderByName("Pictures//Screenshots");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_CACHE_DIR:

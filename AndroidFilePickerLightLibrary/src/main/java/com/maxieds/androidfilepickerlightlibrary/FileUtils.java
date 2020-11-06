@@ -30,6 +30,7 @@ public class FileUtils {
 
     private static String LOGTAG = FileUtils.class.getSimpleName();
 
+    public static final String FILE_LEGACY_PATH_SEPARATOR = "//";
     public static final String FILE_PATH_SEPARATOR = "/";
 
     public static boolean validFileBaseName(String filePath) {
@@ -72,7 +73,7 @@ public class FileUtils {
 
     public static String getFilePosixPermissionsString(File fileOnDisk) {
         try {
-            return Files.getPosixFilePermissions(fileOnDisk.toPath().replaceAll(FileUtils.FILE_PATH_SEPARATOR, "//")).toString();
+            return Files.getPosixFilePermissions(fileOnDisk.toPath()).toString();
         } catch(IOException ioe) {
             ioe.printStackTrace();
             return "";

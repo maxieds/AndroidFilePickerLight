@@ -19,19 +19,14 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
     android:padding="12dp"
     android:layout_marginTop="1dp"
     android:layout_marginBottom="1dp"
     android:layout_marginLeft="5dp"
     android:layout_marginRight="5dp"
     >
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="?__colorAccent" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -60,7 +55,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:src="@drawable/folder_icon32" />
+            android:src="@drawable/folder_icon32"
+            android:visibility="gone"
+            />
 
         <View
             android:layout_width="6dp"
@@ -75,7 +72,7 @@
             android:layout_gravity="right|center_vertical"
             android:text="0B"
             android:textColor="?__colorAccent"
-            android:textSize="10sp"
+            android:textSize="8sp"
             android:textStyle="normal|bold"
             android:typeface="serif"
             />
@@ -85,7 +82,7 @@
             android:layout_height="wrap_content"
             android:text=" | "
             android:textColor="?__colorAccent"
-            android:textSize="10sp"
+            android:textSize="8sp"
             android:textStyle="normal|bold"
             android:typeface="serif"
             />
@@ -98,7 +95,7 @@
             android:layout_gravity="right|center_vertical"
             android:text="0755"
             android:textColor="?__colorAccent"
-            android:textSize="10sp"
+            android:textSize="8sp"
             android:textStyle="normal|bold"
             android:typeface="serif"
             />
@@ -113,21 +110,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingRight="12dp"
+            android:paddingRight="6dp"
             android:gravity="left|center_vertical"
             android:layout_gravity="left|center_vertical"
             android:text="fileBaseName.ext"
             android:textColor="?__colorAccent"
-            android:textSize="14sp"
+            android:textSize="10sp"
             android:textStyle="normal"
-            android:typeface="monospace"
+            android:fontFamily="sans-serif-condensed-medium"
             />
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="?__colorAccent" />
 
 </LinearLayout>

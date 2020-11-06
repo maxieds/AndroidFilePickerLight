@@ -223,7 +223,7 @@ public class FileChooserBuilder implements Serializable {
     private FileFilter.FileItemsListSortFunc customSortFunc;
 
     public static final long NO_ABORT_TIMEOUT = -1;
-    public static final long DEFAULT_TIMEOUT = 100 * 1000;
+    public static final long DEFAULT_TIMEOUT = 250 * 1000;
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
 
     public FileChooserBuilder(Activity activityContextInst) {

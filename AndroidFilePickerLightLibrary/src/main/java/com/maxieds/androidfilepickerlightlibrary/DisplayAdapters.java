@@ -87,6 +87,7 @@ public class DisplayAdapters {
             v.setOnLongClickListener(this);
             iconView = v.findViewById(R.id.fileTypeIcon);
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
+            //setIsRecyclable(false); // TODO: Does this work, or cause more problems ???
         }
 
         public void setFileItemData(DisplayTypes.FileType storedFileItem) {

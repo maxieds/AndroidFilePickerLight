@@ -81,14 +81,22 @@ public class DisplayFragments {
                     ViewGroup.LayoutParams.WRAP_CONTENT
             );
             mainFileListRecyclerView.setLayoutParams(layoutParams);
-            rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance());
+            mainFileListRecyclerView.setHasFixedSize(true);
+            rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance()) {
+                @Override
+                public boolean isAutoMeasureEnabled() {
+                    return true;
+                }
+            };
             rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            rvLayoutManager.setAutoMeasureEnabled(false);
             mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
             mainFileListRecyclerView.addItemDecoration(
-                    new CustomDividerItemDecoration(rview.getContext(), R.drawable.rview_file_item_divider)
+                    new CustomDividerItemDecoration(R.drawable.rview_file_item_divider)
             );
             rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
             mainFileListRecyclerView.setAdapter(rvAdapter);
+            //mainFileListRecyclerView.setNestedScrollingEnabled(false);
             recyclerViewAdapterInit = true;
         }
     }
@@ -164,8 +172,8 @@ public class DisplayFragments {
         public static final int LIST_DIVIDER_STYLE_INDEX = 0;
         public static final int DEFAULT_DIVIDER_STYLE_INDEX = 1;
 
-        public CustomDividerItemDecoration(Context context, int dividerTypeIndex, boolean dividerTypeIsVertical) {
-            final TypedArray styledDefaultAttributes = context.obtainStyledAttributes(DIVIDER_DEFAULT_ATTRS);
+        public CustomDividerItemDecoration(Context ctx, int dividerTypeIndex, boolean dividerTypeIsVertical) {
+            final TypedArray styledDefaultAttributes = ctx.obtainStyledAttributes(DIVIDER_DEFAULT_ATTRS);
             if(dividerTypeIndex != LIST_DIVIDER_STYLE_INDEX) {
                 dividerTypeIndex = DEFAULT_DIVIDER_STYLE_INDEX + (dividerTypeIsVertical ? 0 : 1);
             }
@@ -173,22 +181,34 @@ public class DisplayFragments {
             styledDefaultAttributes.recycle();
         }
 
-        public CustomDividerItemDecoration(Context context, int resId) {
+        public CustomDividerItemDecoration(int resId) {
             listingsDivider = GradientDrawableFactory.getDrawableFromResource(resId);
         }
+
+        public static void setMarginAdjustments(int leftAdjust, int topAdjust, int rightAdjust, int bottomAdjust) {
+            MARGIN_RIGHT_ADJUST = rightAdjust;
+            MARGIN_LEFT_ADJUST = leftAdjust;
+            MARGIN_TOP_ADJUST = topAdjust;
+            MARGIN_BOTTOM_ADJUST = bottomAdjust;
+        }
+
+        private static int MARGIN_RIGHT_ADJUST = 35;
+        private static int MARGIN_LEFT_ADJUST = 35;
+        private static int MARGIN_TOP_ADJUST = 0;
+        private static int MARGIN_BOTTOM_ADJUST = 0;
 
         @Override
         public void onDraw(Canvas displayCanvas, RecyclerView parentContainerView, RecyclerView.State rvState) {
 
-            int leftMargin = parentContainerView.getPaddingLeft();
-            int rightMargin = parentContainerView.getWidth() - parentContainerView.getPaddingRight();
+            int leftMargin = parentContainerView.getPaddingLeft() + MARGIN_LEFT_ADJUST;
+            int rightMargin = parentContainerView.getWidth() - parentContainerView.getPaddingRight() - MARGIN_RIGHT_ADJUST;
 
             for (int i = 0; i < parentContainerView.getChildCount(); i++) {
 
                 View childView = parentContainerView.getChildAt(i);
                 RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) childView.getLayoutParams();
-                int topMargin = childView.getBottom() + params.bottomMargin;
-                int bottomMargin = topMargin + listingsDivider.getIntrinsicHeight();
+                int topMargin = childView.getBottom() + params.bottomMargin + MARGIN_TOP_ADJUST;
+                int bottomMargin = topMargin + listingsDivider.getIntrinsicHeight() + MARGIN_BOTTOM_ADJUST;
                 listingsDivider.setBounds(leftMargin, topMargin, rightMargin, bottomMargin);
                 listingsDivider.draw(displayCanvas);
 
