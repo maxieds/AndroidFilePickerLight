@@ -76,11 +76,12 @@ public class DisplayTypes {
             mcResult.moveToPosition(startIndexPos);
             List<FileType> filesDataList = new ArrayList<FileType>();
             for(int mcRowIdx = startIndexPos; mcRowIdx <= Math.min(mcResult.getCount() - 1, maxIndexPos); mcRowIdx++) {
-                String fileAbsPath = fpInst.getAbsPathAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
-                String fileSize = fpInst.getFileSizeAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
-                String filePosixPerms = fpInst.getPosixPermsAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
-                boolean isDir = Boolean.parseBoolean(fpInst.getIsDirectoryAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT));
-                boolean isHidden = Boolean.parseBoolean(fpInst.getIsHiddenAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT));
+                String[] filePropertiesList =  fpInst.getPropertiesOfCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+                String fileAbsPath = filePropertiesList[BasicFileProvider.PROPERTY_ABSPATH];
+                String fileSize = filePropertiesList[BasicFileProvider.PROPERTY_FILE_SIZE];
+                String filePosixPerms = filePropertiesList[BasicFileProvider.PROPERTY_POSIX_PERMS];
+                boolean isDir = Boolean.parseBoolean(filePropertiesList[BasicFileProvider.PROPERTY_ISDIR]);
+                boolean isHidden = Boolean.parseBoolean(filePropertiesList[BasicFileProvider.PROPERTY_ISHIDDEN]);
                 FileType nextFileItem = new FileType(fileAbsPath, fileSize, filePosixPerms, isDir, isHidden,  this);
                 nextFileItem.setRelativeCursorPosition(mcRowIdx - maxIndexPos);
                 filesDataList.add(nextFileItem);

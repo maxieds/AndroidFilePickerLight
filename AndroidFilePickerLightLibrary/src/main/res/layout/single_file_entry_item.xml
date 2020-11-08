@@ -50,7 +50,6 @@
             android:layout_gravity="center_vertical"
             android:gravity="center_horizontal" />
 
-        <!--
         <ImageView
             android:id="@+id/fileTypeIcon"
             android:layout_width="wrap_content"
@@ -59,7 +58,6 @@
             android:src="@drawable/folder_icon32"
             android:visibility="visible"
             />
-            -->
 
         <View
             android:layout_width="6dp"
@@ -67,12 +65,12 @@
             android:background="@android:color/transparent" />
 
         <TextView
-            android:id="@+id/fileEntrySizeText"
+            android:id="@+id/fileEntryPermsSummaryText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
-            android:text="0B"
+            android:text="0755"
             android:textColor="?__colorAccent"
             android:textSize="8sp"
             android:textStyle="normal|bold"
@@ -90,12 +88,12 @@
             />
 
         <TextView
-            android:id="@+id/fileEntryPermsSummaryText"
+            android:id="@+id/fileEntrySizeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
-            android:text="0755"
+            android:text="0B"
             android:textColor="?__colorAccent"
             android:textSize="8sp"
             android:textStyle="normal|bold"

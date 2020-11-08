@@ -537,59 +537,31 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
-    public String getFileSizeAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
-        if(mcResult.getCount() == 0) {
-            return null;
-        }
-        String docId = getDocumentIdForCursorType(mcResult, cursorType);
-        try {
-            File curWorkingFile = getFileForDocId(docId);
-            return FileUtils.getFileSizeString(curWorkingFile);
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-            return "";
-        }
-    }
+    public static final int PROPERTY_ABSPATH = 0;
+    public static final int PROPERTY_BASENAME = 1;
+    public static final int PROPERTY_FILE_SIZE = 2;
+    public static final int PROPERTY_POSIX_PERMS = 3;
+    public static final int PROPERTY_ISDIR = 4;
+    public static final int PROPERTY_ISHIDDEN = 5;
 
-    public String getPosixPermsAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+    public String[] getPropertiesOfCurrentRow(MatrixCursor mcResult, boolean cursorType) {
         if(mcResult.getCount() == 0) {
             return null;
         }
         String docId = getDocumentIdForCursorType(mcResult, cursorType);
         try {
             File curWorkingFile = getFileForDocId(docId);
-            return FileUtils.getFilePosixPermissionsString(curWorkingFile);
+            return new String[] {
+                    curWorkingFile.getAbsolutePath(),
+                    curWorkingFile.getName(),
+                    FileUtils.getFileSizeString(curWorkingFile),
+                    FileUtils.getFilePosixPermissionsString(curWorkingFile),
+                    String.format(Locale.getDefault(), "%s", curWorkingFile.isDirectory() ? "true" : "false"),
+                    String.format(Locale.getDefault(), "%s", curWorkingFile.isHidden() ? "true" : "false")
+            };
         } catch(IOException ioe) {
             ioe.printStackTrace();
-            return "";
-        }
-    }
-
-    public String getIsDirectoryAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
-        if(mcResult.getCount() == 0) {
             return null;
-        }
-        String docId = getDocumentIdForCursorType(mcResult, cursorType);
-        try {
-            File curWorkingFile = getFileForDocId(docId);
-            return String.format(Locale.getDefault(), "%s", curWorkingFile.isDirectory() ? "true" : "false");
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-            return "";
-        }
-    }
-
-    public String getIsHiddenAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
-        if(mcResult.getCount() == 0) {
-            return null;
-        }
-        String docId = getDocumentIdForCursorType(mcResult, cursorType);
-        try {
-            File curWorkingFile = getFileForDocId(docId);
-            return String.format(Locale.getDefault(), "%s", curWorkingFile.isHidden() ? "true" : "false");
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-            return "";
         }
     }
 
