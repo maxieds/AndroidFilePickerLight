@@ -44,113 +44,50 @@ public class DisplayTypes {
 
         public static Stack<DirectoryResultContext> pathHistoryStack = new Stack<DisplayTypes.DirectoryResultContext>();
 
-        private ReentrantLock fetchDataThreadInUseLock = new ReentrantLock();
-        private Thread fetchNewDataThread;
-
-        public static final long NO_TIMEOUT = 0;
-        public static final long DEFAULT_TIMEOUT = 5 * 1000; // 5000 milliseconds = 5 seconds
-
-        public boolean getRunningDataThreadStatus() {
-            return ((fetchNewDataThread != null) && fetchNewDataThread.isAlive()) || fetchDataThreadInUseLock.isLocked();
-        }
-
-        public boolean interruptFetchDataThread(long tryLockTimeout) {
-            try {
-                if(tryLockTimeout > NO_TIMEOUT && !fetchDataThreadInUseLock.tryLock(tryLockTimeout, TimeUnit.MILLISECONDS)) {
-                    return false;
-                }
-                else if(tryLockTimeout > NO_TIMEOUT) {
-                    return false;
-                }
-                else if (tryLockTimeout == NO_TIMEOUT) {
-                    fetchDataThreadInUseLock.lockInterruptibly();
-                }
-                // now hold the lock:
-                fetchNewDataThread.interrupt();
-                fetchDataThreadInUseLock.unlock();
-                return true;
-            } catch(Exception excpt) {
-                excpt.printStackTrace();
-                fetchDataThreadInUseLock.unlock();
-                return false;
-            }
-        }
-
-        private static DirectoryResultContext lastDataThreadRef = null;
-        public static DirectoryResultContext getLastDataThreadReference() { return lastDataThreadRef; }
-
         private MatrixCursor initMatrixCursorListing;
         private List<FileType> directoryContentsList;
         private String activeCWDAbsPath;
 
         public DirectoryResultContext(MatrixCursor mcResult, MatrixCursor parentDirCtx) {
-            fetchDataThreadInUseLock = new ReentrantLock();
-            fetchNewDataThread = null;
             directoryContentsList = new ArrayList<FileType>();
             initMatrixCursorListing = mcResult;
             mcResult.moveToFirst();
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
-            activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(mcResult, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+            activeCWDAbsPath = fpInst.getAbsPathAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
             Log.i(LOGTAG, String.format(Locale.getDefault(), "Initializing new folder at path: \"%s\" ... ", activeCWDAbsPath));
         }
 
         public MatrixCursor getInitialMatrixCursor() { return initMatrixCursorListing; }
 
-        public List<FileType> getWorkingDirectoryContents() {
-            return directoryContentsList;
-        }
+        public List<FileType> getWorkingDirectoryContents() { return directoryContentsList; }
 
         public void setNextDirectoryContents(List<FileType> nextFolderFiles) { directoryContentsList = nextFolderFiles; }
 
         public void computeDirectoryContents(int startIndexPos, int maxIndexPos) {
             Log.i(LOGTAG, String.format(Locale.getDefault(), "STARTING: Computing dir contents [%d, %d] -- %s", startIndexPos, maxIndexPos, activeCWDAbsPath));
-            if((fetchNewDataThread != null && fetchNewDataThread.isAlive()) || fetchDataThreadInUseLock.isLocked()) {
-                Log.e(LOGTAG, "APPEARS that the previous fetch data thread is still alive and running ... ");
-                return;
-            }
-            try {
-                if(!fetchDataThreadInUseLock.tryLock(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)) {
-                    Log.e(LOGTAG, "RETURNING tryLock failed ... ");
-                    return;
-                }
-            } catch(Exception excpt) {
-                excpt.printStackTrace();
-                return;
-            }
             if(startIndexPos >= getInitialMatrixCursor().getCount() || maxIndexPos < startIndexPos) {
                 Log.e(LOGTAG, String.format("RETURNING cursor positions out of range %d / [%d, %d] ... ", getInitialMatrixCursor().getCount(), startIndexPos, maxIndexPos));
                 directoryContentsList.clear();
                 return;
             }
-            lastDataThreadRef = this;
-            final DirectoryResultContext thisCtx = this;
-            final int startIndexFinal = startIndexPos;
-            final int maxIndexFinal = maxIndexPos;
-            fetchNewDataThread = new Thread() {
-                @Override
-                public void run() {
-                    Log.i(LOGTAG, String.format(Locale.getDefault(), "INSIDE DATA THREAD: Computing dir contents [%d, %d]", startIndexFinal, maxIndexFinal));
-                    BasicFileProvider fpInst = BasicFileProvider.getInstance();
-                    DirectoryResultContext extFolderCtx = getLastDataThreadReference();
-                    MatrixCursor mcResult = extFolderCtx.getInitialMatrixCursor();
-                    mcResult.moveToFirst();
-                    mcResult.moveToPosition(startIndexFinal);
-                    List<FileType> filesDataList = new ArrayList<FileType>();
-                    for(int mcRowIdx = startIndexFinal; mcRowIdx < Math.min(mcResult.getCount(), maxIndexFinal); mcRowIdx++) {
-                        File fileOnDisk = fpInst.getFileAtCurrentRow(mcResult, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
-                        FileType nextFileItem = new FileType(fileOnDisk, thisCtx);
-                        nextFileItem.setRelativeCursorPosition(mcRowIdx - maxIndexFinal);
-                        filesDataList.add(nextFileItem);
-                        mcResult.moveToNext();
-                    }
-                    extFolderCtx.setNextDirectoryContents(filesDataList);
-                    this.interrupt();
-                }
-            };
-            fetchNewDataThread.start();
-            // post the status once the thread completes:
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "DONE / POSTING: Computing dir contents [%d, %d] -- %s", startIndexPos, maxIndexPos, activeCWDAbsPath));
-            DisplayFragments.displayNextDirectoryFilesList(this, getWorkingDirectoryContents());
+            directoryContentsList.clear();
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            MatrixCursor mcResult = getInitialMatrixCursor();
+            mcResult.moveToPosition(startIndexPos);
+            List<FileType> filesDataList = new ArrayList<FileType>();
+            for(int mcRowIdx = startIndexPos; mcRowIdx <= Math.min(mcResult.getCount() - 1, maxIndexPos); mcRowIdx++) {
+                String fileAbsPath = fpInst.getAbsPathAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+                String fileSize = fpInst.getFileSizeAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+                String filePosixPerms = fpInst.getPosixPermsAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+                boolean isDir = Boolean.parseBoolean(fpInst.getIsDirectoryAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT));
+                boolean isHidden = Boolean.parseBoolean(fpInst.getIsHiddenAtCurrentRow(mcResult, !BasicFileProvider.CURSOR_TYPE_IS_ROOT));
+                FileType nextFileItem = new FileType(fileAbsPath, fileSize, filePosixPerms, isDir, isHidden,  this);
+                nextFileItem.setRelativeCursorPosition(mcRowIdx - maxIndexPos);
+                filesDataList.add(nextFileItem);
+                mcResult.moveToNext();
+            }
+            setNextDirectoryContents(filesDataList);
+
         }
 
         public void clearDirectoryContentsList() {
@@ -166,7 +103,7 @@ public class DisplayTypes {
                 initMatrixCursorListing.moveToPosition(posIndex);
                 String nextActiveDocId = initMatrixCursorListing.getString(BasicFileProvider.ROOT_PROJ_DOCID_COLUMN_INDEX);
                 initMatrixCursorListing.moveToPosition(curCursorIndex);
-                nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_ROOT_PROJECTION, "");
+                nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
             } catch(Exception ioe) {
                 ioe.printStackTrace();
                 pathHistoryStack.pop();
@@ -195,8 +132,8 @@ public class DisplayTypes {
                 String initDirBaseName = fpInst.getBaseNameAtCurrentRow(cursoryProbe, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
                 DisplayFragments.updateFolderHistoryPaths(initDirBaseName, false);
                 Log.i(LOGTAG, String.format(Locale.getDefault(), "Updating history nav to: %s", initDirBaseName));
-                String parentDocsId = cursoryProbe.getString(BasicFileProvider.ROOT_PROJ_ROOTID_COLUMN_INDEX);
-                MatrixCursor expandedFolderContents = (MatrixCursor) fpInst.queryChildDocuments(parentDocsId, BasicFileProvider.DEFAULT_ROOT_PROJECTION, "");
+                String parentDocsId = cursoryProbe.getString(BasicFileProvider.ROOT_PROJ_DOCID_COLUMN_INDEX); // ???
+                MatrixCursor expandedFolderContents = (MatrixCursor) fpInst.queryChildDocuments(parentDocsId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
                 return new DirectoryResultContext(expandedFolderContents, null);
             }
             catch(IOException ioe) {
@@ -212,15 +149,26 @@ public class DisplayTypes {
         private static String LOGTAG = FileType.class.getSimpleName();
 
         private DirectoryResultContext parentFolder;
-        private File fileOnDisk;
+        private String fileAbsPath;
+        private String fileSizeLabel;
+        private String filePosixStylePerms;
+        private boolean isDir;
+        private boolean isHidden;
+
+        private int cwdRelativeCursorPos;
         private boolean isChecked;
         private Drawable fileTypeIcon;
         private View fileItemLayoutContainer;
-        private int cwdRelativeCursorPos;
 
-        public FileType(File fileOnDisk, DirectoryResultContext parentFolder) {
+        public FileType(String fileAbsPath, String fileSizeLabel, String posixPerms,
+                        boolean isDirectory, boolean isHidden,
+                        DirectoryResultContext parentFolder) {
             this.parentFolder = parentFolder;
-            this.fileOnDisk = fileOnDisk;
+            this.fileAbsPath = fileAbsPath;
+            this.fileSizeLabel = fileSizeLabel;
+            this.filePosixStylePerms = posixPerms;
+            this.isDir = isDirectory;
+            this.isHidden = isHidden;
             this.isChecked = false;
             this.fileItemLayoutContainer = null;
             this.cwdRelativeCursorPos = -1;
@@ -231,35 +179,35 @@ public class DisplayTypes {
         }
 
         public String getAbsolutePath() {
-            return fileOnDisk.getAbsolutePath();
+            return fileAbsPath;
         }
 
         public String getBaseName() {
-            return fileOnDisk.getName();
+            return FileUtils.getFileBaseNameFromPath(getAbsolutePath());
         }
 
         public boolean isDirectory() {
-            return fileOnDisk.isDirectory();
+            return isDir;
         }
 
         public boolean isHidden() {
-            return fileOnDisk.isHidden();
+            return isHidden;
         }
 
         public String getExtension() {
-            return FileUtils.getFileExtension(fileOnDisk.getPath());
+            return FileUtils.getFileExtension(getAbsolutePath());
         }
 
         public String getMimeType() {
-            return FileUtils.getFileMimeType(fileOnDisk.getPath());
+            return FileUtils.getFileMimeType(getAbsolutePath());
         }
 
         public String getPosixPermissions() {
-            return FileUtils.getFilePosixPermissionsString(fileOnDisk);
+            return filePosixStylePerms;
         }
 
         public String getChmodStylePermissions() {
-            String filePosixPerms = FileUtils.getFilePosixPermissionsString(fileOnDisk);
+            String filePosixPerms = getPosixPermissions();
             return FileUtils.filePermsStringToShortChmodStyleCode(filePosixPerms, isDirectory());
         }
 
@@ -268,7 +216,7 @@ public class DisplayTypes {
                 return "DIR";
             }
             else {
-                return FileUtils.getFileSizeString(fileOnDisk);
+                return fileSizeLabel;
             }
         }
 

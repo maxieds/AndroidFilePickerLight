@@ -31,6 +31,8 @@ import android.provider.DocumentsProvider;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import androidx.core.content.FileProvider;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,36 +54,11 @@ public class BasicFileProvider extends DocumentsProvider {
 
     private static String LOGTAG = BasicFileProvider.class.getSimpleName();
 
-    private static BasicFileProvider fileProviderStaticInst = null;
-    public static  BasicFileProvider getInstance() { return fileProviderStaticInst; }
-
-    public static final int ROOT_PROJ_ROOTID_COLUMN_INDEX = 6;
-    public static final int ROOT_PROJ_DOCID_COLUMN_INDEX = 6;
-
-    public static final String[] DEFAULT_ROOT_PROJECTION = new String[] {
-            DocumentsContract.Root.COLUMN_ROOT_ID,
-            DocumentsContract.Root.COLUMN_MIME_TYPES,
-            DocumentsContract.Root.COLUMN_FLAGS,
-            DocumentsContract.Root.COLUMN_ICON,
-            DocumentsContract.Root.COLUMN_TITLE,
-            DocumentsContract.Root.COLUMN_SUMMARY,
-            DocumentsContract.Root.COLUMN_DOCUMENT_ID,
-            DocumentsContract.Root.COLUMN_AVAILABLE_BYTES
-    };
-
-    public static final int DOCS_PROJ_PARENTID_COLUMN_INDEX = 0;
-
-    public static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[] {
-            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-            DocumentsContract.Document.COLUMN_MIME_TYPE,
-            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-            DocumentsContract.Document.COLUMN_LAST_MODIFIED,
-            DocumentsContract.Document.COLUMN_FLAGS,
-            DocumentsContract.Document.COLUMN_SIZE
-    };
-
     private static final int MAX_ALLOWED_SEARCH_RESULTS = 20;
     private static final int MAX_ALLOWED_LAST_MODIFIED_FILES = 5;
+
+    private static BasicFileProvider fileProviderStaticInst = null;
+    public static  BasicFileProvider getInstance() { return fileProviderStaticInst; }
 
     private File baseDirPath;
 
@@ -101,13 +78,14 @@ public class BasicFileProvider extends DocumentsProvider {
      * Context.MODE_APPEND, Context.MODE_PRIVATE, Context.MODE_MULTI_PROCESS ;
      */
     private boolean setLegacyBaseFolderByName(String namedSubFolder) {
-        String userPathSep = FileUtils.FILE_LEGACY_PATH_SEPARATOR;
+        String userPathSep = FileUtils.FILE_PATH_SEPARATOR;
         int pathSepCharCount = userPathSep.length();
-        String storageRelPath =
-                userPathSep + "sdcard" + userPathSep;
+        String storageRelPath = "/storage/self/primary" + userPathSep;
+        //String storageRelPath = Environment.getExternalStorageDirectory() + userPathSep;
         String absFullFolderPath = String.format(Locale.getDefault(), "%s%s", storageRelPath, namedSubFolder);
         File nextFileByPath = new File(absFullFolderPath);
         if(nextFileByPath == null || !nextFileByPath.exists()) {
+            Log.i(LOGTAG, "NOT Setting base dir path to \"" + absFullFolderPath + "\" -- file path DOES NOT exist");
             return false;
         }
         baseDirPath = nextFileByPath;
@@ -128,7 +106,7 @@ public class BasicFileProvider extends DocumentsProvider {
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS:
                 baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-                setLegacyBaseFolderByName("Download");
+                setLegacyBaseFolderByName("Downloads");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES:
                 baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
@@ -152,7 +130,7 @@ public class BasicFileProvider extends DocumentsProvider {
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS:
                 baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
-                setLegacyBaseFolderByName("Pictures//Screenshots");
+                setLegacyBaseFolderByName("Pictures/Screenshots");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_CACHE_DIR:
             case BASE_PATH_TYPE_SDCARD:
@@ -179,6 +157,30 @@ public class BasicFileProvider extends DocumentsProvider {
         return true;
     }
 
+    public static final String[] DEFAULT_ROOT_PROJECTION = new String[] {
+            DocumentsContract.Root.COLUMN_ROOT_ID,
+            DocumentsContract.Root.COLUMN_MIME_TYPES,
+            DocumentsContract.Root.COLUMN_FLAGS,
+            DocumentsContract.Root.COLUMN_ICON,
+            DocumentsContract.Root.COLUMN_TITLE,
+            DocumentsContract.Root.COLUMN_SUMMARY,
+            DocumentsContract.Root.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Root.COLUMN_AVAILABLE_BYTES
+    };
+
+    public static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[] {
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Document.COLUMN_MIME_TYPE,
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_LAST_MODIFIED,
+            DocumentsContract.Document.COLUMN_FLAGS,
+            DocumentsContract.Document.COLUMN_SIZE
+    };
+
+    public static final int ROOT_PROJ_ROOTID_COLUMN_INDEX = 6;
+    public static final int ROOT_PROJ_DOCID_COLUMN_INDEX = 6;
+    public static final int DOCS_PROJ_PARENTID_COLUMN_INDEX = 0;
+
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {
 
@@ -190,7 +192,10 @@ public class BasicFileProvider extends DocumentsProvider {
         row.add(DocumentsContract.Root.COLUMN_FLAGS, DocumentsContract.Root.FLAG_SUPPORTS_CREATE |
                 DocumentsContract.Root.FLAG_SUPPORTS_RECENTS |
                 DocumentsContract.Root.FLAG_SUPPORTS_SEARCH);
-        row.add(DocumentsContract.Root.COLUMN_TITLE, getContext().getString(R.string.libraryName));
+        row.add(DocumentsContract.Root.COLUMN_TITLE,
+                String.format(Locale.getDefault(), "%s(%s)",
+                        getContext().getString(R.string.libraryName).replaceAll(" ", ""),
+                        baseDirPath.getAbsolutePath()));
         row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, getDocIdForFile(baseDirPath));
         row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, getChildMimeTypes(baseDirPath));
         row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, baseDirPath != null ? baseDirPath.getFreeSpace() : 0);
@@ -452,8 +457,6 @@ public class BasicFileProvider extends DocumentsProvider {
         row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, mimeType);
         row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, file.lastModified());
         row.add(DocumentsContract.Document.COLUMN_FLAGS, flags);
-
-        // Add a custom icon
         row.add(DocumentsContract.Document.COLUMN_ICON, R.drawable.library_profile_icon_round_background);
     }
 
@@ -468,6 +471,7 @@ public class BasicFileProvider extends DocumentsProvider {
         } else {
             final String path = docId.substring(splitIndex + 1);
             target = new File(target, path);
+            Log.i(LOGTAG, "DOCID effective path -> " + target.getAbsolutePath());
             if (!target.exists()) {
                 throw new FileNotFoundException("Missing file for " + docId + " at " + target);
             }
@@ -478,7 +482,7 @@ public class BasicFileProvider extends DocumentsProvider {
     public static final boolean CURSOR_TYPE_IS_ROOT = true;
     public static final boolean CURSOR_TYPE_IS_DOCUMENT = false;
 
-    public File getFileAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+    public static String getDocumentIdForCursorType(MatrixCursor mcResult, boolean cursorType) {
         if(mcResult.getCount() == 0) {
             return null;
         }
@@ -489,6 +493,14 @@ public class BasicFileProvider extends DocumentsProvider {
         else {
             docId = mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX);
         }
+        return docId;
+    }
+
+    public File getFileAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+        if(mcResult.getCount() == 0) {
+            return null;
+        }
+        String docId = getDocumentIdForCursorType(mcResult, cursorType);
         try {
             return getFileForDocId(docId);
         } catch(IOException ioe) {
@@ -497,21 +509,11 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
-    public File getFileAtCurrentRow(MatrixCursor mcResult) {
-        return getFileAtCurrentRow(mcResult, CURSOR_TYPE_IS_DOCUMENT);
-    }
-
     public String getAbsPathAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
         if(mcResult.getCount() == 0) {
             return null;
         }
-        String docId = "";
-        if(cursorType == CURSOR_TYPE_IS_ROOT) {
-            docId = mcResult.getString(ROOT_PROJ_ROOTID_COLUMN_INDEX);
-        }
-        else {
-            docId = mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX);
-        }
+        String docId = getDocumentIdForCursorType(mcResult, cursorType);
         try {
             File curWorkingFile = getFileForDocId(docId);
             return curWorkingFile.getAbsolutePath();
@@ -525,16 +527,66 @@ public class BasicFileProvider extends DocumentsProvider {
         if(mcResult.getCount() == 0) {
             return null;
         }
-        String docId = "";
-        if(cursorType == CURSOR_TYPE_IS_ROOT) {
-            docId = mcResult.getString(ROOT_PROJ_DOCID_COLUMN_INDEX);
-        }
-        else {
-            docId = mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX);
-        }
+        String docId = getDocumentIdForCursorType(mcResult, cursorType);
         try {
             File curWorkingFile = getFileForDocId(docId);
             return curWorkingFile.getName();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return "";
+        }
+    }
+
+    public String getFileSizeAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+        if(mcResult.getCount() == 0) {
+            return null;
+        }
+        String docId = getDocumentIdForCursorType(mcResult, cursorType);
+        try {
+            File curWorkingFile = getFileForDocId(docId);
+            return FileUtils.getFileSizeString(curWorkingFile);
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return "";
+        }
+    }
+
+    public String getPosixPermsAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+        if(mcResult.getCount() == 0) {
+            return null;
+        }
+        String docId = getDocumentIdForCursorType(mcResult, cursorType);
+        try {
+            File curWorkingFile = getFileForDocId(docId);
+            return FileUtils.getFilePosixPermissionsString(curWorkingFile);
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return "";
+        }
+    }
+
+    public String getIsDirectoryAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+        if(mcResult.getCount() == 0) {
+            return null;
+        }
+        String docId = getDocumentIdForCursorType(mcResult, cursorType);
+        try {
+            File curWorkingFile = getFileForDocId(docId);
+            return String.format(Locale.getDefault(), "%s", curWorkingFile.isDirectory() ? "true" : "false");
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return "";
+        }
+    }
+
+    public String getIsHiddenAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
+        if(mcResult.getCount() == 0) {
+            return null;
+        }
+        String docId = getDocumentIdForCursorType(mcResult, cursorType);
+        try {
+            File curWorkingFile = getFileForDocId(docId);
+            return String.format(Locale.getDefault(), "%s", curWorkingFile.isHidden() ? "true" : "false");
         } catch(IOException ioe) {
             ioe.printStackTrace();
             return "";

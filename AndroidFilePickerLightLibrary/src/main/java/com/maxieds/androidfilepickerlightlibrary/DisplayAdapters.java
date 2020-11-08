@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,24 +40,49 @@ public class DisplayAdapters {
     public static class FileListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         private List<String> fileListData;
-        public FileListAdapter(List<String> data){
-            fileListData = data;
+        private List<DisplayTypes.FileType> fileItemsData;
+
+        public FileListAdapter(List<String> nextFileListData, List<DisplayTypes.FileType> nextFileItemsData) {
+            this.fileListData = new ArrayList<String>();
+            this.fileListData.addAll(nextFileListData);
+            this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
+            this.fileItemsData.addAll(nextFileItemsData);
+            notifyDataSetChanged();
         }
 
         @Override
         public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            Log.i(LOGTAG,"onCreateViewHolder");
             View rowItem = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_file_entry_item, parent, false);
             return new BaseViewHolder(rowItem);
         }
 
         @Override
         public void onBindViewHolder(BaseViewHolder bvHolder, int posIndex) {
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText()));
+            Log.i(LOGTAG,"onCreateViewHolder @ " + posIndex);
             bvHolder.getDisplayText().setText(fileListData.get(posIndex));
-            DisplayTypes.FileType fileItem = DisplayFragments.activeFileItemsDataList.get(posIndex);
-            bvHolder.setFileItemData(fileItem);
-            View viewItemContainer = bvHolder.getMainViewLayoutContainer();
-            DisplayFragments.FileListItemFragment.resetLayout(viewItemContainer, fileItem, posIndex);
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
+            if(!fileItemsData.isEmpty()) {
+                DisplayTypes.FileType fileItem = fileItemsData.get(posIndex);
+                bvHolder.setFileItemData(fileItem);
+                View viewItemContainer = bvHolder.getMainViewLayoutContainer();
+                DisplayFragments.FileListItemFragment.resetLayout(viewItemContainer, fileItem, posIndex);
+           }
+        }
+
+        @Override
+        public void onViewRecycled(BaseViewHolder bvHolder){
+            Log.i(LOGTAG,"onViewRecycled: " + bvHolder);
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(BaseViewHolder bvHolder){
+            Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder);
+        }
+
+        @Override
+        public void onViewAttachedToWindow(BaseViewHolder bvHolder){
+            Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder);
         }
 
         @Override
@@ -69,9 +95,9 @@ public class DisplayAdapters {
     public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, RecyclerView.OnItemTouchListener {
 
         private View fileItemContainerView;
-        public View iconView;
-        public TextView displayText;
-        public DisplayTypes.FileType fileItem;
+        public  View iconView;
+        public  TextView displayText;
+        public  DisplayTypes.FileType fileItem;
 
         private GestureDetector gestureDetector = new GestureDetector(FileChooserActivity.getInstance(), new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -80,9 +106,10 @@ public class DisplayAdapters {
             }
             @Override
             public void onLongPress(MotionEvent e) {
-                View childView = DisplayFragments.mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
+                RecyclerView mainFileListRecyclerView = DisplayFragments.getMainRecyclerView();
+                View childView = mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
                 if(childView != null) {
-                    //clickListener.onLongClick(child, DisplayFragments.mainFileListRecyclerView, DisplayFragments.mainFileListRecyclerView.getChildPosition(child));
+                    ////clickListener.onLongClick(child, DisplayFragments.mainFileListRecyclerView, DisplayFragments.mainFileListRecyclerView.getChildPosition(child));
                     onLongClick(childView);
                 }
             }
@@ -93,14 +120,12 @@ public class DisplayAdapters {
             fileItemContainerView = v;
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
-            iconView = v.findViewById(R.id.fileTypeIcon);
+            //iconView = v.findViewById(R.id.fileTypeIcon);
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
-            //setIsRecyclable(false); // TODO: Does this work, or cause more problems ???
         }
 
         public void setFileItemData(DisplayTypes.FileType storedFileItem) {
             fileItem = storedFileItem;
-            //fileItemContainerView.setTag(fileItem);
         }
 
         public DisplayTypes.FileType getFileItemReference() {
@@ -116,6 +141,9 @@ public class DisplayAdapters {
         }
 
         public static boolean performNewFileItemClick(CheckBox cbView, DisplayTypes.FileType fileItem) {
+            if(fileItem == null) {
+                return false;
+            }
             boolean isDir = fileItem.isDirectory();
             if(!isDir && !DisplayFragments.allowSelectFiles) {
                 Log.i(LOGTAG, "Blocking file item selection I");
@@ -129,8 +157,7 @@ public class DisplayAdapters {
             if(!cbView.isEnabled()) {
                 return false;
             }
-            boolean isChecked = fileItem.isChecked();
-            if(isChecked) {
+            if(fileItem.isChecked()) {
                 // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:
                 fileItem.setChecked(false);
                 selectionMarker.setChecked(false);
@@ -200,7 +227,7 @@ public class DisplayAdapters {
         public boolean onInterceptTouchEvent(RecyclerView rview, MotionEvent mevt) {
             View childView = rview.findChildViewUnder(mevt.getX(), mevt.getY());
             if(childView != null && gestureDetector.onTouchEvent(mevt)) {
-                //clickListener.onClick(child, rview.getChildPosition(child));
+                ////clickListener.onClick(child, rview.getChildPosition(child));
                 onClick(childView);
             }
             return false;

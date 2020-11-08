@@ -19,14 +19,34 @@
 
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <files-path name="external_files" path="." />
-    <files-path name="_root" path="/" />
-    <files-path name="_shared" path="shared/"/>
-    <cache-path name="_cache" path="/" />
-    <external-files-path name="pictures" path="/sdcard/Pictures/" />
-    <external-files-path name="downloads" path="/sdcard/Download/" />
-    <external-files-path name="camera" path="/sdcard/DCIM/Camera/" />
-    <external-files-path name="dcim" path="/sdcard/DCIM/" />
-    <external-files-path name="screenshots" path="/sdcard/Pictures/Screenshots/" />
+        <!--
+        <external-path name="external" path="." />
+        <external-files-path name="external_files" path="." />
+        <cache-path name="cache" path="." />
+        <external-cache-path name="external_cache" path="." />
+        <files-path name="files" path="." />
+        -->
+
+        <root-path name="external_files" path="/storage/self/primary" />
+        <files-path name="external_files" path="." />
+        <files-path name="root" path="/" />
+        <files-path name="shared" path="shared/"/>
+        <cache-path name="cache" path="/" />
+        <external-files name="/storage/self/primary" path="."/>
+        <external-files name="Downloads" path="Download/" />
+        <external-files name="Movies" path="./Movies/" />
+        <external-files name="Music" path="./Music" />
+        <external-files name="Pictures" path="./Pictures/" />
+        <external-files name="Screenshots" path="Pictures/Screenshots/" />
+        <external-files name="DCIM" path="./DCIM/" />
+        <external-files name="Camera" path="./DCIM/Camera/" />
+        <external-files-path name="/storage/self/primary" path="."/>
+        <external-files-path name="Downloads" path="Download/" />
+        <external-files-path name="Movies" path="Movies/" />
+        <external-files-path name="Music" path="Music" />
+        <external-files-path name="Pictures" path="Pictures/" />
+        <external-files-path name="Screenshots" path="Pictures/Screenshots/" />
+        <external-files-path name="DCIM" path="DCIM/" />
+        <external-files-path name="Camera" path="DCIM/Camera/" />
 
 </paths>

@@ -98,13 +98,13 @@ public class FileChooserBuilder implements Serializable {
         FOLDER_USER_HOME("Home", R.attr.namedFolderUserHomeIcon, BaseFolderPathType.BASE_PATH_TYPE_USER_DATA_DIR),
         FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DCIM);
 
-        public static final Map<DefaultNavFoldersType, String> NAV_FOLDER_NAME_LOOKUP_MAP = new HashMap<>();
+        public static final Map<String, DefaultNavFoldersType> NAV_FOLDER_NAME_LOOKUP_MAP = new HashMap<>();
         public static final Map<DefaultNavFoldersType, String> NAV_FOLDER_DESC_MAP = new HashMap<>();
         public static final Map<DefaultNavFoldersType, BaseFolderPathType> NAV_FOLDER_PATHS_MAP = new HashMap<>();
         public static final Map<Integer, Integer> NAV_FOLDER_ICON_RESIDS_MAP = new HashMap<>();
         static {
             for (DefaultNavFoldersType navType : values()) {
-                NAV_FOLDER_NAME_LOOKUP_MAP.put(navType, navType.toString());
+                NAV_FOLDER_NAME_LOOKUP_MAP.put(navType.toString(), navType);
                 NAV_FOLDER_DESC_MAP.put(navType, navType.getFolderLabel());
                 NAV_FOLDER_PATHS_MAP.put(navType, navType.getBaseFolderPathType());
                 NAV_FOLDER_ICON_RESIDS_MAP.put(navType.ordinal(), navType.getFolderIconResId());
@@ -154,10 +154,10 @@ public class FileChooserBuilder implements Serializable {
 
     public static List<DefaultNavFoldersType> getDefaultNavFoldersList() {
         List<DefaultNavFoldersType> navFoldersList = new ArrayList<DefaultNavFoldersType>();
-        navFoldersList.add(DefaultNavFoldersType.FOLDER_SDCARD_STORAGE);
-        navFoldersList.add(DefaultNavFoldersType.FOLDER_USER_HOME);
-        navFoldersList.add(DefaultNavFoldersType.FOLDER_PICTURES);
-        navFoldersList.add(DefaultNavFoldersType.FOLDER_DOWNLOADS);
+        navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_SDCARD_STORAGE"));
+        navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_USER_HOME"));
+        navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_PICTURES"));
+        navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_DOWNLOADS"));
         return navFoldersList;
     }
 
@@ -442,9 +442,6 @@ public class FileChooserBuilder implements Serializable {
         if(activityInst == null || data == null) {
             throw new FileChooserException.CommunicateNoDataException();
         }
-        //FileChooserBuilder.finishActivityResultHandler(activityInst);
-        //ActivityCompat.finishAffinity(FileChooserActivity.getInstance());
-        DisplayFragments.resetRecyclerViewLayoutContext();
         switch(requestCode) {
             case ACTIVITY_CODE_SELECT_FILE:
             case ACTIVITY_CODE_SELECT_DIRECTORY_ONLY:
@@ -452,12 +449,12 @@ public class FileChooserBuilder implements Serializable {
                 if(resultCode == RESULT_OK) {
                     FileChooserException.AndroidFilePickerLightException resultOKException = new FileChooserException.CommunicateSelectionDataException();
                     List<String> selectedDataItems = resultOKException.packageDataItemsFromIntent(data);
-                    //finishActivityResultHandler(activityInst);
+                    finishActivityResultHandler(activityInst);
                     return selectedDataItems;
                 }
                 try {
                     String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
-                    //finishActivityResultHandler(activityInst);
+                    finishActivityResultHandler(activityInst); // ???
                     throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
                 } catch(NullPointerException npe) {}
                 break;
@@ -467,7 +464,7 @@ public class FileChooserBuilder implements Serializable {
         }
         FileChooserException.AndroidFilePickerLightException resultNotOKException = new FileChooserException.GenericRuntimeErrorException();
         resultNotOKException.packageDataItemsFromIntent(data);
-        //finishActivityResultHandler(activityInst);
+        finishActivityResultHandler(activityInst); // ???
         throw resultNotOKException;
     }
 

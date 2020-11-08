@@ -35,6 +35,7 @@
         android:installLocation="preferExternal"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
+        android:largeHeap="true"
         >
 
         <activity
@@ -69,23 +70,31 @@
             android:permission="android.permission.MANAGE_DOCUMENTS"
             android:initOrder="100"
             >
+
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths_base" />
+
         </provider>
 
+        <!--
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.maxieds.androidfilepickerlightlibrary.FileChooserActivity"
             android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            >
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths_base" />
+
         </provider>
+        -->
 
     </application>
 

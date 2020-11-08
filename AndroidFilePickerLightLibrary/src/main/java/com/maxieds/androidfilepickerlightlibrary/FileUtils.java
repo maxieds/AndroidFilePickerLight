@@ -17,6 +17,7 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
@@ -73,7 +74,7 @@ public class FileUtils {
 
     public static String getFilePosixPermissionsString(File fileOnDisk) {
         try {
-            return Files.getPosixFilePermissions(fileOnDisk.toPath()).toString();
+            return PosixFilePermissions.toString(Files.getPosixFilePermissions(fileOnDisk.toPath()));
         } catch(IOException ioe) {
             ioe.printStackTrace();
             return "";
@@ -84,13 +85,13 @@ public class FileUtils {
         if(rwxDashPerms.length() < 9) {
             return "";
         }
-        String[] rwxTriplet = rwxDashPerms.split("...(?!$)");
+        String[] rwxTriplet = rwxDashPerms.replaceAll("...(?!$)", "$0 ").split(" ");
         if(rwxTriplet.length != 3) {
             return "";
         }
         String chmodStylePermsCode = !isDir ? "0" : "d";
-        for(String rwxTriple : rwxTriplet) {
-            rwxTriple = rwxTriple.toLowerCase(Locale.getDefault());
+        for(int tidx = 0; tidx < rwxTriplet.length; tidx++) {
+            String rwxTriple = rwxTriplet[tidx].toLowerCase(Locale.getDefault());
             int octalBits[] = new int[] {
                     rwxTriple.charAt(0) == 'r' ? 4 : 0,
                     rwxTriple.charAt(1) == 'w' ? 2 : 0,
@@ -103,7 +104,7 @@ public class FileUtils {
     }
 
     public static String getFileSizeString(File fileOnDisk) {
-        long fileSizeBytes = fileOnDisk.getTotalSpace();
+        long fileSizeBytes = fileOnDisk.length();
         if(fileSizeBytes < 1024) {
             return String.format(Locale.getDefault(), "%dB", fileSizeBytes);
         }

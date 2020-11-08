@@ -46,11 +46,23 @@ public class DisplayFragments {
 
     private static String LOGTAG = DisplayFragments.class.getSimpleName();
 
-    public static RecyclerView mainFileListRecyclerView = null;
-    public static LinearLayoutManager rvLayoutManager = null;
-    public static DisplayAdapters.FileListAdapter rvAdapter = null;
-    public static boolean recyclerViewAdapterInit = false;
-    public static boolean viewportCapacityMesaured = false;
+    private static DisplayFragments localStaticInst = new DisplayFragments();
+    private RecyclerView recyclerView = null;
+
+    public DisplayFragments() {
+        localStaticInst = this;
+    }
+
+    public static RecyclerView getMainRecyclerView() {
+        return getInstance().recyclerView;
+    }
+
+    public void setRecyclerView(RecyclerView rview) { recyclerView = rview; }
+
+    public static DisplayFragments getInstance() { return localStaticInst; }
+
+    public  static boolean recyclerViewAdapterInit = false;
+    public  static boolean viewportCapacityMesaured = false;
 
     public static int maxAllowedSelections = 0;
     public static int curSelectionCount = 0;
@@ -75,16 +87,19 @@ public class DisplayFragments {
     }
 
     public static void resetViewportMaxFilesCount(View parentViewContainer) {
-        final Context ctx = parentViewContainer.getContext();
-        final View fileItemDisplay = View.inflate(ctx, R.layout.single_file_entry_item, null);
-        int viewportDisplayHeight = parentViewContainer.getMeasuredHeight();
-        int fileItemDisplayHeight = fileItemDisplay.getHeight();
-        DisplayFragments.setViewportMaxFilesCount((int) Math.ceil((double) viewportDisplayHeight / fileItemDisplayHeight));
-        Log.i(LOGTAG, String.format("DELAYED RESPONSE: VP Height = %d, FItemDisp Height = %d   ====>  %d", viewportDisplayHeight,
-                fileItemDisplayHeight, DisplayFragments.getViewportMaxFilesCount()));
+        if(!viewportCapacityMesaured) {
+            final Context ctx = parentViewContainer.getContext();
+            final View fileItemDisplay = View.inflate(ctx, R.layout.single_file_entry_item, null);
+            int viewportDisplayHeight = parentViewContainer.getMeasuredHeight();
+            int fileItemDisplayHeight = fileItemDisplay.getHeight();
+            DisplayFragments.setViewportMaxFilesCount((int) Math.ceil((double) viewportDisplayHeight / fileItemDisplayHeight));
+            Log.i(LOGTAG, String.format("DELAYED RESPONSE: VP Height = %d, FItemDisp Height = %d   ====>  %d", viewportDisplayHeight,
+                    fileItemDisplayHeight, DisplayFragments.getViewportMaxFilesCount()));
+            viewportCapacityMesaured = true;
+        }
     }
 
-    private static final String EMPTY_FOLDER_HISTORY_PATH = "----";
+    private static final String EMPTY_FOLDER_HISTORY_PATH = "<NONE>";
 
     private static String folderHistoryOneBackPath = EMPTY_FOLDER_HISTORY_PATH;
     private static String folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
@@ -104,52 +119,73 @@ public class DisplayFragments {
     }
 
     public static void initializeRecyclerViewLayout(RecyclerView rview) {
+
         if(!recyclerViewAdapterInit) {
+            getInstance().setRecyclerView(rview);
             fileItemBasePathsList = new ArrayList<String>();
+            activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
             activeFileItemsDataList = new ArrayList<DisplayTypes.FileType>();
-            mainFileListRecyclerView = rview;
-            mainFileListRecyclerView.setHasFixedSize(true);
-            rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
-            mainFileListRecyclerView.setAdapter(rvAdapter);
-            rvLayoutManager = new LinearLayoutManager(rview.getContext());
-            rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
+            rview.setHasFixedSize(false);
+            rview.setItemViewCacheSize(0);
+            rview.setNestedScrollingEnabled(false);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
             );
-            mainFileListRecyclerView.setLayoutParams(layoutParams);
-            mainFileListRecyclerView.addItemDecoration(
+            rview.setLayoutParams(layoutParams);
+            LinearLayoutManager rvLayoutManager = new LinearLayoutManager(FileChooserActivity.getInstance()) {
+                @Override
+                public boolean isAutoMeasureEnabled() {
+                    return true;
+                }
+            };
+            rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            rvLayoutManager.setAutoMeasureEnabled(true);
+            rview.setLayoutManager((RecyclerView.LayoutManager) rvLayoutManager);
+            rview.addItemDecoration(
                     new CustomDividerItemDecoration(R.drawable.rview_file_item_divider)
             );
-            //mainFileListRecyclerView.setNestedScrollingEnabled(false);
-            resetRecyclerViewScrollListener();
+            DisplayAdapters.FileListAdapter rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList, DisplayFragments.activeFileItemsDataList);
+            rview.setAdapter(rvAdapter);
             recyclerViewAdapterInit = true;
+            resetRecyclerViewScrollListener(); // ??? This line is new ???
         }
+
     }
 
-    private static void resetRecyclerViewScrollListener() {
-        mainFileListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+    private static void resetRecyclerViewScrollListener() { // ??? This is new ???
+        final RecyclerView mainFileListRecyclerView = getMainRecyclerView();
+        mainFileListRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int nextState) {
                 super.onScrollStateChanged(recyclerView, nextState);
-            }
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int deltaX, int deltaY) {
-                super.onScrolled(recyclerView, deltaX, deltaY);
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (!cwdFolderContext.getRunningDataThreadStatus()) {
-                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == activeFileItemsDataList.size() - 1) {
+                if(nextState == RecyclerView.SCROLL_STATE_IDLE) {
+                    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if(!isLoadingFileData && cwdFolderContext != null && linearLayoutManager != null) {
                         if(!viewportCapacityMesaured) {
                             DisplayFragments.resetViewportMaxFilesCount((View) mainFileListRecyclerView.getParent());
                         }
-                        cwdFolderContext.computeDirectoryContents(lastFileDataEndIndex + 1, lastFileDataEndIndex + getViewportMaxFilesCount());
+                        LinearLayoutManager rvLayoutManager = (LinearLayoutManager) mainFileListRecyclerView.getLayoutManager();
+                        lastFileDataStartIndex = rvLayoutManager.findLastVisibleItemPosition();
+                        lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount() - 1;
+                        cwdFolderContext.computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
                         isLoadingFileData = true;
+                        displayNextDirectoryFilesList(cwdFolderContext.getWorkingDirectoryContents());
                     }
+                }
+            }
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int deltaX, int deltaY) {
+                super.onScrolled(recyclerView, deltaX, deltaY); // ???
+                if(deltaX == 0 && deltaY == 0) {
+                    LinearLayoutManager rvLayoutManager = (LinearLayoutManager) mainFileListRecyclerView.getLayoutManager();
+                    lastFileDataStartIndex = rvLayoutManager.findLastVisibleItemPosition();
+                    lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount();
                 }
             }
         });
     }
+
     public static void resetRecyclerViewLayoutContext() {
         activeSelectionsList.clear();
         activeFileItemsDataList.clear();
@@ -158,10 +194,7 @@ public class DisplayFragments {
         cwdFolderContext = null;
         lastFileDataStartIndex = 0;
         lastFileDataEndIndex = -1;
-        mainFileListRecyclerView = null;
-        rvLayoutManager = null;
         viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
-        rvAdapter = null;
         recyclerViewAdapterInit = false;
         viewportCapacityMesaured = false;
     }
@@ -176,8 +209,11 @@ public class DisplayFragments {
             FileChooserActivity.getInstance().postSelectedFilesActivityResult(rte);
         }
         DisplayTypes.DirectoryResultContext nextFolder = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
-        nextFolder.computeDirectoryContents(lastFileDataEndIndex + 1, lastFileDataEndIndex + getViewportMaxFilesCount());
-        //DisplayFragments.displayNextDirectoryFilesList(nextFolder, nextFolder.getWorkingDirectoryContents());
+        cwdFolderContext = nextFolder;
+        lastFileDataStartIndex = 0;
+        lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount() - 1;
+        cwdFolderContext.computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
+        DisplayFragments.displayNextDirectoryFilesList(nextFolder.getWorkingDirectoryContents());
     }
 
     /* Re-initiate the inquisition: Static reusable wrapper function to invoke loading a new directory
@@ -187,51 +223,55 @@ public class DisplayFragments {
     public static void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
         DisplayTypes.DirectoryResultContext newCwdContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
         DisplayTypes.DirectoryResultContext.pathHistoryStack.push(newCwdContext);
-        newCwdContext.computeDirectoryContents(lastFileDataEndIndex + 1, lastFileDataEndIndex + getViewportMaxFilesCount());
-        //DisplayFragments.displayNextDirectoryFilesList(newCwdContext, newCwdContext.getWorkingDirectoryContents());
+        cwdFolderContext = newCwdContext;
+        lastFileDataStartIndex = 0;
+        lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount() - 1;
+        cwdFolderContext.computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
+        DisplayFragments.displayNextDirectoryFilesList(newCwdContext.getWorkingDirectoryContents());
     }
 
     private static final int VIEW_TYPE_FILE_ITEM = 0;
 
-    public static void displayNextDirectoryFilesList(DisplayTypes.DirectoryResultContext cwdCtx, List<DisplayTypes.FileType> workingDirContentsList) {
+    public static void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList) {
 
+        if(workingDirContentsList == null) {
+            return;
+        }
+        RecyclerView mainFileListRecyclerView = getMainRecyclerView();
+        if(mainFileListRecyclerView == null) {
+            return;
+        }
         if(!recyclerViewAdapterInit) {
+            isLoadingFileData = false;
             initializeRecyclerViewLayout(mainFileListRecyclerView);
         }
         DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
         DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
         activeSelectionsList.clear();
+        activeFileItemsDataList.clear();
         fileItemBasePathsList.clear();
-        activeFileItemsDataList = workingDirContentsList;
-        cwdFolderContext = cwdCtx;
-        lastFileDataEndIndex = lastFileDataStartIndex + workingDirContentsList.size();
-        lastFileDataStartIndex = lastFileDataEndIndex--; // reset so we have accurate indices for the next load operation
+        LinearLayoutManager rvLayoutManager = (LinearLayoutManager) mainFileListRecyclerView.getLayoutManager();
+        rvLayoutManager.removeAllViews();
+        DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainFileListRecyclerView.getAdapter();
 
         //List<DisplayTypes.FileType> filteredFileContents = FileChooserBuilder.filterAndSortFileItemsList(workingDirContentsList, localFilesListFilter, localFilesListSortFunc); // TODO: Deal with this use case later ...
-        List<DisplayTypes.FileType> filteredFileContents = workingDirContentsList;
-        fileItemBasePathsList.clear();
-        //rvLayoutManager.removeAllViews();
-        rvAdapter.notifyDataSetChanged();
+        final List<DisplayTypes.FileType> filteredFileContents = workingDirContentsList;
+        lastFileDataEndIndex = lastFileDataStartIndex + filteredFileContents.size();
+        lastFileDataStartIndex = lastFileDataEndIndex--; // reset so we have accurate indices for the next load operation
 
-        int fileItemIndex = 0;
-        for(DisplayTypes.FileType fileItem : filteredFileContents) {
+        for(int fidx = 0; fidx < filteredFileContents.size(); fidx++) {
+            Log.i(LOGTAG, "CONTENTS SIZE: " + filteredFileContents.size());
+            DisplayTypes.FileType fileItem = filteredFileContents.get(fidx);
             fileItemBasePathsList.add(fileItem.getBaseName());
-            //rvAdapter.notifyDataSetChanged();
-            //DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fileItemIndex);
-            //fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
-            //DisplayAdapters.BaseViewHolder viewHolderAtIndex = rvAdapter.createViewHolder((ViewGroup) fileItemUIFragment.getLayoutContainer(), VIEW_TYPE_FILE_ITEM);
-            //viewHolderAtIndex.setFileItemData(fileItem);
-            //rvAdapter.bindViewHolder(viewHolderAtIndex, fileItemIndex);
-            //rvAdapter.notifyDataSetChanged();
+            DisplayFragments.activeFileItemsDataList.add(fileItem);
+            /*DisplayFragments.FileListItemFragment fileItemUIFragment = new DisplayFragments.FileListItemFragment(fileItem, fidx);
+            fileItem.setLayoutContainer(fileItemUIFragment.getLayoutContainer());
+            DisplayAdapters.BaseViewHolder viewHolderAtIndex = rvAdapter.createViewHolder((ViewGroup) fileItemUIFragment.getLayoutContainer(), 0);
+            viewHolderAtIndex.setFileItemData(fileItem);
+            rvAdapter.bindViewHolder(viewHolderAtIndex, fidx);*/
         }
-        rvAdapter.notifyItemRangeInserted(0, fileItemBasePathsList.size() - 1);
+        getMainRecyclerView().setAdapter(new DisplayAdapters.FileListAdapter(fileItemBasePathsList, DisplayFragments.activeFileItemsDataList));
         rvAdapter.notifyDataSetChanged();
-        //rvAdapter = new DisplayAdapters.FileListAdapter(fileItemBasePathsList);
-        //mainFileListRecyclerView.setAdapter(rvAdapter);
-        //rvLayoutManager = new LinearLayoutManager(mainFileListRecyclerView.getContext());
-        //rvLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        //rvLayoutManager.setAutoMeasureEnabled(false);
-        //mainFileListRecyclerView.setLayoutManager(rvLayoutManager);
 
     }
 
@@ -294,10 +334,35 @@ public class DisplayFragments {
 
     public static class FileListItemFragment {
 
+        private View layoutContainer;
+        private DisplayTypes.FileType localFileItem;
+        private int displayPositionIndex;
+        private boolean isCheckable;
+
+        public FileListItemFragment(DisplayTypes.FileType fileItem, int displayPosition) {
+            displayPositionIndex = displayPosition;
+            isCheckable = true;
+            localFileItem = fileItem;
+            layoutContainer = View.inflate(FileChooserActivity.getInstance(), R.layout.single_file_entry_item, null);
+            TextView fileSizeText = layoutContainer.findViewById(R.id.fileEntrySizeText);
+            TextView filePermsText = layoutContainer.findViewById(R.id.fileEntryPermsSummaryText);
+            if(fileSizeText != null) {
+                fileSizeText.setText(fileItem.getFileSizeString());
+            }
+            if(filePermsText != null) {
+                filePermsText.setText(fileItem.getChmodStylePermissions());
+            }
+            resetLayout(layoutContainer, fileItem, displayPositionIndex);
+        }
+
+        public View getLayoutContainer() {
+            return layoutContainer;
+        }
+
         public static void resetLayout(View layoutContainer, DisplayTypes.FileType fileItem, int displayPosition) {
 
-            ImageView fileTypeIcon = layoutContainer.findViewById(R.id.fileTypeIcon);
-            fileTypeIcon.setImageDrawable(fileItem.getFileTypeIcon());
+            //ImageView fileTypeIcon = layoutContainer.findViewById(R.id.fileTypeIcon);
+            //fileTypeIcon.setImageDrawable(fileItem.getFileTypeIcon());
             TextView fileSizeText = layoutContainer.findViewById(R.id.fileEntrySizeText);
             fileSizeText.setText(fileItem.getFileSizeString());
             TextView filePermsSummary = layoutContainer.findViewById(R.id.fileEntryPermsSummaryText);
@@ -316,6 +381,7 @@ public class DisplayFragments {
             selectionBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View cboxView) {
+                    RecyclerView mainFileListRecyclerView = getMainRecyclerView();
                     CheckBox cbItem = (CheckBox) cboxView;
                     DisplayTypes.FileType fileItemForCB = ((DisplayAdapters.BaseViewHolder)
                             mainFileListRecyclerView.findViewHolderForAdapterPosition(cboxDisplayIndexPos)).getFileItemReference();
@@ -326,6 +392,7 @@ public class DisplayFragments {
                 final WeakReference<DisplayTypes.FileType> fileItemRef = new WeakReference<>(fileItem);
                 @Override
                 public boolean onTouch(View cboxView, MotionEvent event) {
+                    RecyclerView mainFileListRecyclerView = getMainRecyclerView();
                     if(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
                         CheckBox cbItem = (CheckBox) cboxView;
                         DisplayTypes.FileType fileItemForCB = ((DisplayAdapters.BaseViewHolder)
@@ -376,13 +443,7 @@ public class DisplayFragments {
     }
 
     public static void cancelAllOperationsInProgress() {
-        if(DisplayTypes.DirectoryResultContext.pathHistoryStack.empty()) {
-            return;
-        }
-        DisplayTypes.DirectoryResultContext cwdCtx = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
-        if(cwdCtx != null) {
-            cwdCtx.interruptFetchDataThread(DisplayTypes.DirectoryResultContext.DEFAULT_TIMEOUT);
-        }
+        DisplayTypes.DirectoryResultContext.pathHistoryStack.clear();
     }
 
 }
