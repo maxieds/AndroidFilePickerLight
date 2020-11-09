@@ -48,9 +48,9 @@ public class DisplayFragments {
     public FileFilter.FileItemsSortFunc localFilesListSortFunc;
 
     public DisplayFragments() {
-        folderIconInst = GradientDrawableFactory.getDrawableFromResource(R.drawable.folder_icon32);
-        fileIconInst = GradientDrawableFactory.getDrawableFromResource(R.drawable.generic_file_icon32);
-        hiddenFileIconInst = GradientDrawableFactory.getDrawableFromResource(R.drawable.hidden_file_icon32);
+        folderIconInst = DrawUtils.getDrawableFromResource(R.drawable.folder_icon32);
+        fileIconInst = DrawUtils.getDrawableFromResource(R.drawable.generic_file_icon32);
+        hiddenFileIconInst = DrawUtils.getDrawableFromResource(R.drawable.hidden_file_icon32);
         localFilesListFilter = null;
         localFilesListSortFunc = null;
     }
@@ -283,7 +283,7 @@ public class DisplayFragments {
 
         }
 
-        public static boolean removeItemsFromBottom(int itemCount) {
+        public static boolean removeItemsFromBack(int itemCount) {
 
             FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
             FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
@@ -295,7 +295,7 @@ public class DisplayFragments {
 
         }
 
-        public static boolean appendItemsToBackTrimmedFromFront(int itemCount,
+        /*public static boolean appendItemsToBackTrimmedFromFront(int itemCount,
                                                                 List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
 
             FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
@@ -325,7 +325,7 @@ public class DisplayFragments {
             rvLayoutManager.restoreDefaultMode();
             return true;
 
-        }
+        }*/
 
     }
 

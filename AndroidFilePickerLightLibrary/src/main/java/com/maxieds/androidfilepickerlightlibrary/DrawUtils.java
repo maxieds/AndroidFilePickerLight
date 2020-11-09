@@ -22,9 +22,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
 
-public class GradientDrawableFactory {
+public class DrawUtils {
 
-    private static String LOGTAG = GradientDrawableFactory.class.getSimpleName();
+    private static String LOGTAG = DrawUtils.class.getSimpleName();
 
     private static Activity defaultActivityContextRef = FileChooserActivity.getInstance();
     public static void setDefaultActivityContext(Activity activityContextRef) {
@@ -277,7 +277,7 @@ public class GradientDrawableFactory {
         return generateNamedGradientType(borderStyleSpec, resolveColorFromAttribute(R.attr.colorPrimaryDark), namedColorTheme);
     }
 
-    public static class Builder {
+    public static class GradientDrawableBuilder {
 
         private int[] colorsList;
         private GradientMethodSpec gradientType;
@@ -288,8 +288,7 @@ public class GradientDrawableFactory {
         private boolean useNamedColorTheme;
         private NamedGradientColorThemes namedColorTheme;
 
-
-        public Builder() {
+        public GradientDrawableBuilder() {
             colorsList = new int[] {};
             gradientType = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
             gradientAngle = 90.0f;
@@ -300,37 +299,37 @@ public class GradientDrawableFactory {
             namedColorTheme = null;
         }
 
-        public Builder setColorsArray(int[] colorsArray) {
+        public GradientDrawableBuilder setColorsArray(int[] colorsArray) {
             colorsList = colorsArray;
             return this;
         }
 
-        public Builder setGradientType(GradientMethodSpec gradType) {
+        public GradientDrawableBuilder setGradientType(GradientMethodSpec gradType) {
             gradientType = gradType;
             return this;
         }
 
-        public Builder setGradientAngle(float gradAngle) {
+        public GradientDrawableBuilder setGradientAngle(float gradAngle) {
             gradientAngle = (float) Math.floor(gradAngle / 45.0f); /* Otherwise, Android throws at fatal warning if it is not a multiple of 45.0f */
             return this;
         }
 
-        public Builder setBorderColor(int bdrColor) {
+        public GradientDrawableBuilder setBorderColor(int bdrColor) {
             borderColor = bdrColor;
             return this;
         }
 
-        public Builder setBorderStyle(BorderStyleSpec bdrStyle) {
+        public GradientDrawableBuilder setBorderStyle(BorderStyleSpec bdrStyle) {
             borderStyle = bdrStyle;
             return this;
         }
 
-        public Builder setFillStyle(GradientTypeSpec gradFillStyle) {
+        public GradientDrawableBuilder setFillStyle(GradientTypeSpec gradFillStyle) {
             gradientFillStyle = gradFillStyle;
             return this;
         }
 
-        public Builder setNamedColorScheme(NamedGradientColorThemes namedTheme) {
+        public GradientDrawableBuilder setNamedColorScheme(NamedGradientColorThemes namedTheme) {
             if(namedTheme != null) {
                 namedColorTheme = namedTheme;
                 useNamedColorTheme = true;

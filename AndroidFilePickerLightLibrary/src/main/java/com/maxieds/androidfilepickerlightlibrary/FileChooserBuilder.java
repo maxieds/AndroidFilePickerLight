@@ -131,7 +131,7 @@ public class FileChooserBuilder implements Serializable {
 
         public Drawable getFolderIconDrawable() {
             if(customIconObj == null) {
-                return GradientDrawableFactory.resolveDrawableFromAttribute(folderIconResId);
+                return DrawUtils.resolveDrawableFromAttribute(folderIconResId);
             }
             return customIconObj;
         }

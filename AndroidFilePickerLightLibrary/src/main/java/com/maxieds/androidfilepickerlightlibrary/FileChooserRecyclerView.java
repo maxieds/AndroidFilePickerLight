@@ -20,7 +20,6 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -30,7 +29,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
@@ -78,7 +76,7 @@ public class FileChooserRecyclerView extends RecyclerView {
         FileChooserRecyclerView.LayoutManager rvLayoutManager = new FileChooserRecyclerView.LayoutManager(getContext());
         setLayoutManager((FileChooserRecyclerView.LayoutManager) rvLayoutManager);
         addItemDecoration(new FileChooserRecyclerView.CustomDividerItemDecoration(R.drawable.rview_file_item_divider));
-        setOnScrollListener(new FileChooserRecyclerView.OnScrollListener(rvLayoutManager, displayFragmentsContext));
+        //setOnScrollListener(new FileChooserRecyclerView.OnScrollListener(rvLayoutManager, displayFragmentsContext));
     }
 
     @Override
@@ -102,6 +100,23 @@ public class FileChooserRecyclerView extends RecyclerView {
         return returnStatus;
     }
 
+    public interface RecyclerViewSlidingContextWindow {
+
+        public void setWeightBufferSize(int size);
+
+        public int getBalance();
+        public int getActiveCountToBalanceTop();
+        public int getActiveTopBufferSize();
+        public int getActiveCountToBalanceBottom();
+        public int getActiveBottomBufferSize();
+
+        public int getLayoutVisibleDisplaySize();
+        public int getLayoutFirstVisibleItemIndex();
+        public int getLayoutLastVisibleItemIndex();
+        public int getActiveLayoutItemsCount();
+
+    }
+
     /* See: https://developer.android.com/reference/androidx/recyclerview/widget/LinearSnapHelper */
     public static class LayoutManager extends LinearLayoutManager {
 
@@ -120,7 +135,7 @@ public class FileChooserRecyclerView extends RecyclerView {
             setStackFromEnd(true);
             setSmoothScrollbarEnabled(true);
             localStaticInst = this;
-            nextPositionOffsetDiff = 3;
+            nextPositionOffsetDiff = 1;
         }
 
         @Override
@@ -186,8 +201,8 @@ public class FileChooserRecyclerView extends RecyclerView {
 
             final LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
 
-                private float distanceInPixels = 1000;
-                private float scrollDuration = 0.5f;
+                private float distanceInPixels = 250;
+                private float scrollDuration = 1.65f;
 
                 protected int getHorizontalSnapPreference() {
                     return SNAP_TO_START;
@@ -203,11 +218,11 @@ public class FileChooserRecyclerView extends RecyclerView {
                     return SCROLLER_MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
                 }
 
-                @Override
-                protected int calculateTimeForScrolling(int deltaX) {
-                    float alpha = (float) deltaX / distanceInPixels;
-                    return (int) (scrollDuration * alpha);
-                }
+                //@Override
+                //protected int calculateTimeForScrolling(int deltaX) {
+                //    float alpha = (float) deltaX / distanceInPixels;
+                //    return (int) (scrollDuration * alpha);
+                //}
 
             };
             linearSmoothScroller.setTargetPosition(position);
@@ -234,7 +249,7 @@ public class FileChooserRecyclerView extends RecyclerView {
 
     }
 
-    public static class OnScrollListener extends RecyclerView.OnScrollListener {
+    /*public static class OnScrollListener extends RecyclerView.OnScrollListener {
 
         private static final String LOGTAG = OnScrollListener.class.getSimpleName();
 
@@ -276,7 +291,7 @@ public class FileChooserRecyclerView extends RecyclerView {
                 int initFirstItemIndex = rvLayoutManager.findFirstCompletelyVisibleItemPosition();
                 displayFragmentsCtx.lastFileDataStartIndex = Math.max(0, displayFragmentsCtx.lastFileDataStartIndex - SCROLL_BY_ITEMS);
                 displayFragmentsCtx.lastFileDataEndIndex = Math.max(0, displayFragmentsCtx.lastFileDataEndIndex - SCROLL_BY_ITEMS);
-                DisplayFragments.RecyclerViewUtils.removeItemsFromBottom(SCROLL_BY_ITEMS);
+                DisplayFragments.RecyclerViewUtils.removeItemsFromBack(SCROLL_BY_ITEMS);
                 cwdFolderContextLocal.computeDirectoryContents(
                         displayFragmentsCtx.lastFileDataStartIndex,
                         displayFragmentsCtx.lastFileDataEndIndex,
@@ -390,13 +405,13 @@ public class FileChooserRecyclerView extends RecyclerView {
 
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int deltaX, int deltaY) {
-            super.onScrolled(recyclerView, deltaX, deltaY);
+            //super.onScrolled(recyclerView, deltaX, deltaY);
             Log.i(LOGTAG, String.format(Locale.getDefault(), "onScrolled: SCROLLER SHOWING [%d, %d] -- getCount = %d",
                     rvLayoutManager.findFirstCompletelyVisibleItemPosition(), rvLayoutManager.findLastCompletelyVisibleItemPosition(),
                     displayFragmentsCtx.getInstance().getMainRecyclerView().getAdapter().getItemCount()));
         }
 
-    }
+    }*/
 
     public static class CustomDividerItemDecoration extends RecyclerView.ItemDecoration {
 
@@ -420,7 +435,7 @@ public class FileChooserRecyclerView extends RecyclerView {
         }
 
         public CustomDividerItemDecoration(int resId) {
-            listingsDivider = GradientDrawableFactory.getDrawableFromResource(resId);
+            listingsDivider = DrawUtils.getDrawableFromResource(resId);
         }
 
         public static void setMarginAdjustments(int leftAdjust, int topAdjust, int rightAdjust, int bottomAdjust) {

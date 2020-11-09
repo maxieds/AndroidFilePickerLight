@@ -19,19 +19,16 @@
 
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <!--
-        <external-path name="external" path="." />
-        <external-files-path name="external_files" path="." />
-        <cache-path name="cache" path="." />
-        <external-cache-path name="external_cache" path="." />
-        <files-path name="files" path="." />
-        -->
-
         <root-path name="external_files" path="/storage/self/primary" />
+
         <files-path name="external_files" path="." />
         <files-path name="root" path="/" />
         <files-path name="shared" path="shared/"/>
+
         <cache-path name="cache" path="/" />
+
+        <external-cache-path name="external_cache" path="." />
+
         <external-files name="/storage/self/primary" path="."/>
         <external-files name="Downloads" path="Download/" />
         <external-files name="Movies" path="./Movies/" />
@@ -40,6 +37,7 @@
         <external-files name="Screenshots" path="Pictures/Screenshots/" />
         <external-files name="DCIM" path="./DCIM/" />
         <external-files name="Camera" path="./DCIM/Camera/" />
+
         <external-files-path name="/storage/self/primary" path="."/>
         <external-files-path name="Downloads" path="Download/" />
         <external-files-path name="Movies" path="Movies/" />

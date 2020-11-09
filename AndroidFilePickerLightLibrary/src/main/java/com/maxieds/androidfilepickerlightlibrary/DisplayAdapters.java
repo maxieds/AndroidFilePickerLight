@@ -110,8 +110,13 @@ public class DisplayAdapters {
 
         @Override
         public long getItemId(int posIndex) {
-            return fileItemsData.get(posIndex).getLayoutContainer().hashCode();
-            //return posIndex;
+            if(fileItemsData.get(posIndex).getLayoutContainer() != null){
+                return fileItemsData.get(posIndex).getLayoutContainer().hashCode();
+            }
+            else if(fileItemsData.get(posIndex) != null) {
+                return fileItemsData.get(posIndex).hashCode();
+            }
+            return posIndex;
         }
 
         @Override
