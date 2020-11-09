@@ -47,16 +47,18 @@ public class DisplayAdapters {
             this.fileListData.addAll(nextFileListData);
             this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
             this.fileItemsData.addAll(nextFileItemsData);
-            this.setHasStableIds(false); // TODO ???
+            //this.setHasStableIds(true); // TODO ???
             notifyDataSetChanged();
         }
 
-        public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData) {
+        public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData, boolean notifyAdapter) {
             fileListData.clear();
             fileListData.addAll(nextDataSet);
             fileItemsData.clear();
             fileItemsData.addAll(nextFileItemsData);
-            notifyDataSetChanged();
+            if(notifyAdapter) {
+                notifyDataSetChanged();
+            }
         }
 
         @Override
@@ -68,7 +70,6 @@ public class DisplayAdapters {
 
         @Override
         public void onBindViewHolder(BaseViewHolder bvHolder, int posIndex) {
-            //Log.i(LOGTAG,"onCreateViewHolder @ " + posIndex);
             bvHolder.getDisplayText().setText(fileListData.get(posIndex));
             //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
             if(!fileItemsData.isEmpty()) {
@@ -99,6 +100,11 @@ public class DisplayAdapters {
             return fileListData.size();
         }
 
+        //@Override
+        //public long getItemId(int posIndex) {
+        //    return posIndex;
+        //}
+
     }
 
     public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, RecyclerView.OnItemTouchListener {
@@ -128,6 +134,7 @@ public class DisplayAdapters {
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
+            setIsRecyclable(false);
         }
 
         public TextView getDisplayText() { return displayText; }

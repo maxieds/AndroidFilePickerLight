@@ -351,18 +351,19 @@ public class BasicFileProvider extends DocumentsProvider {
         int startFileIndex = getFilesStartIndex();
         int lastFileIndex = startFileIndex + getFilesListLength();
         if(lastFileIndex >= docsQueryFilesList.length) {
+            //int truncateDiff = lastFileIndex + 1 - docsQueryFilesList.length;
             lastFileIndex = docsQueryFilesList.length - 1;
             startFileIndex = Math.max(0, lastFileIndex - getFilesListLength());
         }
         int curFileIndex = 0;
-        for(File file : docsQueryFilesList) {
-            if(curFileIndex++ < startFileIndex) {
-                continue;
-            }
-            else if(curFileIndex > lastFileIndex) {
+        for(int folderIndex = startFileIndex; folderIndex < docsQueryFilesList.length; folderIndex++) {
+            if(curFileIndex > lastFileIndex) {
+                ++curFileIndex;
                 break;
             }
-            includeFile(mcResult, null, file);
+            File nextFile = docsQueryFilesList[folderIndex];
+            includeFile(mcResult, null, nextFile);
+            ++curFileIndex;
         }
         return mcResult;
     }

@@ -238,14 +238,27 @@ public class DisplayFragments {
         activeFileItemsDataList.clear();
         fileItemBasePathsList.clear();
 
+        // This apparently needs to be done when updating the recycler view by posting new data.
+        // Without this, the size of the list of views it stores grows without bound.
+        // The other option is to set rv.setHasFixedSize(true), but this similarly causes problems by
+        // freezing the scrolling when trying to update the layout with new data.
+        // Thus we are having to just manually clear all the views on each data update to initialize the
+        // list of subdisplays from a blank container (or thereabouts explains it).
+        DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainFileListRecyclerView.getAdapter();
+        LinearLayoutManager rvLayoutManager = (LinearLayoutManager) getMainRecyclerView().getLayoutManager();
+        //rvLayoutManager.removeAllViews();
+        //rvAdapter.notifyDataSetChanged();
+
         final List<DisplayTypes.FileType> filteredFileContents = workingDirContentsList;
         for(int fidx = 0; fidx < filteredFileContents.size(); fidx++) {
             DisplayTypes.FileType fileItem = filteredFileContents.get(fidx);
             fileItemBasePathsList.add(fileItem.getBaseName());
             activeFileItemsDataList.add(fileItem);
+            /*rvAdapter.reloadDataSets(fileItemBasePathsList, activeFileItemsDataList, true);
+            DisplayAdapters.BaseViewHolder bvHolder = rvAdapter.createViewHolder(getMainRecyclerView(), VIEW_TYPE_FILE_ITEM);
+            rvAdapter.bindViewHolder(bvHolder, fidx);*/
         }
-        DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainFileListRecyclerView.getAdapter();
-        rvAdapter.reloadDataSets(fileItemBasePathsList, activeFileItemsDataList);
+        rvAdapter.reloadDataSets(fileItemBasePathsList, activeFileItemsDataList, true);
 
     }
 

@@ -70,15 +70,20 @@ public class DisplayTypes {
 
         public void setNextDirectoryContents(List<FileType> nextFolderFiles) { directoryContentsList = nextFolderFiles; }
 
-        public void computeDirectoryContents(int startIndexPos, int maxIndexPos,
+        public static final int STATUS_ERROR = -1;
+        public static final int STATUS_SUCCESS = 0;
+        public static final int STATUS_END_OF_FOLDER = 2;
+
+        public int computeDirectoryContents(int startIndexPos, int maxIndexPos,
                                              int trimFromFrontCount, int trimFromBackCount, int newItemsCount,
                                              boolean updateGlobalIndices) {
             Log.i(LOGTAG, String.format(Locale.getDefault(), "STARTING: Computing dir contents [%d, %d] -- %s", startIndexPos, maxIndexPos, activeCWDAbsPath));
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             if(fpInst == null) {
-                return;
+                return STATUS_ERROR;
             }
             fpInst.setFilesStartIndex(startIndexPos);
+            //fpInst.setFilesListLength(Math.abs(newItemsCount));
             int initStartIndexPos = startIndexPos;
             try {
                 fpInst.noUpdateQueryFilesList(); // save some time processing if we haven't recently loaded a new folder to process
@@ -90,13 +95,13 @@ public class DisplayTypes {
                 if(startIndexPos >= getInitialMatrixCursor().getCount() || maxIndexPos < startIndexPos) {
                     Log.e(LOGTAG, String.format("RETURNING cursor positions out of range %d / [%d, %d] ... ", getInitialMatrixCursor().getCount(), startIndexPos, maxIndexPos));
                     directoryContentsList.clear();
-                    return;
+                    return STATUS_ERROR;
                 }
                 startIndexPos = newItemsCount < 0 ? startIndexPos : startIndexPos + numItemsRequested - newItemsCount;
                 maxIndexPos = newItemsCount > 0 ? maxIndexPos : maxIndexPos + newItemsCount;
                 initMatrixCursorListing.moveToFirst();
                 boolean appendNewItems = newItemsCount > 0;
-                List<FileType> filesDataList = new ArrayList<FileType>(directoryContentsList.subList(trimFromFrontCount, directoryContentsList.size() - trimFromBackCount));
+                List<FileType> filesDataList = new ArrayList<FileType>();
                 int prependInsertIdx = 0, mcRowIdx;
                 for (mcRowIdx = 0; mcRowIdx < Math.min(initMatrixCursorListing.getCount(), Math.abs(newItemsCount)); mcRowIdx++) {
                     String[] filePropertiesList = fpInst.getPropertiesOfCurrentRow(initMatrixCursorListing, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
@@ -107,14 +112,16 @@ public class DisplayTypes {
                     boolean isDir = Boolean.parseBoolean(filePropertiesList[BasicFileProvider.PROPERTY_ISDIR]);
                     boolean isHidden = Boolean.parseBoolean(filePropertiesList[BasicFileProvider.PROPERTY_ISHIDDEN]);
                     FileType nextFileItem = new FileType(fileAbsPath, fileSize, filePosixPerms, isDir, isHidden, fileProviderDocId, this);
-                    if(appendNewItems) {
-                        filesDataList.add(nextFileItem);
-                    }
-                    else {
-                        filesDataList.add(prependInsertIdx, nextFileItem);
-                        prependInsertIdx++;
-                    }
+                    filesDataList.add(nextFileItem);
                     initMatrixCursorListing.moveToNext();
+                }
+                ArrayList<FileType> priorListings = new ArrayList<FileType>(directoryContentsList.subList(trimFromFrontCount, directoryContentsList.size() - trimFromBackCount));
+                if(appendNewItems) {
+                    filesDataList.addAll(priorListings);
+                }
+                else {
+                    priorListings.addAll(filesDataList);
+                    filesDataList = priorListings;
                 }
                 if(updateGlobalIndices) {
                     int resultSizeDiff = Math.abs(newItemsCount) - mcRowIdx;
@@ -124,19 +131,24 @@ public class DisplayTypes {
                     DisplayFragments.getInstance().lastFileDataEndIndex = DisplayFragments.getInstance().lastFileDataEndIndex - resultSizeDiff;
                 }
                 setNextDirectoryContents(filesDataList);
+                if(mcRowIdx == Math.abs(newItemsCount)) {
+                    return STATUS_SUCCESS;
+                }
+                else {
+                    return STATUS_END_OF_FOLDER;
+                }
             }
             catch(FileNotFoundException ioe) {
                 ioe.printStackTrace();
-                return;
             }
-
+            return STATUS_ERROR;
         }
 
-        public void computeDirectoryContents(int startIndexPos, int maxIndexPos) {
+        public int computeDirectoryContents(int startIndexPos, int maxIndexPos) {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             fpInst.setFilesListLength(DisplayFragments.getViewportMaxFilesCount());
-            computeDirectoryContents(startIndexPos, maxIndexPos,
-                    0, directoryContentsList.size(),maxIndexPos + 1 - startIndexPos, true);
+            return computeDirectoryContents(startIndexPos, maxIndexPos,
+                           0, directoryContentsList.size(),maxIndexPos + 1 - startIndexPos, true);
         }
 
         public void clearDirectoryContentsList() {
