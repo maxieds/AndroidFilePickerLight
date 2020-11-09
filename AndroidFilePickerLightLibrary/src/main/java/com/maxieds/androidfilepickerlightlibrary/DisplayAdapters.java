@@ -47,7 +47,15 @@ public class DisplayAdapters {
             this.fileListData.addAll(nextFileListData);
             this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
             this.fileItemsData.addAll(nextFileItemsData);
-            //this.setHasStableIds(true);
+            this.setHasStableIds(false); // TODO ???
+            notifyDataSetChanged();
+        }
+
+        public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData) {
+            fileListData.clear();
+            fileListData.addAll(nextDataSet);
+            fileItemsData.clear();
+            fileItemsData.addAll(nextFileItemsData);
             notifyDataSetChanged();
         }
 
@@ -65,7 +73,7 @@ public class DisplayAdapters {
             //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
             if(!fileItemsData.isEmpty()) {
                 DisplayTypes.FileType fileItem = fileItemsData.get(posIndex);
-                bvHolder.setFileItemData(fileItem);
+                fileItem.setLayoutContainer(bvHolder.getMainViewLayoutContainer());
                 View viewItemContainer = bvHolder.getMainViewLayoutContainer();
                 DisplayFragments.FileListItemFragment.resetLayout(viewItemContainer, fileItem, posIndex);
            }
@@ -96,9 +104,7 @@ public class DisplayAdapters {
     public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, RecyclerView.OnItemTouchListener {
 
         private View fileItemContainerView;
-        public  View iconView;
         public  TextView displayText;
-        public  DisplayTypes.FileType fileItem;
 
         private GestureDetector gestureDetector = new GestureDetector(FileChooserActivity.getInstance(), new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -121,16 +127,7 @@ public class DisplayAdapters {
             fileItemContainerView = v;
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
-            //iconView = v.findViewById(R.id.fileTypeIcon);
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
-        }
-
-        public void setFileItemData(DisplayTypes.FileType storedFileItem) {
-            fileItem = storedFileItem;
-        }
-
-        public DisplayTypes.FileType getFileItemReference() {
-            return fileItem;
         }
 
         public TextView getDisplayText() { return displayText; }
@@ -138,45 +135,48 @@ public class DisplayAdapters {
         public View getMainViewLayoutContainer() { return fileItemContainerView; }
 
         public boolean performNewFileItemClick(DisplayTypes.FileType fileItem) {
-            if(fileItem.getLayoutContainer() != null) {
+            if(fileItem != null && fileItem.getLayoutContainer() != null) {
                 return performNewFileItemClick(fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox), fileItem);
             }
             return false;
         }
 
         public static boolean performNewFileItemClick(CheckBox cbView, DisplayTypes.FileType fileItem) {
-            if(fileItem == null) {
+            if(cbView == null || fileItem == null) {
                 return false;
             }
             boolean isDir = fileItem.isDirectory();
             if(!isDir && !DisplayFragments.getInstance().allowSelectFiles) {
                 Log.i(LOGTAG, "Blocking file item selection I");
+                cbView.setChecked(false);
                 return false;
             }
             else if(isDir && !DisplayFragments.getInstance().allowSelectFolders) {
                 Log.i(LOGTAG, "Blocking file item selection II");
+                cbView.setChecked(false);
                 return false;
             }
-            CheckBox selectionMarker = cbView;
             if(!cbView.isEnabled()) {
+                cbView.setChecked(false);
                 return false;
             }
             if(fileItem.isChecked()) {
                 // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:
                 fileItem.setChecked(false);
-                selectionMarker.setChecked(false);
-                selectionMarker.setEnabled(true);
+                cbView.setChecked(false);
+                cbView.setEnabled(true);
                 DisplayFragments.getInstance().activeSelectionsList.remove(fileItem);
                 DisplayFragments.getInstance().curSelectionCount--;
                 Log.i(LOGTAG, "DE-Selected next checkbox (file item)");
                 return true;
             }
             else if(DisplayFragments.getInstance().curSelectionCount >= DisplayFragments.getInstance().maxAllowedSelections) {
+                cbView.setChecked(false);
                 return false;
             }
             fileItem.setChecked(true);
-            selectionMarker.setChecked(true);
-            selectionMarker.setEnabled(true);
+            cbView.setChecked(true);
+            cbView.setEnabled(true);
             DisplayFragments.getInstance().activeSelectionsList.add(fileItem);
             DisplayFragments.getInstance().curSelectionCount++;
             Log.i(LOGTAG, "Selected next checkbox (file item)");
@@ -186,6 +186,11 @@ public class DisplayAdapters {
         @Override
         public void onClick(View v) {
             Log.i(LOGTAG, "onClick");
+            int fileItemPosIndex = DisplayFragments.getInstance().findFileItemIndexByLayout(v);
+            if(fileItemPosIndex < 0) {
+                return;
+            }
+            DisplayTypes.FileType fileItem = DisplayFragments.getInstance().activeFileItemsDataList.get(fileItemPosIndex);
             if(fileItem != null && (!fileItem.isDirectory() || DisplayFragments.getInstance().allowSelectFolders)) {
                 if(performNewFileItemClick(fileItem)) {
                     String filePathType = fileItem.isDirectory() ? "DIR" : "FILE";
@@ -198,7 +203,12 @@ public class DisplayAdapters {
         @Override
         public boolean onLongClick(View v) {
             Log.i(LOGTAG, "onLongClick");
-            if(fileItem != null && !fileItem.isDirectory()) {
+            int fileItemPosIndex = DisplayFragments.getInstance().findFileItemIndexByLayout(v);
+            if(fileItemPosIndex < 0) {
+                return false;
+            }
+            DisplayTypes.FileType fileItem = DisplayFragments.getInstance().activeFileItemsDataList.get(fileItemPosIndex);
+            if(fileItem == null || !fileItem.isDirectory()) {
                 if(performNewFileItemClick(fileItem)) {
                     String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
                     DisplayUtils.displayToastMessageShort(displaySelectMsg);
@@ -214,7 +224,6 @@ public class DisplayAdapters {
                 }
                 DisplayTypes.DirectoryResultContext workingFolder = DisplayFragments.getInstance().pathHistoryStack.peek();
                 DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
-                int fileItemPosIndex = DisplayFragments.getInstance().activeFileItemsDataList.lastIndexOf(fileItem);
                 if(workingFolder == null) {
                     nextFolder.loadNextFolderAtIndex(fileItemPosIndex, true);
                     DisplayFragments.getInstance().descendIntoNextDirectory(true);

@@ -23,6 +23,7 @@ import android.icu.util.LocaleData;
 import android.icu.util.Measure;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -54,7 +55,6 @@ public class DisplayTypes {
         private String activeCWDAbsPath;
 
         public DirectoryResultContext(MatrixCursor mcResult, String parentFolderDocId, String parentFolderAbsPath) {
-            Log.i(LOGTAG, "Num file in dir = " + mcResult.getCount());
             directoryContentsList = new ArrayList<FileType>();
             parentDocId = parentFolderDocId;
             initMatrixCursorListing = mcResult;
@@ -71,12 +71,17 @@ public class DisplayTypes {
         public void setNextDirectoryContents(List<FileType> nextFolderFiles) { directoryContentsList = nextFolderFiles; }
 
         public void computeDirectoryContents(int startIndexPos, int maxIndexPos,
-                                             int trimFromFrontCount, int trimFromBackCount, int newItemsCount, boolean updateGlobalIndices) {
+                                             int trimFromFrontCount, int trimFromBackCount, int newItemsCount,
+                                             boolean updateGlobalIndices) {
             Log.i(LOGTAG, String.format(Locale.getDefault(), "STARTING: Computing dir contents [%d, %d] -- %s", startIndexPos, maxIndexPos, activeCWDAbsPath));
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            if(fpInst == null) {
+                return;
+            }
             fpInst.setFilesStartIndex(startIndexPos);
             int initStartIndexPos = startIndexPos;
             try {
+                fpInst.noUpdateQueryFilesList(); // save some time processing if we haven't recently loaded a new folder to process
                 String parentDocsId = parentDocId;
                 initMatrixCursorListing = (MatrixCursor) fpInst.queryChildDocuments(parentDocsId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
                 int numItemsRequested = maxIndexPos + 1 - startIndexPos;
@@ -129,7 +134,8 @@ public class DisplayTypes {
         public void computeDirectoryContents(int startIndexPos, int maxIndexPos) {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             fpInst.setFilesListLength(DisplayFragments.getViewportMaxFilesCount());
-            computeDirectoryContents(startIndexPos, maxIndexPos, 0, 0,maxIndexPos + 1 - startIndexPos, true);
+            computeDirectoryContents(startIndexPos, maxIndexPos,
+                    0, directoryContentsList.size(),maxIndexPos + 1 - startIndexPos, true);
         }
 
         public void clearDirectoryContentsList() {
@@ -140,6 +146,7 @@ public class DisplayTypes {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             DisplayFragments.updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(activeCWDAbsPath), initNewFileTree);
             try {
+                fpInst.updateQueryFilesList(); // cancel any previously pending noUpdate requests
                 FileType requestedFileItem = directoryContentsList.get(posIndex);
                 String nextActiveDocId = requestedFileItem.getFileProviderDocumentId();
                 MatrixCursor nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
@@ -155,8 +162,16 @@ public class DisplayTypes {
 
         public static DirectoryResultContext probeAtCursoryFolderQuery(FileChooserBuilder.BaseFolderPathType baseFolderChoice) {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            if(fpInst == null) {
+                return null;
+            }
+            else {
+                fpInst.setCustomFileFilter(DisplayFragments.getInstance().localFilesListFilter);
+                fpInst.setCustomFolderSort(DisplayFragments.getInstance().localFilesListSortFunc);
+            }
             fpInst.selectBaseDirectoryByType(baseFolderChoice);
             try {
+                fpInst.updateQueryFilesList(); // cancel any previously pending noUpdate requests
                 MatrixCursor cursoryProbe = (MatrixCursor) fpInst.queryRoots(BasicFileProvider.DEFAULT_ROOT_PROJECTION);
                 cursoryProbe.moveToFirst();
                 String initDirBaseName = fpInst.getBaseNameAtCurrentRow(cursoryProbe, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
@@ -186,7 +201,6 @@ public class DisplayTypes {
         private boolean isDir;
         private boolean isHidden;
         private boolean isChecked;
-        private Drawable fileTypeIcon;
         private View fileItemLayoutContainer;
 
         public FileType(String fileAbsPath, String fileSizeLabel, String posixPerms,
@@ -259,12 +273,27 @@ public class DisplayTypes {
             isChecked = enable;
         }
 
-        public void setFileTypeIcon(Drawable fileIcon) {
-            fileTypeIcon = fileIcon;
+        public boolean setFileTypeIcon(Drawable fileIcon) {
+            if(fileIcon == null || fileItemLayoutContainer == null) {
+                return false;
+            }
+            ImageView fileIconImageView = fileItemLayoutContainer.findViewById(R.id.fileTypeIcon);
+            if(fileIconImageView == null) {
+                return false;
+            }
+            fileIconImageView.setImageDrawable(fileIcon);
+            return true;
         }
 
         public Drawable getFileTypeIcon() {
-            return fileTypeIcon;
+            if(fileItemLayoutContainer == null) {
+                return null;
+            }
+            ImageView fileIconImageView = fileItemLayoutContainer.findViewById(R.id.fileTypeIcon);
+            if(fileIconImageView == null) {
+                return null;
+            }
+            return fileIconImageView.getDrawable();
         }
 
         public View getLayoutContainer() {

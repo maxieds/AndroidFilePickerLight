@@ -90,7 +90,7 @@ public class FileChooserBuilder implements Serializable {
 
     public enum DefaultNavFoldersType {
 
-        FOLDER_SDCARD_STORAGE("SD Card", R.attr.namedFolderSDCardIcon, BaseFolderPathType.BASE_PATH_TYPE_SDCARD),
+        FOLDER_ROOT_STORAGE("Root", R.attr.namedFolderSDCardIcon, BaseFolderPathType.BASE_PATH_DEFAULT),
         FOLDER_PICTURES("Pictures", R.attr.namedFolderPicsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES),
         FOLDER_CAMERA("Camera", R.attr.namedFolderCameraIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES),
         FOLDER_SCREENSHOTS("Screenshots", R.attr.namedFolderScreenshotsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS),
@@ -154,7 +154,7 @@ public class FileChooserBuilder implements Serializable {
 
     public static List<DefaultNavFoldersType> getDefaultNavFoldersList() {
         List<DefaultNavFoldersType> navFoldersList = new ArrayList<DefaultNavFoldersType>();
-        navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_SDCARD_STORAGE"));
+        navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_ROOT_STORAGE"));
         navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_USER_HOME"));
         navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_PICTURES"));
         navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_DOWNLOADS"));
@@ -163,7 +163,6 @@ public class FileChooserBuilder implements Serializable {
 
     public enum BaseFolderPathType {
         BASE_PATH_TYPE_FILES_DIR,
-        BASE_PATH_TYPE_CACHE_DIR,
         BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS,
         BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES,
         BASE_PATH_TYPE_EXTERNAL_FILES_MUSIC,
@@ -171,10 +170,8 @@ public class FileChooserBuilder implements Serializable {
         BASE_PATH_TYPE_EXTERNAL_FILES_DCIM,
         BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES,
         BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS,
-        BASE_PATH_TYPE_EXTERNAL_CACHE_DIR,
         BASE_PATH_TYPE_USER_DATA_DIR,
         BASE_PATH_TYPE_MEDIA_STORE,
-        BASE_PATH_TYPE_SDCARD,
         BASE_PATH_SECONDARY_STORAGE,
         BASE_PATH_DEFAULT,
         BASE_PATH_EXTERNAL_PROVIDER;
@@ -229,8 +226,8 @@ public class FileChooserBuilder implements Serializable {
     private SelectionModeType pathSelectMode;
     private ContentProvider externalFilesProvider;
     private long idleTimeoutMillis;
-    private FileFilter.FileFilterInterface localFileFilter;
-    private FileFilter.FileItemsListSortFunc customSortFunc;
+    private FileFilter.FileFilterBase localFileFilter;
+    private FileFilter.FileItemsSortFunc customSortFunc;
 
     public static final long NO_ABORT_TIMEOUT = -1;
     public static final long DEFAULT_TIMEOUT = 250 * 1000;
@@ -354,7 +351,7 @@ public class FileChooserBuilder implements Serializable {
         throw new FileChooserException.NotImplementedException();
     }
 
-    public FileChooserBuilder setFilesListSortCompareFunction(FileFilter.FileItemsListSortFunc customSortFunc) {
+    public FileChooserBuilder setFilesListSortCompareFunction(FileFilter.FileItemsSortFunc customSortFunc) {
         this.customSortFunc = customSortFunc;
         return this;
     }
@@ -391,34 +388,12 @@ public class FileChooserBuilder implements Serializable {
         return defaultNavFoldersList;
     }
 
-    public FileFilter.FileFilterInterface getFileFilter() {
+    public FileFilter.FileFilterBase getFileFilter() {
         return localFileFilter;
     }
 
-    public FileFilter.FileItemsListSortFunc getCustomSortFunc() {
+    public FileFilter.FileItemsSortFunc getCustomSortFunc() {
         return customSortFunc;
-    }
-
-    public static List<DisplayTypes.FileType> filterAndSortFileItemsList(List<DisplayTypes.FileType> inputFileItems,
-                                                                         FileFilter.FileFilterInterface fileFilter, FileFilter.FileItemsListSortFunc sortCompFunc) {
-        Log.i(LOGTAG, String.format(Locale.getDefault(), "Sorting lst of size = %d : %s", inputFileItems.size(),
-                inputFileItems.size() == 0 ? "[NO PATHS TO SHOW]" : inputFileItems.get(0).getAbsolutePath()));
-        List<DisplayTypes.FileType> allowedFileItemsList = new ArrayList<DisplayTypes.FileType>();
-        for(DisplayTypes.FileType fileItem : inputFileItems) {
-            if(fileFilter == null) {
-                allowedFileItemsList = inputFileItems;
-                break;
-            }
-            if(fileFilter.fileMatchesFilter(fileItem)) {
-                allowedFileItemsList.add(fileItem);
-            }
-        }
-        if(sortCompFunc != null) {
-            return sortCompFunc.sortFileItemsList(allowedFileItemsList);
-        }
-        else {
-            return allowedFileItemsList;
-        }
     }
 
     public static final String FILE_PICKER_INTENT_DATA_TYPE_KEY = "FilePickerIntentKey.SelectedIntentDataType";

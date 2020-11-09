@@ -85,7 +85,18 @@ public class BasicFileProvider extends DocumentsProvider {
         return activeFilesListLength;
     }
 
+    private boolean updateDocsQueryFilesList;
+    public void updateQueryFilesList() { updateDocsQueryFilesList = true; }
+    public void noUpdateQueryFilesList() { updateDocsQueryFilesList = false; }
+
+    private FileFilter.FileFilterBase customFileFilter;
+    public void setCustomFileFilter(FileFilter.FileFilterBase filterObj) { customFileFilter = filterObj; }
+
+    private FileFilter.FileItemsSortFunc customFolderSort;
+    public void setCustomFolderSort(FileFilter.FileItemsSortFunc sortComparisonObj) { customFolderSort = sortComparisonObj; }
+
     private File baseDirPath;
+    private File[] docsQueryFilesList;
 
     /*
      * Other storage related calls in the Context class still supported to look at later:
@@ -104,8 +115,7 @@ public class BasicFileProvider extends DocumentsProvider {
      */
     private boolean setLegacyBaseFolderByName(String namedSubFolder) {
         String userPathSep = FileUtils.FILE_PATH_SEPARATOR;
-        int pathSepCharCount = userPathSep.length();
-        String storageRelPath = "/storage/self/primary" + userPathSep;
+        String storageRelPath = "/storage/self/primary" + (namedSubFolder.length() > 0 ? userPathSep : "");
         //String storageRelPath = Environment.getExternalStorageDirectory() + userPathSep;
         String absFullFolderPath = String.format(Locale.getDefault(), "%s%s", storageRelPath, namedSubFolder);
         File nextFileByPath = new File(absFullFolderPath);
@@ -119,15 +129,13 @@ public class BasicFileProvider extends DocumentsProvider {
 
     public void selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
         Context appCtx = FileChooserActivity.getInstance();
-        File nextFileByPath = null;
         switch(baseFolderType) {
             case BASE_PATH_TYPE_FILES_DIR:
-            case BASE_PATH_DEFAULT:
-            case BASE_PATH_SECONDARY_STORAGE:
                 baseDirPath = appCtx.getFilesDir();
                 break;
-            case BASE_PATH_TYPE_CACHE_DIR:
-                baseDirPath = appCtx.getCacheDir();
+            case BASE_PATH_DEFAULT:
+            case BASE_PATH_SECONDARY_STORAGE:
+                setLegacyBaseFolderByName("");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS:
                 baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
@@ -157,10 +165,6 @@ public class BasicFileProvider extends DocumentsProvider {
                 baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
                 setLegacyBaseFolderByName("Pictures/Screenshots");
                 break;
-            case BASE_PATH_TYPE_EXTERNAL_CACHE_DIR:
-            case BASE_PATH_TYPE_SDCARD:
-                baseDirPath = appCtx.getExternalCacheDir();
-                break;
             case BASE_PATH_TYPE_USER_DATA_DIR:
                 baseDirPath = appCtx.getDataDir();
                 break;
@@ -175,6 +179,8 @@ public class BasicFileProvider extends DocumentsProvider {
     public boolean onCreate() {
         if(fileProviderStaticInst == null) {
             fileProviderStaticInst = this;
+            updateDocsQueryFilesList = false;
+            docsQueryFilesList = null;
         }
         if(FileChooserActivity.getInstance() != null) {
             selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
@@ -326,20 +332,30 @@ public class BasicFileProvider extends DocumentsProvider {
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection,
                                       String sortOrder) throws FileNotFoundException {
-        final MatrixCursor mcResult = new MatrixCursor(resolveDocumentProjection(projection));
-        final File parent = getFileForDocId(parentDocumentId);
-        File[] filesList = parent.listFiles(); // ??? TODO : Can set a Java FilenameFilter here ... ???
-        if(filesList.length == 0) {
-            return mcResult;
+        MatrixCursor mcResult = new MatrixCursor(resolveDocumentProjection(projection)); // ??? TODO: was previously marked as final ???
+        if(updateDocsQueryFilesList || docsQueryFilesList == null) {
+            final File parent = getFileForDocId(parentDocumentId);
+            if(customFileFilter != null) {
+                docsQueryFilesList = parent.listFiles(customFileFilter);
+            }
+            else {
+                docsQueryFilesList = parent.listFiles();
+            }
+            if (docsQueryFilesList.length == 0) {
+                return mcResult;
+            }
+            if(customFolderSort != null) {
+                docsQueryFilesList = customFolderSort.sortFileItemsList(docsQueryFilesList);
+            }
         }
         int startFileIndex = getFilesStartIndex();
         int lastFileIndex = startFileIndex + getFilesListLength();
-        if(lastFileIndex >= filesList.length) {
-            lastFileIndex = filesList.length - 1;
+        if(lastFileIndex >= docsQueryFilesList.length) {
+            lastFileIndex = docsQueryFilesList.length - 1;
             startFileIndex = Math.max(0, lastFileIndex - getFilesListLength());
         }
         int curFileIndex = 0;
-        for(File file : filesList) {
+        for(File file : docsQueryFilesList) {
             if(curFileIndex++ < startFileIndex) {
                 continue;
             }

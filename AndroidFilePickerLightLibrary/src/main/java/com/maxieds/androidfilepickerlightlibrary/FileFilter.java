@@ -17,43 +17,35 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class FileFilter {
 
-    private static String LOGTAG = FileFilterInterface.class.getSimpleName();
+    private static String LOGTAG = FileFilter.class.getSimpleName();
 
-    public interface FileFilterInterface {
+    static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
+    static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
 
-        static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
-        static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
+    public static abstract class FileFilterBase implements FilenameFilter {
 
-        void    setIncludeExcludeMatchesOption(boolean includeExcludeParam);
-        boolean includeFileInSearchResults(DisplayTypes.FileType fileItem);
-        boolean fileMatchesFilter(DisplayTypes.FileType fileItem);
-
-    }
-
-    public static abstract class FileFilterBase implements FileFilterInterface {
-
-        private boolean includeExcludeMatches = INCLUDE_FILES_IN_FILTER_PATTERN;
+        protected boolean includeExcludeMatches = INCLUDE_FILES_IN_FILTER_PATTERN;
 
         public void setIncludeExcludeMatchesOption(boolean includeExcludeParam) {
             includeExcludeMatches = includeExcludeParam;
         }
 
-        public boolean includeFileInSearchResults(DisplayTypes.FileType fileItem) {
-            boolean filterMatch = fileMatchesFilter(fileItem);
-            if((filterMatch && includeExcludeMatches == INCLUDE_FILES_IN_FILTER_PATTERN) ||
-                    (!filterMatch && includeExcludeMatches == EXCLUDE_FILES_IN_FILTER_PATTERN)) {
-                return true;
-            }
-            return false;
+        @Override
+        public boolean accept(File parentDir, String fileBaseName) {
+            return fileMatchesFilter(parentDir.getAbsolutePath() + FileUtils.FILE_PATH_SEPARATOR + fileBaseName);
         }
 
-        abstract public boolean fileMatchesFilter(DisplayTypes.FileType fileItem);
+        abstract public boolean fileMatchesFilter(String fileAbsName);
 
     }
 
@@ -63,13 +55,13 @@ public class FileFilter {
             this.mimeTypesList = mimeTypesList;
             setIncludeExcludeMatchesOption(inclExcl);
         }
-        public boolean fileMatchesFilter(DisplayTypes.FileType fileItem) {
+        public boolean fileMatchesFilter(String fileAbsName) {
             for(int mtIdx = 0; mtIdx < mimeTypesList.size(); mtIdx++) {
-                if(FileUtils.getFileMimeType(fileItem.getAbsolutePath()).equals(mimeTypesList.get(mtIdx))) {
-                    return true;
+                if(FileUtils.getFileMimeType(fileAbsName).equals(mimeTypesList.get(mtIdx))) {
+                    return includeExcludeMatches == INCLUDE_FILES_IN_FILTER_PATTERN;
                 }
             }
-            return false;
+            return includeExcludeMatches == EXCLUDE_FILES_IN_FILTER_PATTERN;
         }
     }
 
@@ -79,11 +71,11 @@ public class FileFilter {
             patternSpec = Pattern.compile(regexPatternSpec);
             setIncludeExcludeMatchesOption(inclExcl);
         }
-        public boolean fileMatchesFilter(DisplayTypes.FileType fileItem) {
-            if(patternSpec.matcher(fileItem.getAbsolutePath()).matches()) {
-                return true;
+        public boolean fileMatchesFilter(String fileAbsName) {
+            if(patternSpec.matcher(fileAbsName).matches()) {
+                return includeExcludeMatches == INCLUDE_FILES_IN_FILTER_PATTERN;
             }
-            return false;
+            return includeExcludeMatches == EXCLUDE_FILES_IN_FILTER_PATTERN;
         }
     }
 
@@ -93,7 +85,7 @@ public class FileFilter {
             this.defaultTypesList = defaultTypesList;
             setIncludeExcludeMatchesOption(inclExcl);
         }
-        public boolean fileMatchesFilter(DisplayTypes.FileType fileItem) {
+        public boolean fileMatchesFilter(String fileAbsName) {
             for(int mtIdx = 0; mtIdx < defaultTypesList.size(); mtIdx++) {
                 if(true) {
                     throw new FileChooserException.NotImplementedException();
@@ -103,11 +95,15 @@ public class FileFilter {
         }
     }
 
-    public static class FileItemsListSortFunc {
-        public static List<DisplayTypes.FileType> sortFileItemsList(List<DisplayTypes.FileType> fileItemsList) {
-            // default is standard lexicographical ordering (override in base classes for customized sorting):
-            Collections.sort(fileItemsList, (fi1, fi2) -> { return fi1.getAbsolutePath().compareTo(fi2.getAbsolutePath()); });
-            return fileItemsList;
+    public static class FileItemsSortFunc implements Comparator<File> {
+        public File[] sortFileItemsList(File[] folderContentsList) {
+            Arrays.sort(folderContentsList, this);
+            return folderContentsList;
+        }
+        @Override
+        public int compare(File f1, File f2) {
+            // default is standard lexicographical ordering (override the compare functor base classes for customized sorting):
+            return f1.getAbsolutePath().compareTo(f2.getAbsolutePath());
         }
     }
 
