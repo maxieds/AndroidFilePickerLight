@@ -21,18 +21,12 @@ import android.app.Activity;
 import android.content.ContentProvider;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Looper;
-import android.util.Log;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
@@ -215,7 +209,7 @@ public class FileChooserBuilder implements Serializable {
     }
 
     private FileChooserException.AndroidFilePickerLightException defaultExceptionType;
-    private ThemesConfigInterface displayUIConfig;
+    private CustomThemeBuilder displayUIConfig;
     private int activityActionCode;
     private List<DefaultNavFoldersType> defaultNavFoldersList;
     private boolean showHidden;
@@ -237,7 +231,7 @@ public class FileChooserBuilder implements Serializable {
         localActivityBuildeStaticInst = this;
         activityContextRef = new WeakReference<Activity>(activityContextInst);
         defaultExceptionType = FileChooserException.CommunicateSelectionDataException.getNewInstance();
-        displayUIConfig = ThemesConfigInterface.getDefaultsInstance();
+        displayUIConfig = null;
         activityActionCode = ACTIVITY_CODE_SELECT_FILE;
         defaultNavFoldersList = getDefaultNavFoldersList();
         showHidden = false;
@@ -275,7 +269,7 @@ public class FileChooserBuilder implements Serializable {
                 pathSelectMode.ordinal() != SelectionModeType.SELECT_FILE.ordinal();
     }
 
-    public FileChooserBuilder setDisplayUIConfig(ThemesConfigInterface uiCfg) {
+    public FileChooserBuilder setDisplayUIConfig(CustomThemeBuilder uiCfg) {
         displayUIConfig = uiCfg;
         return this;
     }
@@ -364,7 +358,7 @@ public class FileChooserBuilder implements Serializable {
         return idleTimeoutMillis;
     }
 
-    public ThemesConfigInterface getDisplayConfig() {
+    public CustomThemeBuilder getCustomThemeConfig() {
         return displayUIConfig;
     }
 

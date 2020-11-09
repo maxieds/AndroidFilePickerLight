@@ -188,11 +188,11 @@
         <com.maxieds.androidfilepickerlightlibrary.FileChooserRecyclerView
             android:id="@+id/mainRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="0dp"
             android:layout_margin="0dp"
             android:background="?__colorPrimary"
-            android:gravity="left|top"
-            android:layout_gravity="left|top"
+            android:gravity="left|bottom"
+            android:layout_gravity="left|bottom"
             android:orientation="vertical"
             android:padding="0dp"
             android:paddingBottom="6dp"
@@ -202,7 +202,6 @@
             android:splitMotionEvents="false"
             android:verticalScrollbarPosition="right"
             android:overScrollMode="never"
-            tools:listitem="@layout/single_file_entry_item"
             />
 
     </LinearLayout>

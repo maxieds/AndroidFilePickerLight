@@ -17,15 +17,9 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -33,13 +27,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -66,7 +55,7 @@ public class DisplayFragments {
         localFilesListSortFunc = null;
     }
 
-    public static RecyclerView getMainRecyclerView() {
+    public static FileChooserRecyclerView getMainRecyclerView() {
         return getInstance().recyclerView;
     }
 
@@ -93,22 +82,11 @@ public class DisplayFragments {
 
     public  List<DisplayTypes.FileType> activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
     public  List<DisplayTypes.FileType> activeFileItemsDataList = new ArrayList<DisplayTypes.FileType>();
-    private List<String> fileItemBasePathsList = new ArrayList<String>();
+    public List<String> fileItemBasePathsList = new ArrayList<String>();
     public Stack<DisplayTypes.DirectoryResultContext> pathHistoryStack;
 
-    public int findFileItemIndexByLayout(View layoutDisplayView) {
-        int fileItemIndex = 0;
-        for(DisplayTypes.FileType fileItem : activeFileItemsDataList) {
-            if(fileItem.getLayoutContainer() != null && fileItem.getLayoutContainer() == layoutDisplayView) { // ??? TODO: Does this work ???
-                return fileItemIndex;
-            }
-            ++fileItemIndex;
-        }
-        return -1;
-    }
-
     public static final int SCROLL_QUEUE_BUFFER_SIZE = 2;
-    public static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 16 + SCROLL_QUEUE_BUFFER_SIZE; // set large enough to overfill the window on first load
+    public static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 50 + SCROLL_QUEUE_BUFFER_SIZE; // set large enough to overfill the window on first load
     private int viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
     public int fileItemDisplayHeight = 0;
 
@@ -196,8 +174,8 @@ public class DisplayFragments {
             lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount() - 1;
             getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
             displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
-            DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath); // TODO ???
-            DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath); // TODO ???
+            DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
+            DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
         }
         else {
             Log.i(LOGTAG, "descendIntoNextDirectory: CWD Ctx is NULL!");
@@ -218,13 +196,11 @@ public class DisplayFragments {
         lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount() - 1;
         getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
         displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
-        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath); // TODO ???
-        DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath); // TODO ???
+        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
+        DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
     }
 
-    private static final int VIEW_TYPE_FILE_ITEM = 0;
-
-    public void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList) {
+    public void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList, boolean notifyAdapter) {
 
         if(workingDirContentsList == null) {
             return;
@@ -244,8 +220,112 @@ public class DisplayFragments {
             fileItemBasePathsList.add(fileItem.getBaseName());
             activeFileItemsDataList.add(fileItem);
         }
-        DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainFileListRecyclerView.getAdapter();
-        rvAdapter.reloadDataSets(fileItemBasePathsList, activeFileItemsDataList);
+        if(notifyAdapter) {
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainFileListRecyclerView.getAdapter();
+            rvAdapter.reloadDataSets(fileItemBasePathsList, activeFileItemsDataList);
+        }
+
+    }
+
+    public void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList) {
+        displayNextDirectoryFilesList(workingDirContentsList, true);
+    }
+
+    public static class RecyclerViewUtils {
+
+        public static int findFileItemIndexByLayout(View layoutDisplayView) {
+            int fileItemIndex = 0;
+            for(DisplayTypes.FileType fileItem : DisplayFragments.getInstance().activeFileItemsDataList) {
+                // ??? TODO: Does this comparison method work ???
+                if(fileItem.getLayoutContainer() != null && fileItem.getLayoutContainer() == layoutDisplayView) {
+                    return fileItemIndex;
+                }
+                ++fileItemIndex;
+            }
+            return -1;
+        }
+
+        public static boolean insertItemsAtTop(int itemCount,
+                                               List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
+
+            FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+            rvLayoutManager.setInsertAtFrontMode();
+            // REMOVE THE VIEWS MANUALLY ...
+            rvLayoutManager.restoreDefaultMode();
+            return true;
+
+        }
+
+        public static boolean appendItemsToBack(int itemCount,
+                                                List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
+
+            FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+            rvLayoutManager.setAppendToBackMode();
+            // REMOVE THE VIEWS MANUALLY ...
+            rvLayoutManager.restoreDefaultMode();
+            return true;
+
+        }
+
+        public static boolean removeItemsAtTop(int itemCount) {
+
+            FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+            rvLayoutManager.setAppendToBackMode();
+            // REMOVE THE VIEWS MANUALLY ...
+            rvLayoutManager.restoreDefaultMode();
+            return true;
+
+        }
+
+        public static boolean removeItemsFromBottom(int itemCount) {
+
+            FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+            rvLayoutManager.setAppendToBackMode();
+            // REMOVE THE VIEWS MANUALLY ...
+            rvLayoutManager.restoreDefaultMode();
+            return true;
+
+        }
+
+        public static boolean appendItemsToBackTrimmedFromFront(int itemCount,
+                                                                List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
+
+            FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+            rvLayoutManager.setAppendToBackMode();
+            rvAdapter.reloadDataSets(fileNamesList, fileItemsList, false);
+            rvAdapter.notifyItemRangeRemoved(0, itemCount);
+            rvAdapter.notifyItemRangeChanged(0, fileItemsList.size());
+            rvAdapter.notifyItemRangeInserted(fileItemsList.size() - itemCount, itemCount);
+            rvLayoutManager.restoreDefaultMode();
+            return true;
+
+        }
+
+        public static boolean prependItemsAtTopTrimmedFromBack(int itemCount,
+                                                               List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
+
+            FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+            rvLayoutManager.setAppendToBackMode();
+            rvAdapter.reloadDataSets(fileNamesList, fileItemsList, false);
+            rvAdapter.notifyItemRangeRemoved(fileNamesList.size() - itemCount, itemCount);
+            rvAdapter.notifyItemRangeChanged(0, fileItemsList.size());
+            rvAdapter.notifyItemRangeInserted(0, itemCount);
+            rvLayoutManager.restoreDefaultMode();
+            return true;
+
+        }
 
     }
 
@@ -305,7 +385,7 @@ public class DisplayFragments {
                 selectionBox.setVisibility(LinearLayout.INVISIBLE);
             }
             selectionBox.setTag(displayPosition);
-            final int cboxDisplayIndexPos = displayPosition;
+            /*final int cboxDisplayIndexPos = displayPosition;
             selectionBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View cboxView) {
@@ -321,8 +401,8 @@ public class DisplayFragments {
                     CheckBox cbItem = (CheckBox) cboxView;
                     DisplayAdapters.BaseViewHolder.performNewFileItemClick(cbItem, fileItemForCB);
                 }
-            });
-            selectionBox.setOnTouchListener(new View.OnTouchListener() {
+            });*/
+            /*selectionBox.setOnTouchListener(new View.OnTouchListener() {
                 final WeakReference<DisplayTypes.FileType> fileItemRef = new WeakReference<>(fileItem);
                 @Override
                 public boolean onTouch(View cboxView, MotionEvent event) {
@@ -342,7 +422,7 @@ public class DisplayFragments {
                     }
                     return false;
                 }
-            });
+            });*/
 
         }
 

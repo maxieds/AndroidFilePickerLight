@@ -367,6 +367,22 @@ public class BasicFileProvider extends DocumentsProvider {
         return mcResult;
     }
 
+    public int getFolderChildCount(String folderDocId) throws FileNotFoundException {
+        if(updateDocsQueryFilesList || docsQueryFilesList == null) {
+            final File parent = getFileForDocId(folderDocId);
+            if(customFileFilter != null) {
+                docsQueryFilesList = parent.listFiles(customFileFilter);
+            }
+            else {
+                docsQueryFilesList = parent.listFiles();
+            }
+            if(customFolderSort != null) {
+                docsQueryFilesList = customFolderSort.sortFileItemsList(docsQueryFilesList);
+            }
+        }
+        return docsQueryFilesList.length;
+    }
+
     @Override
     public ParcelFileDescriptor openDocument(final String documentId, final String mode,
                                              CancellationSignal signal) throws FileNotFoundException {

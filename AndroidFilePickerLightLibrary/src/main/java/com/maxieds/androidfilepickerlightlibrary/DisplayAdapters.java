@@ -17,7 +17,6 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -47,17 +46,28 @@ public class DisplayAdapters {
             this.fileListData.addAll(nextFileListData);
             this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
             this.fileItemsData.addAll(nextFileItemsData);
-            this.setHasStableIds(false); // TODO ???
-            notifyDataSetChanged();
+            this.setHasStableIds(true); // TODO ???
         }
 
-        public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData) {
+        public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData, boolean notifyAdapter) {
+            //DisplayFragments.getInstance().getMainRecyclerView().setLayoutFrozen(true);
+            int fileItemsListSize = fileListData.size();
             fileListData.clear();
             fileListData.addAll(nextDataSet);
             fileItemsData.clear();
             fileItemsData.addAll(nextFileItemsData);
-            notifyDataSetChanged();
+            //DisplayFragments.getInstance().getMainRecyclerView().setLayoutFrozen(false);
+            //notifyItemRangeRemoved(0, fileItemsListSize);
+            if(notifyAdapter) {
+                notifyDataSetChanged();
+            }
         }
+
+        public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData) {
+            reloadDataSets(nextDataSet, nextFileItemsData, true);
+        }
+
+        private static final int VIEW_TYPE_FILE_ITEM = 0;
 
         @Override
         public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -98,10 +108,16 @@ public class DisplayAdapters {
             return fileListData.size();
         }
 
-        //@Override
-        //public long getItemId(int posIndex) {
-        //    return posIndex;
-        //}
+        @Override
+        public long getItemId(int posIndex) {
+            return fileItemsData.get(posIndex).getLayoutContainer().hashCode();
+            //return posIndex;
+        }
+
+        @Override
+        public int getItemViewType(int posIndex) {
+            return posIndex;
+        }
 
     }
 
@@ -197,7 +213,7 @@ public class DisplayAdapters {
         @Override
         public void onClick(View v) {
             Log.i(LOGTAG, "onClick");
-            int fileItemPosIndex = DisplayFragments.getInstance().findFileItemIndexByLayout(v);
+            int fileItemPosIndex = DisplayFragments.RecyclerViewUtils.findFileItemIndexByLayout(v);
             if(fileItemPosIndex < 0) {
                 return;
             }
@@ -214,7 +230,7 @@ public class DisplayAdapters {
         @Override
         public boolean onLongClick(View v) {
             Log.i(LOGTAG, "onLongClick");
-            int fileItemPosIndex = DisplayFragments.getInstance().findFileItemIndexByLayout(v);
+            int fileItemPosIndex = DisplayFragments.RecyclerViewUtils.findFileItemIndexByLayout(v);
             if(fileItemPosIndex < 0) {
                 return false;
             }

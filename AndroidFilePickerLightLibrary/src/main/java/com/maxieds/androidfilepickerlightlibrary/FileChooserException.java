@@ -37,7 +37,30 @@ public class FileChooserException {
         return nextUniqueErrorCode;
     }
 
-    abstract public static class AndroidFilePickerLightException extends RuntimeException implements CustomExceptionInterface {
+    /* Custom formatting and packaging/preparation of the returned data expected by the
+     * client application (basically a rough serialization to byte buffer type object spec):
+     */
+    public interface ExceptionDataFieldFormatter {
+
+        public <DataTypeT extends Object> List<DataTypeT> packageDataItemsFromFileType(List<File> fileItems);
+
+        public <DataTypeT extends Object> List<DataTypeT> packageDataItemsFromStringType(List<String> fileItems);
+
+        public <DataTypeT extends Object> List<DataTypeT> packageDataItemsFromURIType(List<URI> fileItems);
+
+        public <DataTypeT extends Object> String toString(List<DataTypeT> lstView);
+
+        public static <DataTypeT extends Object> byte[] toSerializedDataBuffer(List<DataTypeT> lstView) {
+            return null;
+        }
+
+        public static <DataTypeT extends Object> List<DataTypeT> recoverDataItemsList(byte[] serializedBufferData) {
+            return null;
+        }
+
+    }
+
+    abstract public static class AndroidFilePickerLightException extends RuntimeException {
 
         private boolean isError;
         private int errorCode;
@@ -47,6 +70,7 @@ public class FileChooserException {
         private Object defaultDataItemsFmtType;
         private ExceptionDataFieldFormatter dataItemsFormatter;
 
+        /* Constructors -- building a new descriptive exception from the usual causal data: */
         public AndroidFilePickerLightException() {
             isError = false;
             errorCode = 0;
@@ -82,16 +106,19 @@ public class FileChooserException {
         protected void configureExceptionParams(int errorCode, String baseExcptDesc, boolean defaultIsError,
                                                 Object defaultDataTypeT, ExceptionDataFieldFormatter dataFmtObjType) {}
 
+        /* Standard-ish Exception class handling and methods: */
         public String getExceptionMessage() { return null; }
         public String[] getStackTraceAsStringArray() { return null; }
         public void printStackTrace() {}
         public String toString() { return null; }
 
+        /* For uses of communicating other information by exception: */
         public boolean isError() { return isError; }
         public int getErrorCode() { return errorCode; }
         public Intent getAsIntent() { return null; }
         public String getCauseAsString() { return this.getClass().getName(); }
 
+        /* Custom error messages and printing methods: */
         public String getExceptionName() { return null; }
         public String getExceptionBaseDesc() { return null; }
         public String getErrorMessage() { return null; }
@@ -100,6 +127,7 @@ public class FileChooserException {
         public int getInvokingLineNumber() { return -1; }
         public String prettyPrintException(boolean verboseStackTrace) { return null; }
 
+        /* Obtaining file selection data passed by the exceptional instance: */
         public boolean hasDataItems() { return false; }
         public int dataTypeItemsCount() { return 0; }
         public <DataTypeT extends Object> DataTypeT getTypedDataSingle() { return null; }
@@ -110,9 +138,6 @@ public class FileChooserException {
                 return (String) dataItem;
             }
             else if(dataItem instanceof File) {
-                /* TODO: Depending on the complexity of the FileProvider in future Android versions,
-                 *       it might be more useful to keep the File object around for operations ...
-                 */
                 return ((File) dataItem).getAbsolutePath();
             }
             else if(dataItem instanceof URI) {

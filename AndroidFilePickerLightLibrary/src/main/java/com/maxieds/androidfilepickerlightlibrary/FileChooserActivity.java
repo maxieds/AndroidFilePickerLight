@@ -20,34 +20,27 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
-import androidx.annotation.IdRes;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Stack;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
-import com.maxieds.androidfilepickerlightlibrary.BuildConfig;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class FileChooserActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
@@ -95,8 +88,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         displayFragmentsInst.resetRecyclerViewLayoutContext();
         cwdFolderCtx = null;
 
-        AndroidPermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
-        AndroidPermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
+        PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
+        PermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
         setTheme(R.style.LibraryDefaultTheme);
         setContentView(R.layout.main_picker_activity_base_layout);
@@ -245,28 +238,28 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         if(EasyPermissions.somePermissionPermanentlyDenied(this, permsList)) {
             new AppSettingsDialog.Builder(this).build().show();
         }
-        else if(requestCode == AndroidPermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE) {
+        else if(requestCode == PermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE) {
             throw new FileChooserException.PermissionsErrorException();
         }
     }
 
-    @AfterPermissionGranted(AndroidPermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE)
+    @AfterPermissionGranted(PermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE)
     private void handleRequiredPermissionsGranted() {
         String[] permsList = ACTIVITY_REQUIRED_PERMISSIONS;
         if (EasyPermissions.hasPermissions(this, permsList)) {}
         else {
             EasyPermissions.requestPermissions(this, getString(R.string.requiredPermsRationale),
-                                               AndroidPermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE, permsList);
+                                               PermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE, permsList);
         }
     }
 
-    @AfterPermissionGranted(AndroidPermissionsHandler.REQUEST_OPTIONAL_PERMISSIONS_CODE)
+    @AfterPermissionGranted(PermissionsHandler.REQUEST_OPTIONAL_PERMISSIONS_CODE)
     private void handleOptionalPermissionsGranted() {
         String[] permsList = ACTIVITY_OPTIONAL_PERMISSIONS;
         if (EasyPermissions.hasPermissions(this, permsList)) {}
         else {
             EasyPermissions.requestPermissions(this, getString(R.string.optionalPermsRationale),
-                    AndroidPermissionsHandler.REQUEST_OPTIONAL_PERMISSIONS_CODE, permsList);
+                    PermissionsHandler.REQUEST_OPTIONAL_PERMISSIONS_CODE, permsList);
         }
     }
 

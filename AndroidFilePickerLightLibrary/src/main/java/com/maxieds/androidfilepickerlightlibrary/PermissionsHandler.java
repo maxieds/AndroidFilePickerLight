@@ -22,7 +22,7 @@ import android.content.pm.PackageManager;
 
 import androidx.core.content.ContextCompat;
 
-public class AndroidPermissionsHandler {
+public class PermissionsHandler {
 
     protected static boolean hasAccessPermission(Activity activityCtx, String permName) {
         return ContextCompat.checkSelfPermission(activityCtx, permName) == PackageManager.PERMISSION_GRANTED;

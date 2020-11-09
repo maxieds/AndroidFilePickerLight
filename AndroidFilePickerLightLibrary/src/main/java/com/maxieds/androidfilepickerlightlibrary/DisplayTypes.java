@@ -53,14 +53,22 @@ public class DisplayTypes {
         private List<FileType> directoryContentsList;
         private String parentDocId;
         private String activeCWDAbsPath;
+        private int folderMaxChildCount;
 
         public DirectoryResultContext(MatrixCursor mcResult, String parentFolderDocId, String parentFolderAbsPath) {
             directoryContentsList = new ArrayList<FileType>();
             parentDocId = parentFolderDocId;
             initMatrixCursorListing = mcResult;
             mcResult.moveToFirst();
-            BasicFileProvider fpInst = BasicFileProvider.getInstance();
             activeCWDAbsPath = parentFolderAbsPath;
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            fpInst.noUpdateQueryFilesList();
+            try {
+                folderMaxChildCount = fpInst.getFolderChildCount(parentDocId);
+            } catch(FileNotFoundException nfe) {
+                nfe.printStackTrace();
+                folderMaxChildCount = 0;
+            }
             Log.i(LOGTAG, String.format(Locale.getDefault(), "Initializing new folder at path: \"%s\" ... ", activeCWDAbsPath));
         }
 
@@ -69,6 +77,8 @@ public class DisplayTypes {
         public List<FileType> getWorkingDirectoryContents() { return directoryContentsList; }
 
         public void setNextDirectoryContents(List<FileType> nextFolderFiles) { directoryContentsList = nextFolderFiles; }
+
+        public int getFolderMaxChildCount() { return folderMaxChildCount; }
 
         public static final int STATUS_ERROR = -1;
         public static final int STATUS_SUCCESS = 0;
