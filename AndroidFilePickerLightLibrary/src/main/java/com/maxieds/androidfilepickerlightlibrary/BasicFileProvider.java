@@ -60,6 +60,31 @@ public class BasicFileProvider extends DocumentsProvider {
     private static BasicFileProvider fileProviderStaticInst = null;
     public static  BasicFileProvider getInstance() { return fileProviderStaticInst; }
 
+    private static int activeStartFilesIndex = 0;
+    private static int activeFilesListLength = DisplayFragments.DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
+
+    public int getFilesStartIndex() {
+        return activeStartFilesIndex;
+    }
+
+    public int setFilesStartIndex(int nextStartIndex) {
+        if (nextStartIndex >= 0) {
+            activeStartFilesIndex = nextStartIndex;
+        }
+        return activeStartFilesIndex;
+    }
+
+    public int getFilesListLength() {
+        return activeFilesListLength;
+    }
+
+    public int setFilesListLength(int nextLength) {
+        if (nextLength >= 0) {
+            activeFilesListLength = nextLength;
+        }
+        return activeFilesListLength;
+    }
+
     private File baseDirPath;
 
     /*
@@ -284,7 +309,6 @@ public class BasicFileProvider extends DocumentsProvider {
     @Override
     public AssetFileDescriptor openDocumentThumbnail(String documentId, Point sizeHint,
                                                      CancellationSignal signal) throws FileNotFoundException {
-
         final File file = getFileForDocId(documentId);
         final ParcelFileDescriptor pfd =
                 ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
@@ -293,7 +317,6 @@ public class BasicFileProvider extends DocumentsProvider {
 
     @Override
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
-
         // Create a cursor with the requested projection, or the default projection.
         final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
         includeFile(result, documentId, null);
@@ -303,12 +326,26 @@ public class BasicFileProvider extends DocumentsProvider {
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection,
                                       String sortOrder) throws FileNotFoundException {
-        Log.v(LOGTAG, "queryChildDocuments, parentDocumentId: " +
-                parentDocumentId + " sortOrder: " + sortOrder);
-
         final MatrixCursor mcResult = new MatrixCursor(resolveDocumentProjection(projection));
         final File parent = getFileForDocId(parentDocumentId);
-        for (File file : parent.listFiles()) {
+        File[] filesList = parent.listFiles(); // ??? TODO : Can set a Java FilenameFilter here ... ???
+        if(filesList.length == 0) {
+            return mcResult;
+        }
+        int startFileIndex = getFilesStartIndex();
+        int lastFileIndex = startFileIndex + getFilesListLength();
+        if(lastFileIndex >= filesList.length) {
+            lastFileIndex = filesList.length - 1;
+            startFileIndex = Math.max(0, lastFileIndex - getFilesListLength());
+        }
+        int curFileIndex = 0;
+        for(File file : filesList) {
+            if(curFileIndex++ < startFileIndex) {
+                continue;
+            }
+            else if(curFileIndex > lastFileIndex) {
+                break;
+            }
             includeFile(mcResult, null, file);
         }
         return mcResult;
@@ -480,7 +517,6 @@ public class BasicFileProvider extends DocumentsProvider {
     }
 
     public static final boolean CURSOR_TYPE_IS_ROOT = true;
-    public static final boolean CURSOR_TYPE_IS_DOCUMENT = false;
 
     public static String getDocumentIdForCursorType(MatrixCursor mcResult, boolean cursorType) {
         if(mcResult.getCount() == 0) {
@@ -538,7 +574,7 @@ public class BasicFileProvider extends DocumentsProvider {
     }
 
     public static final int PROPERTY_ABSPATH = 0;
-    public static final int PROPERTY_BASENAME = 1;
+    public static final int PROPERTY_FILE_PROVIDER_DOCID = 1;
     public static final int PROPERTY_FILE_SIZE = 2;
     public static final int PROPERTY_POSIX_PERMS = 3;
     public static final int PROPERTY_ISDIR = 4;
@@ -553,7 +589,7 @@ public class BasicFileProvider extends DocumentsProvider {
             File curWorkingFile = getFileForDocId(docId);
             return new String[] {
                     curWorkingFile.getAbsolutePath(),
-                    curWorkingFile.getName(),
+                    mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX),
                     FileUtils.getFileSizeString(curWorkingFile),
                     FileUtils.getFilePosixPermissionsString(curWorkingFile),
                     String.format(Locale.getDefault(), "%s", curWorkingFile.isDirectory() ? "true" : "false"),

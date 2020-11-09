@@ -47,21 +47,22 @@ public class DisplayAdapters {
             this.fileListData.addAll(nextFileListData);
             this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
             this.fileItemsData.addAll(nextFileItemsData);
+            //this.setHasStableIds(true);
             notifyDataSetChanged();
         }
 
         @Override
         public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            Log.i(LOGTAG,"onCreateViewHolder");
+            //Log.i(LOGTAG,"onCreateViewHolder");
             View rowItem = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_file_entry_item, parent, false);
             return new BaseViewHolder(rowItem);
         }
 
         @Override
         public void onBindViewHolder(BaseViewHolder bvHolder, int posIndex) {
-            Log.i(LOGTAG,"onCreateViewHolder @ " + posIndex);
+            //Log.i(LOGTAG,"onCreateViewHolder @ " + posIndex);
             bvHolder.getDisplayText().setText(fileListData.get(posIndex));
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
+            //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
             if(!fileItemsData.isEmpty()) {
                 DisplayTypes.FileType fileItem = fileItemsData.get(posIndex);
                 bvHolder.setFileItemData(fileItem);
@@ -72,17 +73,17 @@ public class DisplayAdapters {
 
         @Override
         public void onViewRecycled(BaseViewHolder bvHolder){
-            Log.i(LOGTAG,"onViewRecycled: " + bvHolder);
+            //Log.i(LOGTAG,"onViewRecycled: " + bvHolder);
         }
 
         @Override
         public void onViewDetachedFromWindow(BaseViewHolder bvHolder){
-            Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder);
+            //Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder);
         }
 
         @Override
         public void onViewAttachedToWindow(BaseViewHolder bvHolder){
-            Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder);
+            //Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder);
         }
 
         @Override
@@ -137,7 +138,10 @@ public class DisplayAdapters {
         public View getMainViewLayoutContainer() { return fileItemContainerView; }
 
         public boolean performNewFileItemClick(DisplayTypes.FileType fileItem) {
-            return performNewFileItemClick(fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox), fileItem);
+            if(fileItem.getLayoutContainer() != null) {
+                return performNewFileItemClick(fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox), fileItem);
+            }
+            return false;
         }
 
         public static boolean performNewFileItemClick(CheckBox cbView, DisplayTypes.FileType fileItem) {
@@ -145,11 +149,11 @@ public class DisplayAdapters {
                 return false;
             }
             boolean isDir = fileItem.isDirectory();
-            if(!isDir && !DisplayFragments.allowSelectFiles) {
+            if(!isDir && !DisplayFragments.getInstance().allowSelectFiles) {
                 Log.i(LOGTAG, "Blocking file item selection I");
                 return false;
             }
-            else if(isDir && !DisplayFragments.allowSelectFolders) {
+            else if(isDir && !DisplayFragments.getInstance().allowSelectFolders) {
                 Log.i(LOGTAG, "Blocking file item selection II");
                 return false;
             }
@@ -162,26 +166,27 @@ public class DisplayAdapters {
                 fileItem.setChecked(false);
                 selectionMarker.setChecked(false);
                 selectionMarker.setEnabled(true);
-                DisplayFragments.activeSelectionsList.remove(fileItem);
-                DisplayFragments.curSelectionCount--;
+                DisplayFragments.getInstance().activeSelectionsList.remove(fileItem);
+                DisplayFragments.getInstance().curSelectionCount--;
                 Log.i(LOGTAG, "DE-Selected next checkbox (file item)");
                 return true;
             }
-            else if(DisplayFragments.curSelectionCount >= DisplayFragments.maxAllowedSelections) {
+            else if(DisplayFragments.getInstance().curSelectionCount >= DisplayFragments.getInstance().maxAllowedSelections) {
                 return false;
             }
             fileItem.setChecked(true);
             selectionMarker.setChecked(true);
             selectionMarker.setEnabled(true);
-            DisplayFragments.activeSelectionsList.add(fileItem);
-            DisplayFragments.curSelectionCount++;
+            DisplayFragments.getInstance().activeSelectionsList.add(fileItem);
+            DisplayFragments.getInstance().curSelectionCount++;
             Log.i(LOGTAG, "Selected next checkbox (file item)");
             return true;
         }
 
         @Override
         public void onClick(View v) {
-            if(fileItem != null && (!fileItem.isDirectory() || DisplayFragments.allowSelectFolders)) {
+            Log.i(LOGTAG, "onClick");
+            if(fileItem != null && (!fileItem.isDirectory() || DisplayFragments.getInstance().allowSelectFolders)) {
                 if(performNewFileItemClick(fileItem)) {
                     String filePathType = fileItem.isDirectory() ? "DIR" : "FILE";
                     String displaySelectMsg = String.format(Locale.getDefault(), "Selected %s \"%s\".", filePathType, fileItem.getBaseName());
@@ -192,6 +197,7 @@ public class DisplayAdapters {
 
         @Override
         public boolean onLongClick(View v) {
+            Log.i(LOGTAG, "onLongClick");
             if(fileItem != null && !fileItem.isDirectory()) {
                 if(performNewFileItemClick(fileItem)) {
                     String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
@@ -206,15 +212,16 @@ public class DisplayAdapters {
                 if(nextFolder == null) {
                     return false;
                 }
-                DisplayTypes.DirectoryResultContext workingFolder = DisplayTypes.DirectoryResultContext.pathHistoryStack.peek();
-                DisplayTypes.DirectoryResultContext.pathHistoryStack.push(nextFolder);
+                DisplayTypes.DirectoryResultContext workingFolder = DisplayFragments.getInstance().pathHistoryStack.peek();
+                DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
+                int fileItemPosIndex = DisplayFragments.getInstance().activeFileItemsDataList.lastIndexOf(fileItem);
                 if(workingFolder == null) {
-                    workingFolder.loadNextFolderAtIndex(true);
-                    DisplayFragments.descendIntoNextDirectory(true);
+                    nextFolder.loadNextFolderAtIndex(fileItemPosIndex, true);
+                    DisplayFragments.getInstance().descendIntoNextDirectory(true);
                 }
                 else {
-                    workingFolder.loadNextFolderAtIndex(fileItem.getRelativeCursorPosition(), false);
-                    DisplayFragments.descendIntoNextDirectory(false);
+                    nextFolder.loadNextFolderAtIndex(fileItemPosIndex, false);
+                    DisplayFragments.getInstance().descendIntoNextDirectory(false);
                 }
                 String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recursively into DIR \"%s\".", fileItem.getBaseName());
                 DisplayUtils.displayToastMessageShort(displayRecurseMsg);

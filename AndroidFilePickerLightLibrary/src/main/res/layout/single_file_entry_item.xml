@@ -21,7 +21,7 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
+    android:padding="1dp"
     android:layout_marginTop="1dp"
     android:layout_marginBottom="1dp"
     android:layout_marginLeft="5dp"
@@ -55,12 +55,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:src="@drawable/folder_icon32"
             android:visibility="visible"
             />
 
         <View
-            android:layout_width="6dp"
+            android:layout_width="2dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent" />
 
@@ -74,7 +73,7 @@
             android:textColor="?__colorAccent"
             android:textSize="8sp"
             android:textStyle="normal|bold"
-            android:typeface="serif"
+            android:typeface="monospace"
             />
 
         <TextView
@@ -84,7 +83,7 @@
             android:textColor="?__colorAccent"
             android:textSize="8sp"
             android:textStyle="normal|bold"
-            android:typeface="serif"
+            android:typeface="monospace"
             />
 
         <TextView
@@ -93,11 +92,11 @@
             android:layout_height="wrap_content"
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
-            android:text="0B"
+            android:text="0000B"
             android:textColor="?__colorAccent"
             android:textSize="8sp"
             android:textStyle="normal|bold"
-            android:typeface="serif"
+            android:typeface="monospace"
             />
 
         <View

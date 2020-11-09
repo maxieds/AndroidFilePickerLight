@@ -15,6 +15,9 @@
   file items lists displayed in the RecyclerView.
 * The LHS FileType, file items layout displays have a CheckBox to select (if allowed) that file and/or directory 
   entry to get returned to the client code. It currently is not working correctly.
-* **TODO:** Continue forward updating the sum of RecyclerView interfaces to only load a small sub-block of the 
-  full folder files list at a time. Right now, while the display is correctky listing out the directory 
-  contents, loading a new directory is so slow and sluggish that the library is not yet useful for production cases ...
+* Show loading files toast message while computing next directory contents.
+* Setup previous history up to the relevant root directory when initializing into subdirectories (e.g., Pictures or Screenshots).
+* The previous folder context history stack is going to get large: Can just replace it with a list of paths and
+  restore state from that?
+* Problem in demo app when launch the picker a second time (it freezes).
+

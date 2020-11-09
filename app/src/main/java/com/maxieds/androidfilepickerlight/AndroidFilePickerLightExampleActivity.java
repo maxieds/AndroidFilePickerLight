@@ -51,8 +51,8 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         toolbar.setTitleTextColor(getColor(R.color.colorToolbarFGText));
         toolbar.setLogo(R.drawable.toolbar_icon48);
         toolbar.setBackgroundColor(getColor(R.color.colorAccent));
-        toolbar.setTitleTextColor(getColor(R.color.colorPrimaryDark));
-        toolbar.setSubtitleTextColor(getColor(R.color.colorPrimaryDark));
+        toolbar.setTitleTextColor(getColor(R.color.colorToolbarFGText));
+        toolbar.setSubtitleTextColor(getColor(R.color.colorToolbarFGText));
         toolbar.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         toolbar.setTitleMargin(15, 5, 15, 5);
         setSupportActionBar(toolbar);

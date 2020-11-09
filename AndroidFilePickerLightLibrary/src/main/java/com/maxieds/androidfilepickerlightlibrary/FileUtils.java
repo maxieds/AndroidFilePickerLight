@@ -106,21 +106,31 @@ public class FileUtils {
     public static String getFileSizeString(File fileOnDisk) {
         long fileSizeBytes = fileOnDisk.length();
         if(fileSizeBytes < 1024) {
-            return String.format(Locale.getDefault(), "%dB", fileSizeBytes);
+            String initSizeLabel = String.format(Locale.getDefault(), "%dB", fileSizeBytes);
+            initSizeLabel += "          ".substring(0, Math.max(0, 5 - initSizeLabel.length()));
+            return initSizeLabel;
         }
         long fileSizeKB = fileSizeBytes / 1024;
         if(fileSizeKB < 1024) {
-            return String.format(Locale.getDefault(), "%dK", fileSizeKB);
+            String initSizeLabel = String.format(Locale.getDefault(), "%dK", fileSizeKB);
+            initSizeLabel += "          ".substring(0, Math.max(0, 5 - initSizeLabel.length()));
+            return initSizeLabel;
         }
         long fileSizeMB = fileSizeKB / 1024;
         if(fileSizeMB < 1024) {
-            return String.format(Locale.getDefault(), "%dM", fileSizeMB);
+            String initSizeLabel = String.format(Locale.getDefault(), "%dM", fileSizeMB);
+            initSizeLabel += "          ".substring(0, Math.max(0, 5 - initSizeLabel.length()));
+            return initSizeLabel;
         }
         long fileSizeGB = fileSizeMB / 1024;
         if(fileSizeGB < 1024) {
-            return String.format(Locale.getDefault(), "%dG", fileSizeGB);
+            String initSizeLabel = String.format(Locale.getDefault(), "%dG", fileSizeGB);
+            initSizeLabel += "          ".substring(0, Math.max(0, 5 - initSizeLabel.length()));
+            return initSizeLabel;
         }
-        return String.format(Locale.getDefault(), "%dT+", fileSizeGB / 1024);
+        String initSizeLabel = String.format(Locale.getDefault(), "%dT+", fileSizeGB / 1024);
+        initSizeLabel += "          ".substring(0, Math.max(0, 5 - initSizeLabel.length()));
+        return initSizeLabel;
     }
 
 }

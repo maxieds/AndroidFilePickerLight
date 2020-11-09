@@ -22,6 +22,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/LibraryDefaultTheme"
+    android:id="@+id/fileChooserActivityMainLayoutParentContainer"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
@@ -29,9 +30,9 @@
     android:padding="0dp"
     android:background="@color/__colorAccent"
     android:scrollbars="none"
-    android:fillViewport="true"
     tools:context=".FileChooserActivity"
     >
+    <!--android:fillViewport="true"-->
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/mainLayoutToolbarActionBar"
@@ -123,7 +124,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="3dp"
-            android:layout_marginLeft="25dp"
+            android:layout_marginLeft="12dp"
             android:src="@drawable/nav_dirs_path_dotdotdot_icon48" />
 
         <ImageView
@@ -140,7 +141,7 @@
             android:layout_gravity="right|center_vertical"
             android:text="---"
             android:textColor="?__colorPrimaryDark"
-            android:textSize="12.5sp"
+            android:textSize="11sp"
             android:textStyle="normal|bold"
             android:typeface="serif"
             />
@@ -159,8 +160,7 @@
             android:layout_gravity="right|center_vertical"
             android:text="---"
             android:textColor="?__colorPrimaryDark"
-            android:textSize="12.5sp"
-            android:textAllCaps="true"
+            android:textSize="11sp"
             android:textStyle="normal|bold"
             android:typeface="serif"
             />
@@ -172,59 +172,40 @@
         android:layout_height="5dp"
         android:background="?__colorPrimaryVeryDark" />
 
-    <!--<androidx.core.widget.NestedScrollView
-        style="@style/LibraryDefaultTheme"
+    <LinearLayout
+        android:id="@+id/mainRecyclerViewContainer"
         android:layout_width="fill_parent"
         android:layout_height="400dp"
         android:layout_weight="1"
         android:layout_margin="0dp"
         android:padding="0dp"
-        android:background="@color/__colorAccent"
-        android:isScrollContainer="true"
+        android:layout_gravity="left|center_vertical"
+        android:gravity="left|center_vertical"
+        android:background="?__colorPrimary"
+        android:orientation="horizontal"
         >
-        -->
-        <!--android:measureAllChildren="true"-->
-        <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
-
-        <!--<LinearLayout
-            android:id="@+id/mainRecyclerViewContainer"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:layout_margin="0dp"
-            android:layout_weight="1"
-            android:padding="2dp"
-            android:layout_gravity="left|center_vertical"
-            android:gravity="left|center_vertical"
-            android:background="?__colorAccentLight"
-            android:orientation="horizontal"
-            >-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/mainRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:layout_weight="1"
-            android:layout_gravity="bottom|center_horizontal"
             android:layout_margin="0dp"
             android:background="?__colorPrimary"
-            android:gravity="top|center_horizontal"
+            android:gravity="left|top"
+            android:layout_gravity="left|top"
             android:orientation="vertical"
             android:padding="0dp"
             android:paddingBottom="6dp"
-            android:overScrollMode="never"
             android:fastScrollEnabled="true"
             android:scrollbarStyle="insideInset"
-            android:scrollbars="vertical"
+            android:scrollbars="none"
             android:splitMotionEvents="false"
             android:verticalScrollbarPosition="right"
-            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never"
             tools:listitem="@layout/single_file_entry_item"
             />
-        <!--android:fillViewport="true"-->
 
-        <!--</LinearLayout>-->
-
-    <!--</androidx.core.widget.NestedScrollView>-->
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
@@ -236,18 +217,11 @@
         android:layout_height="wrap_content"
         android:layout_margin="0dp"
         android:padding="0dp"
-        android:layout_gravity="bottom|center_vertical"
-        android:gravity="right|bottom|center_vertical"
+        android:layout_gravity="right|bottom"
+        android:gravity="right|bottom"
         android:background="?__colorAccentLight"
         android:orientation="horizontal"
-        android:overScrollMode="never"
         >
-
-        <View
-            android:layout_width="250dp"
-            android:layout_height="2dp"
-            android:layout_weight="1"
-            android:background="@android:color/transparent" />
 
         <Button
             style="?android:attr/borderlessButtonStyle"
@@ -269,6 +243,11 @@
             android:textStyle="normal|bold"
             />
 
+        <View
+            android:layout_width="6dp"
+            android:layout_height="fill_parent"
+            android:background="@android:color/transparent" />
+
         <Button
             style="?android:attr/borderlessButtonStyle"
             android:id="@+id/mainNavBtnActionDone"
@@ -288,6 +267,11 @@
             android:textSize="14sp"
             android:textStyle="normal|bold"
             />
+
+        <View
+            android:layout_width="6dp"
+            android:layout_height="fill_parent"
+            android:background="@android:color/transparent" />
 
     </LinearLayout>
 

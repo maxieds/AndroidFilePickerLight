@@ -209,6 +209,9 @@ public class FileChooserBuilder implements Serializable {
         return 1 << selectMode.ordinal();
     }
 
+    private static FileChooserBuilder localActivityBuildeStaticInst;
+    public static FileChooserBuilder getInstance() { return localActivityBuildeStaticInst; }
+
     private WeakReference<Activity> activityContextRef;
     public Activity getClientActivityReference() {
         return activityContextRef.get();
@@ -234,6 +237,7 @@ public class FileChooserBuilder implements Serializable {
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
 
     public FileChooserBuilder(Activity activityContextInst) {
+        localActivityBuildeStaticInst = this;
         activityContextRef = new WeakReference<Activity>(activityContextInst);
         defaultExceptionType = FileChooserException.CommunicateSelectionDataException.getNewInstance();
         displayUIConfig = ThemesConfigInterface.getDefaultsInstance();
@@ -426,7 +430,6 @@ public class FileChooserBuilder implements Serializable {
         Intent launchPickerIntent = new Intent(activityContextRef.get().getApplicationContext(), FileChooserActivity.class);
         launchPickerIntent.setAction(Intent.ACTION_PICK_ACTIVITY);
         launchPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        FileChooserActivity.activityBuilderLaunchedRefs.push(this);
         activityContextRef.get().startActivityForResult(launchPickerIntent, activityActionCode);
     }
 

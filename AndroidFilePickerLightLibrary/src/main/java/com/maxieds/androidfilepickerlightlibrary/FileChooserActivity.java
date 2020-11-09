@@ -23,6 +23,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -56,35 +57,14 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     private static FileChooserActivity staticRunningInst = null;
     public static  FileChooserActivity getInstance() { return staticRunningInst; }
 
-    /*
-     * Delay closing the chooser activity for a short delay so there is not a noticable
-     * gap in transitioning from the closed Activity, back to the home screen, and then
-     * back to the calling client Activity while it is being restored to the top in the
-     * background. This function should get called to wrap up and close out the last
-     * File Chooser instance by the client code after the onActivityResult handler is finished.
-     */
-    private static final int FILE_CHOOSER_EXIT_DELAY_SHORT = 0;
-    public static void exitRunningActivityWithCode(int exitCode) { // ??? TODO: Need this ???
-        FileChooserActivity thisActivity = getInstance();
-        if(thisActivity == null) {
-            return;
-        }
-        final int finalExitCode = exitCode;
-        Handler  postDelayedExitHandler = new Handler();
-        Runnable exitWithCodeRunner = new Runnable() {
-            @Override
-            public void run() {
-                System.exit(finalExitCode);
-            }
-        };
-        postDelayedExitHandler.postDelayed(exitWithCodeRunner, FILE_CHOOSER_EXIT_DELAY_SHORT);
-    }
+    private DisplayFragments displayFragmentsInst;
+    public DisplayFragments getDisplayFragmentsInstance() { return displayFragmentsInst; }
 
-    public static Stack<FileChooserBuilder> activityBuilderLaunchedRefs = new Stack<FileChooserBuilder>();
+    private DisplayTypes.DirectoryResultContext cwdFolderCtx;
 
-    // ??? TODO ??? Can remove this (?) ...
-    private static View activityMainContentView = null;
-    public static View getMainContentView() { return activityMainContentView; }
+    public DisplayTypes.DirectoryResultContext getCwdFolderContext() { return cwdFolderCtx; }
+
+    public void setCwdFolderContext(DisplayTypes.DirectoryResultContext nextCwdCtx) { cwdFolderCtx = nextCwdCtx; }
 
     @ColorInt
     public static int getColorVariantFromTheme(int attrID) {
@@ -107,34 +87,34 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     @Override
     public void onCreate(Bundle lastSettingsBundle) {
 
+        Log.i(LOGTAG, "Activity onCreate");
         super.onCreate(lastSettingsBundle);
         setUnhandledExceptionHandler();
-        if(staticRunningInst == null) {
-            staticRunningInst = this;
-        }
+        staticRunningInst = this;
+        displayFragmentsInst = new DisplayFragments();
+        displayFragmentsInst.resetRecyclerViewLayoutContext();
+        cwdFolderCtx = null;
 
         AndroidPermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
         AndroidPermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
         setTheme(R.style.LibraryDefaultTheme);
         setContentView(R.layout.main_picker_activity_base_layout);
-        FileChooserBuilder fpConfig = activityBuilderLaunchedRefs.pop();
+        FileChooserBuilder fpConfig = FileChooserBuilder.getInstance();
         configureInitialMainLayout(fpConfig);
 
         // Keep the app from crashing when the screen rotates:
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
-        DisplayFragments.resetRecyclerViewLayoutContext();
-        DisplayFragments.localFilesListFilter = fpConfig.getFileFilter();
-        DisplayFragments.localFilesListSortFunc = fpConfig.getCustomSortFunc();
-        DisplayFragments.maxAllowedSelections = fpConfig.getMaxSelectedFilesCount();
-        DisplayFragments.curSelectionCount = 0;
-        DisplayFragments.activeSelectionsList.clear();
-        DisplayFragments.allowSelectFiles = fpConfig.allowSelectFileItems();
-        DisplayFragments.allowSelectFolders = fpConfig.allowSelectFolderItems();
-
-        activityMainContentView = findViewById(android.R.id.content);
+        getDisplayFragmentsInstance().resetRecyclerViewLayoutContext();
+        getDisplayFragmentsInstance().localFilesListFilter = fpConfig.getFileFilter();
+        getDisplayFragmentsInstance().localFilesListSortFunc = fpConfig.getCustomSortFunc();
+        getDisplayFragmentsInstance().maxAllowedSelections = fpConfig.getMaxSelectedFilesCount();
+        getDisplayFragmentsInstance().curSelectionCount = 0;
+        getDisplayFragmentsInstance().activeSelectionsList.clear();
+        getDisplayFragmentsInstance().allowSelectFiles = fpConfig.allowSelectFileItems();
+        getDisplayFragmentsInstance().allowSelectFolders = fpConfig.allowSelectFolderItems();
 
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {
@@ -154,7 +134,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
-        actionBar.setTitle(String.format(Locale.getDefault(), " %s | v%s", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
+        actionBar.setTitle(String.format(Locale.getDefault(), " %s (v%s)", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
         actionBar.setSubtitle(String.format(Locale.getDefault(), "⇤%s⇥", getString(R.string.filePickerTitleText)));
         actionBar.setTitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
         actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
@@ -179,10 +159,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
                 @Override
                 public void onClick(View btnView) {
-                    DisplayFragments.cancelAllOperationsInProgress();
-                    DisplayTypes.DirectoryResultContext.pathHistoryStack.clear(); // reset the directory traversal history
+                    getDisplayFragmentsInstance().cancelAllOperationsInProgress();
+                    getDisplayFragmentsInstance().pathHistoryStack.clear(); // reset the directory traversal history
                     FileChooserBuilder.BaseFolderPathType navBtnInitFolder = (FileChooserBuilder.BaseFolderPathType) btnView.getTag();
-                    DisplayFragments.initiateNewFolderLoad(navBtnInitFolder);
+                    getDisplayFragmentsInstance().initiateNewFolderLoad(navBtnInitFolder);
                     Button navBtn = (Button) btnView;
                     navBtn.setEnabled(false);
                     navBtn.setElevation(-1.0f);
@@ -211,7 +191,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Button.OnClickListener quitActivityBtnClickListener = new Button.OnClickListener() {
             @Override
             public void onClick(View btnView) {
-                DisplayFragments.cancelAllOperationsInProgress();
+                getDisplayFragmentsInstance().cancelAllOperationsInProgress();
                 getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
             }
         };
@@ -230,8 +210,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         /* Setup some theme related styling on the main file list container: */
         RecyclerView mainLayoutRecyclerView = findViewById(R.id.mainRecyclerView);
-        DisplayFragments.initializeRecyclerViewLayout(mainLayoutRecyclerView);
-        DisplayFragments.initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
+        getDisplayFragmentsInstance().initializeRecyclerViewLayout(mainLayoutRecyclerView);
+        getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
     }
 
@@ -293,10 +273,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public Intent getSelectedFilesActivityResultIntent() {
         Intent resultIntent = new Intent();
         resultIntent.putExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_TYPE_KEY, String.class);
-        int selectedFilesCount = DisplayFragments.activeSelectionsList != null ? DisplayFragments.activeSelectionsList.size() : 0;
+        int selectedFilesCount = getDisplayFragmentsInstance().activeSelectionsList != null ? getDisplayFragmentsInstance().activeSelectionsList.size() : 0;
         String[] filePathsList = new String[selectedFilesCount];
         for(int fileIndex = 0; fileIndex < selectedFilesCount; fileIndex++) {
-            filePathsList[fileIndex] = DisplayFragments.activeSelectionsList.get(fileIndex).getAbsolutePath();
+            filePathsList[fileIndex] = getDisplayFragmentsInstance().activeSelectionsList.get(fileIndex).getAbsolutePath();
         }
         resultIntent.putStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY, new ArrayList<String>(Arrays.asList(filePathsList)));
         return resultIntent;
@@ -306,7 +286,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
         setResult(Activity.RESULT_OK, filesResultIntent);
         finish();
-        DisplayFragments.resetRecyclerViewLayoutContext();
+        getDisplayFragmentsInstance().resetRecyclerViewLayoutContext();
         //System.exit(0); // ??? TODO ???
     }
 
@@ -320,7 +300,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         }
         setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
-        DisplayFragments.resetRecyclerViewLayoutContext();
+        getDisplayFragmentsInstance().resetRecyclerViewLayoutContext();
         //ActivityCompat.finishAffinity(this);
         //System.exit(0); // ??? TODO ???
     }
