@@ -47,18 +47,16 @@ public class DisplayAdapters {
             this.fileListData.addAll(nextFileListData);
             this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
             this.fileItemsData.addAll(nextFileItemsData);
-            //this.setHasStableIds(true); // TODO ???
+            this.setHasStableIds(false); // TODO ???
             notifyDataSetChanged();
         }
 
-        public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData, boolean notifyAdapter) {
+        public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData) {
             fileListData.clear();
             fileListData.addAll(nextDataSet);
             fileItemsData.clear();
             fileItemsData.addAll(nextFileItemsData);
-            if(notifyAdapter) {
-                notifyDataSetChanged();
-            }
+            notifyDataSetChanged();
         }
 
         @Override
@@ -134,7 +132,7 @@ public class DisplayAdapters {
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
-            setIsRecyclable(false);
+            //setIsRecyclable(false);
         }
 
         public TextView getDisplayText() { return displayText; }
