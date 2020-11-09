@@ -142,6 +142,8 @@ public class DisplayAdapters {
         }
 
         public static boolean performNewFileItemClick(CheckBox cbView, DisplayTypes.FileType fileItem) {
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "INIT PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+                    DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
             if(cbView == null || fileItem == null) {
                 return false;
             }
@@ -168,6 +170,8 @@ public class DisplayAdapters {
                 DisplayFragments.getInstance().activeSelectionsList.remove(fileItem);
                 DisplayFragments.getInstance().curSelectionCount--;
                 Log.i(LOGTAG, "DE-Selected next checkbox (file item)");
+                Log.i(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+                        DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
                 return true;
             }
             else if(DisplayFragments.getInstance().curSelectionCount >= DisplayFragments.getInstance().maxAllowedSelections) {
@@ -180,6 +184,8 @@ public class DisplayAdapters {
             DisplayFragments.getInstance().activeSelectionsList.add(fileItem);
             DisplayFragments.getInstance().curSelectionCount++;
             Log.i(LOGTAG, "Selected next checkbox (file item)");
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+                    DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
             return true;
         }
 

@@ -97,8 +97,8 @@ public class DisplayTypes {
                 initMatrixCursorListing.moveToFirst();
                 boolean appendNewItems = newItemsCount > 0;
                 List<FileType> filesDataList = new ArrayList<FileType>(directoryContentsList.subList(trimFromFrontCount, directoryContentsList.size() - trimFromBackCount));
-                int prependInsertIdx = 0;
-                for (int mcRowIdx = 0; mcRowIdx < Math.min(initMatrixCursorListing.getCount(), Math.abs(newItemsCount)); mcRowIdx++) {
+                int prependInsertIdx = 0, mcRowIdx;
+                for (mcRowIdx = 0; mcRowIdx < Math.min(initMatrixCursorListing.getCount(), Math.abs(newItemsCount)); mcRowIdx++) {
                     String[] filePropertiesList = fpInst.getPropertiesOfCurrentRow(initMatrixCursorListing, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
                     String fileAbsPath = filePropertiesList[BasicFileProvider.PROPERTY_ABSPATH];
                     String fileProviderDocId = filePropertiesList[BasicFileProvider.PROPERTY_FILE_PROVIDER_DOCID];
@@ -117,10 +117,11 @@ public class DisplayTypes {
                     initMatrixCursorListing.moveToNext();
                 }
                 if(updateGlobalIndices) {
+                    int resultSizeDiff = Math.abs(newItemsCount) - mcRowIdx;
                     Log.i(LOGTAG, String.format(Locale.getDefault(), "UPDATING GLOBAL INDICES: [%d, %d] -> [%d, %d]", initStartIndexPos,
                             DisplayFragments.getInstance().lastFileDataEndIndex, initStartIndexPos,
-                            initStartIndexPos + Math.max(0, filesDataList.size() - 1)));
-                    DisplayFragments.getInstance().lastFileDataEndIndex = initStartIndexPos + Math.max(0, filesDataList.size() - 1);
+                            DisplayFragments.getInstance().lastFileDataEndIndex - resultSizeDiff));
+                    DisplayFragments.getInstance().lastFileDataEndIndex = DisplayFragments.getInstance().lastFileDataEndIndex - resultSizeDiff;
                 }
                 setNextDirectoryContents(filesDataList);
             }

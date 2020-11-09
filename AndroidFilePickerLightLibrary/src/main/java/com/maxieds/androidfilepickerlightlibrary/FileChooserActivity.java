@@ -209,7 +209,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         DisplayFragments.mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
 
         /* Setup some theme related styling on the main file list container: */
-        RecyclerView mainLayoutRecyclerView = findViewById(R.id.mainRecyclerView);
+        FileChooserRecyclerView mainLayoutRecyclerView = findViewById(R.id.mainRecyclerView);
         getDisplayFragmentsInstance().initializeRecyclerViewLayout(mainLayoutRecyclerView);
         getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 

@@ -185,7 +185,7 @@
         android:orientation="horizontal"
         >
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.maxieds.androidfilepickerlightlibrary.FileChooserRecyclerView
             android:id="@+id/mainRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="100dp"
