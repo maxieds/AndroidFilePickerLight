@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -67,7 +68,7 @@ public class DisplayAdapters {
 
         @Override
         public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            Log.i(LOGTAG,"onCreateViewHolder");
+            //Log.i(LOGTAG,"onCreateViewHolder");
             View rowItem = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_file_entry_item, parent, false);
             return new BaseViewHolder(rowItem);
         }
@@ -75,7 +76,7 @@ public class DisplayAdapters {
         @Override
         public void onBindViewHolder(BaseViewHolder bvHolder, int posIndex) {
             bvHolder.getDisplayText().setText(fileListData.get(posIndex));
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
+            //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
             if(!fileItemsData.isEmpty()) {
                 DisplayTypes.FileType fileItem = fileItemsData.get(posIndex);
                 fileItem.setLayoutContainer(bvHolder.getMainViewLayoutContainer());
@@ -86,17 +87,17 @@ public class DisplayAdapters {
 
         @Override
         public void onViewRecycled(BaseViewHolder bvHolder) {
-            Log.i(LOGTAG,"onViewRecycled: " + bvHolder);
+            //Log.i(LOGTAG,"onViewRecycled: " + bvHolder);
         }
 
         @Override
         public void onViewDetachedFromWindow(BaseViewHolder bvHolder) {
-            Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder);
+            //Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder);
         }
 
         @Override
         public void onViewAttachedToWindow(BaseViewHolder bvHolder) {
-            Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder);
+            //Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder);
         }
 
         @Override
@@ -164,76 +165,9 @@ public class DisplayAdapters {
 
         public View getMainViewLayoutContainer() { return fileItemContainerView; }
 
-        public boolean performNewFileItemClick(DisplayTypes.FileType fileItem) {
-            if(fileItem != null && fileItem.getLayoutContainer() != null) {
-                return performNewFileItemClick(fileItem.getLayoutContainer().findViewById(R.id.fileSelectCheckBox), fileItem);
-            }
-            return false;
-        }
-
-        public static boolean performNewFileItemClick(CheckBox cbView, DisplayTypes.FileType fileItem) {
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "INIT PERFORM CLICK: (selected, max allowed) = (%d, %d)",
-                    DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
-            if(cbView == null || fileItem == null) {
-                return false;
-            }
-            boolean isDir = fileItem.isDirectory();
-            if(!isDir && !DisplayFragments.getInstance().allowSelectFiles) {
-                Log.i(LOGTAG, "Blocking file item selection I");
-                cbView.setChecked(false);
-                return false;
-            }
-            else if(isDir && !DisplayFragments.getInstance().allowSelectFolders) {
-                Log.i(LOGTAG, "Blocking file item selection II");
-                cbView.setChecked(false);
-                return false;
-            }
-            if(!cbView.isEnabled()) {
-                cbView.setChecked(false);
-                return false;
-            }
-            if(fileItem.isChecked()) {
-                // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:
-                fileItem.setChecked(false);
-                cbView.setChecked(false);
-                cbView.setEnabled(true);
-                DisplayFragments.getInstance().activeSelectionsList.remove(fileItem);
-                DisplayFragments.getInstance().curSelectionCount--;
-                Log.i(LOGTAG, "DE-Selected next checkbox (file item)");
-                Log.i(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
-                        DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
-                return true;
-            }
-            else if(DisplayFragments.getInstance().curSelectionCount >= DisplayFragments.getInstance().maxAllowedSelections) {
-                cbView.setChecked(false);
-                return false;
-            }
-            fileItem.setChecked(true);
-            cbView.setChecked(true);
-            cbView.setEnabled(true);
-            DisplayFragments.getInstance().activeSelectionsList.add(fileItem);
-            DisplayFragments.getInstance().curSelectionCount++;
-            Log.i(LOGTAG, "Selected next checkbox (file item)");
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
-                    DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
-            return true;
-        }
-
         @Override
         public void onClick(View v) {
-            Log.i(LOGTAG, "BaseViewHolder::onClick");
-            int fileItemPosIndex = DisplayFragments.RecyclerViewUtils.findFileItemIndexByLayout(v);
-            if(fileItemPosIndex < 0) {
-                return;
-            }
-            DisplayTypes.FileType fileItem = DisplayFragments.getInstance().activeFileItemsDataList.get(fileItemPosIndex);
-            if(fileItem != null && (!fileItem.isDirectory() || DisplayFragments.getInstance().allowSelectFolders)) {
-                if(performNewFileItemClick(fileItem)) {
-                    String filePathType = fileItem.isDirectory() ? "DIR" : "FILE";
-                    String displaySelectMsg = String.format(Locale.getDefault(), "Selected %s \"%s\".", filePathType, fileItem.getBaseName());
-                    DisplayUtils.displayToastMessageShort(displaySelectMsg);
-                }
-            }
+            Log.i(LOGTAG, "BaseViewHolder::onClick [RETURNING, DOING NOTHING] ... ");
         }
 
         @Override
@@ -244,16 +178,8 @@ public class DisplayAdapters {
                 return false;
             }
             DisplayTypes.FileType fileItem = DisplayFragments.getInstance().activeFileItemsDataList.get(fileItemPosIndex);
-            if(fileItem == null || !fileItem.isDirectory()) {
-                if(performNewFileItemClick(fileItem)) {
-                    String displaySelectMsg = String.format(Locale.getDefault(), "Selected FILE \"%s\".", fileItem.getBaseName());
-                    DisplayUtils.displayToastMessageShort(displaySelectMsg);
-                    return true;
-                }
-                return false;
-            }
-            // Otherwise, descend recursively into the clicked directory location:
-            if(fileItem != null) {
+            if(fileItem != null && fileItem.isDirectory()) {
+                // Recursively descend into the clicked directory location:
                 DisplayTypes.DirectoryResultContext nextFolder = fileItem.getParentFolderContext();
                 if(nextFolder == null) {
                     return false;
@@ -290,6 +216,74 @@ public class DisplayAdapters {
 
         @Override
         public void onRequestDisallowInterceptTouchEvent(boolean state) {}
+
+    }
+
+    public static class OnSelectListener implements CompoundButton.OnCheckedChangeListener {
+
+        private static String LOGTAG = OnSelectListener.class.getSimpleName();
+
+        public static boolean performNewFileItemClick(CheckBox cbView, DisplayTypes.FileType fileItem) {
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "INIT PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+                    DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
+            if(cbView == null || fileItem == null) {
+                return false;
+            }
+            boolean isDir = fileItem.isDirectory();
+            if(!isDir && !DisplayFragments.getInstance().allowSelectFiles) {
+                Log.i(LOGTAG, "Blocking FILE item selection I");
+                cbView.setChecked(false);
+                return false;
+            }
+            else if(isDir && !DisplayFragments.getInstance().allowSelectFolders) {
+                Log.i(LOGTAG, "Blocking DIR item selection II");
+                cbView.setChecked(false);
+                return false;
+            }
+            if(!cbView.isEnabled()) {
+                cbView.setChecked(false);
+                return false;
+            }
+            if(fileItem.isChecked()) {
+                // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:
+                fileItem.setChecked(false);
+                cbView.setChecked(false);
+                cbView.setEnabled(true);
+                DisplayFragments.getInstance().activeSelectionsList.remove(fileItem);
+                DisplayFragments.getInstance().curSelectionCount--;
+                Log.i(LOGTAG, "DE-Selected next checkbox (file item)");
+                Log.i(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+                        DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
+                return true;
+            }
+            else if(DisplayFragments.getInstance().curSelectionCount >= DisplayFragments.getInstance().maxAllowedSelections) {
+                cbView.setChecked(false);
+                return false;
+            }
+            fileItem.setChecked(true);
+            cbView.setChecked(true);
+            cbView.setEnabled(true);
+            DisplayFragments.getInstance().activeSelectionsList.add(fileItem);
+            DisplayFragments.getInstance().curSelectionCount++;
+            Log.i(LOGTAG, "Selected next checkbox (file item)");
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+                    DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
+            return true;
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton btnView, boolean isChecked) {
+            CheckBox cbView = (CheckBox) btnView;
+            int fileItemPosIndex = DisplayFragments.RecyclerViewUtils.findFileItemIndexByLayout((View) btnView.getParent());
+            if(fileItemPosIndex < 0) {
+                Log.i(LOGTAG, "onCheckedChanged: Unable to find parent view index ...");
+                return;
+            }
+            DisplayTypes.FileType fileItem = DisplayFragments.getInstance().activeFileItemsDataList.get(fileItemPosIndex);
+            if(fileItem != null) {
+                performNewFileItemClick(cbView, fileItem);
+            }
+        }
 
     }
 

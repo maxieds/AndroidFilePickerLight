@@ -131,6 +131,7 @@ The next examples document basic, advanced, and custom uses of the library in cl
 
 This is a quick method to select a file and/or directory picked by the user:
 ```java
+/* TODO */
 ```
 
 ### Detailed list of non-display type options
@@ -139,44 +140,7 @@ The next options are available to configure the non-display type (e.g., properti
 file chooser that do not depend on how it looks) properties of the library. 
 These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
 ```java
-/* Set the action type return code (for use with onActivityResult): */
-
-/* Select whether or not the user can pick a file, a directory, or either: */
-
-/* Set whether multiple paths can be chosen, and set limits on how many if the 
- * chooser is configured to enable multiple path selection: 
- */
-
-/* Define whether the chooser displays hidden files or not: */
-
-/* Set a custom file and directory sort function: 
- * (Can prioritize directories versus files, or decide that certain types should be 
- *  displayed first in the file list -- sorted lexographically, or reverse lexographically)
- */
-
-/* Set the current working directory, and/or limit the scope of the top level path up to 
- * which the user can navigate: 
- */
-
-/* Enable/disable the default directory navigation buttons at the top of the chooser display: */
-
-/* Default start path locations: */
-// External/internal storage; User home directory; SDCard; Downloads/Pictures/DCIM/Screenshots/Camera/Video; 
-
-/* Filter by file types, or exclude certain file types from being displayed: */
-
-/* Set a timeout after which the display returns with an invalid path 
- * (should keep the client application from hanging on neglected chooser instances):
- */
-// include whether to throw a certain exception type
-// throw an invalid selection exception on error ??? 
-
-/* Set desired file path return types (String path, File, URI, etc.): */
-
-/* 
- * -- See next sections below to configure theme and UI display options like colors, default strings, 
- *    and to setup custom default icons in the chooser display --
- */
+/* TODO */
 ```
 
 ### Extending file types for filtering and sorting purposes in the picker UI
@@ -245,88 +209,12 @@ String newChoosetTitleText = myRunningActivityInst.getString(R.string.custom_cho
 Now that we have the scheme for passing resources to the library to skin/color/custom theme its UI down, 
 here is the full listing and type specs for what attributes can actually be changed and reset on-the-fly:
 ```java
-/* Get a handle to the configuration object for the file picker UI: */
-AndroidFilePickerLight.UIDisplayConfig customUIDisplayCfg = new AndroidFilePickerLight.UIDisplayConfig.getNewInstance();
-// ... Later, after setting its properties, set the active file picker's display configuration with: ... 
-AndroidFilePickerLight.Builder filePickerBuilder = new AndroidFilePickerLight.Builder.getDefaultInstance();
-filePickerBuilder.setDisplayUIConfig().runUserFilePicker();
-
-/* Configure the Strings and text displays with custom messages or text values: */
-customUIDisplayCfg.setPickerTitleText("[String] Select a text file ...");
-customUIDisplayCfg.setNavigationBarPrefixText("[String] Navigation Options: ");
-customUIDisplayCfg.setDoneActionButtonText("[String] !! Done with selection");
-customUIDisplayCfg.setCancelActionButtonText("[String] X Cancel -- Pick nothing");
-
-/* Select a base built-in color theme to start with: */
-customUIDisplayCfg.setDefaultTheme(AndroidFilePickerLight.UIDisplayConfig.BaseThemeLight);
-customUIDisplayCfg.setDefaultTheme(AndroidFilePickerLight.UIDisplayConfig.BaseThemeDark);
-customUIDisplayCfg.setDefaultTheme(AndroidFilePickerLight.UIDisplayConfig.BaseThemeDefault);
-
-/* Define custom colors and (optionally) background gradient types: */
-customUIDisplayCfg.setBaseBackgroundColor(int hexColor);
-customUIDisplayCfg.setBaseForgroundTextColor(int hexColor);
-customUIDisplayCfg.setBaseForgroundAccentColor(int hexColor);
-customUIDisplayCfg.useGradientBasedDisplays(boolean enableGradientBGInUIDisplay);
-
-public enum AndroidFilePickerLight.UIDisplayConfig.GradientMethodSpec {
-     GRADIENT_METHOD_SWEEP,
-     GRADIENT_METHOD_LINEAR,
-     GRADIENT_METHOD_RADIAL,
-};
-public enum AndroidFilePickerLight.UIDisplayConfig.GradientTypeSpec {
-     GRADIENT_FILL_TYPE_BL_TR,
-     GRADIENT_FILL_TYPE_BOTTOM_TOP,
-     GRADIENT_FILL_TYPE_BR_TL,
-     GRADIENT_FILL_TYPE_LEFT_RIGHT,
-     GRADIENT_FILL_TYPE_RIGHT_LEFT,
-     GRADIENT_FILL_TYPE_TL_BR,
-     GRADIENT_FILL_TYPE_TOP_BOTTOM,
-     GRADIENT_FILL_TYPE_TR_BL,
-};
-public enum AndroidFilePickerLight.UIDisplayConfig.BorderStyleSpec {
-     BORDER_STYLE_SOLID,
-     BORDER_STYLE_DASHED,
-     BORDER_STYLE_DASHED_LONG,
-     BORDER_STYLE_DASHED_SHORT,
-     BORDER_STYLE_NONE,
-};
-public enum AndroidFilePickerLight.UIDisplayConfig.NamedGradientColorThemes {
-     NAMED_COLOR_SCHEME_TURQUOISE,
-     NAMED_COLOR_SCHEME_YELLOW_TO_BLUE,
-     NAMED_COLOR_SCHEME_GREEN_YELLOW_GREEN,
-     NAMED_COLOR_SCHEME_METAL_STREAK_BILINEAR,
-     NAMED_COLOR_SCHEME_SILVER_BALLS,
-     NAMED_COLOR_SCHEME_EVENING_SKYLINE,
-     NAMED_COLOR_SCHEME_RAINBOW_STREAK,
-};
-
-customUIDisplayCfg.setGradientDisplayProperties(int[] gradientColorsList, GradientMethodSpec gradMethodType, BorderStyleSpec borderStyle, float roundedRectSetting = 0.0f);
-customUIDisplayCfg.setGradientDisplayProperties(NamedGradientColorThemes presetColorTheme, GradientMethodSpec gradMethodType, BorderStyleSpec borderStyle, float roundedRectSetting = 0.0f);
-
-/* Set default icons for files/folders and the navigation UI folder button shortcuts for 
- * common standard paths: 
- */
-public enum AndroidFilePickerLight.UIDisplayConfig.NamedDisplayIcons {
-     DEFAULT_FILE_ICON,
-     DEFAULT_HIDDEN_FILE_ICON,
-     DEFAULT_FOLDER_ICON,
-     NAVBTN_HDSDCARD_ICON,
-     NAVBTN_PICTURES_ICON,
-     NAVBTN_CAMERA_ICON,
-     NAVBTN_SCREENSHOTS_ICON,
-     NAVBTN_USER_HOME_ICON,
-     NAVBTN_DOWNLOADS_FOLDER_ICON,
-     NAVBTN_MEDIA_FOLDER_ICON,
-};
-
-customUIDisplayCfg.setDefaultChooserIcon(Drawable replacementIcon, NamedDisplayIcons whichIconToReplace);
-
-
+/* TODO: Need to add this documentation ... */
 ```
 
 ### Misc other useful utilities and customizations bundled with the main library
 
-### Displaying a visual linear bar style progress bar for slow directory loads
+### Displaying a visual linear bar style progress bar for slow directory loads (TODO)
 
 This functionality may be useful at some point for those willing to extend this code with 
 custom external file providers, e.g., to read and recurse into directories on Dropbox or GitHub. 
@@ -350,18 +238,22 @@ its demo application). The core of the progress bar is
 shown by periodically posting Toast messages with a custom layout ``View``. Please post a new issue message 
 if anyone using this library in their own application finds this useful, or amusing too.
 
-#### Overriding the default file and directory sorting
+#### Overriding the default file and directory sorting (TODO)
 
 An example of how to do this is already seen by glancing through the sources. 
 In particular, we define an extendable base class as follows: 
 ```java
-    public static class FileItemsListSortFunc {
-        public static List<FileType> sortFileItemsList(List<FileType> fileItemsList) {
-            // default is standard lexicographical ordering (override in base classes for customized sorting):
-            Collections.sort(fileItemsList, (fi1, fi2) -> { return fi1.getAbsolutePath().compareTo(fi2.getAbsolutePath()); });
-            return fileItemsList;
+        public static class FileItemsSortFunc implements Comparator<File> {
+            public File[] sortFileItemsList(File[] folderContentsList) {
+                Arrays.sort(folderContentsList, this);
+                return folderContentsList;
+            }
+            @Override
+            public int compare(File f1, File f2) {
+                // default is standard lexicographical ordering (override the compare functor base classes for customized sorting):
+                return f1.getAbsolutePath().compareTo(f2.getAbsolutePath());
+            }
         }
-    }
 ```
 Subclasses that override the method above are free to sort the file 
 contents in the order that they are best displayed in the client application. 
@@ -374,25 +266,19 @@ Note that in the source the custom objects to filter (match, then include/exclud
 directory listings, and then sort those files that remain are applied together. See, for example, 
 the next code:
 ```java
-    public static List<FileTypes.FileType> filterAndSortFileItemsList(List<FileTypes.FileType> inputFileItems,
-                                                                      FileFilter.FileFilterInterface fileFilter, FileTypes.FileItemsListSortFunc sortCompFunc) {
-        List<FileTypes.FileType> allowedFileItemsList = new ArrayList<FileTypes.FileType>();
-        for(FileTypes.FileType fileItem : inputFileItems) {
-            if(fileFilter == null) {
-                allowedFileItemsList = inputFileItems;
-                break;
+        public static class FileFilterByRegex extends FileFilterBase {
+            private Pattern patternSpec;
+            public FileFilterByRegex(String regexPatternSpec, boolean inclExcl) {
+                patternSpec = Pattern.compile(regexPatternSpec);
+                setIncludeExcludeMatchesOption(inclExcl);
             }
-            if(fileFilter.fileMatchesFilter(fileItem)) {
-                allowedFileItemsList.add(fileItem);
+            public boolean fileMatchesFilter(String fileAbsName) {
+                if(patternSpec.matcher(fileAbsName).matches()) {
+                    return includeExcludeMatches == INCLUDE_FILES_IN_FILTER_PATTERN;
+                }
+                return includeExcludeMatches == EXCLUDE_FILES_IN_FILTER_PATTERN;
             }
         }
-        if(sortCompFunc != null) {
-            return sortCompFunc.sortFileItemsList(allowedFileItemsList);
-        }
-        else {
-            return allowedFileItemsList;
-        }
-    }
 ```
 
 #### Extending the inclusion/exclusion mechanism of files by type

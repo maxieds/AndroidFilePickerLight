@@ -540,7 +540,7 @@ public class BasicFileProvider extends DocumentsProvider {
         } else {
             final String path = docId.substring(splitIndex + 1);
             target = new File(target, path);
-            Log.i(LOGTAG, "DOCID effective path -> " + target.getAbsolutePath());
+            //Log.i(LOGTAG, "DOCID effective path -> " + target.getAbsolutePath());
             if (!target.exists()) {
                 throw new FileNotFoundException("Missing file for " + docId + " at " + target);
             }

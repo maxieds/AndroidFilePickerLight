@@ -78,7 +78,7 @@ public class DisplayTypes {
 
         public void setNextDirectoryContents(List<FileType> nextFolderFiles) { directoryContentsList = nextFolderFiles; }
 
-        public int getFolderMaxChildCount() { return folderMaxChildCount; }
+        public int getFolderChildCount() { return folderMaxChildCount; }
 
         public static final int STATUS_ERROR = -1;
         public static final int STATUS_SUCCESS = 0;
@@ -138,6 +138,10 @@ public class DisplayTypes {
                     DisplayFragments.getInstance().lastFileDataEndIndex = DisplayFragments.getInstance().lastFileDataEndIndex - resultSizeDiff;
                 }
                 setNextDirectoryContents(filesDataList);
+                Log.i(LOGTAG, "computeDirectoryContents: PRINTING NEXT (truncated) folder contents list:");
+                for(int fcidx = 0; fcidx < directoryContentsList.size(); fcidx++) {
+                    Log.i(LOGTAG, String.format(Locale.getDefault(), "   [#%02d] FILE BASE NAME => \"%s\" ... ", fcidx + 1, directoryContentsList.get(fcidx).getBaseName()));
+                }
             }
             catch(FileNotFoundException ioe) {
                 ioe.printStackTrace();

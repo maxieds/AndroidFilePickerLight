@@ -32,7 +32,7 @@
     <string name="fileProviderRootSummayDesc">Root of storage for our basic file provider implementation</string>
 
     <string name="filePickerTitleText">Select files by path</string>
-    <string name="filePickerNavBarText">Navigate to Folders: </string>
+    <string name="filePickerNavBarText">Navigate: </string>
     <string name="filePickerDoneButtonText">Done</string>
     <string name="filePickerCancelButtonText">Cancel</string>
 

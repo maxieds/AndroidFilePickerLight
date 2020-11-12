@@ -31,6 +31,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
+
 import java.util.Locale;
 
 public class DisplayUtils {
@@ -42,43 +44,57 @@ public class DisplayUtils {
         defaultActivityContextRef = activityContextRef;
     }
 
-    public static int getColorFromResource(int colorRefID) throws FileChooserException.InvalidActivityContextException {
-        if(defaultActivityContextRef != null) {
-            return defaultActivityContextRef.getResources().getColor(colorRefID, defaultActivityContextRef.getTheme());
+    @ColorInt
+    public static int getColorVariantFromTheme(int attrID) {
+        if(defaultActivityContextRef == null) {
+            setDefaultActivityContext(FileChooserActivity.getInstance());
         }
-        throw new FileChooserException.InvalidActivityContextException();
+        return defaultActivityContextRef.getTheme().obtainStyledAttributes(new int[] { attrID }).getColor(0, attrID);
+    }
+
+    public static int getColorFromResource(int colorRefID) throws FileChooserException.InvalidActivityContextException {
+        if(defaultActivityContextRef == null) {
+            setDefaultActivityContext(FileChooserActivity.getInstance());
+        }
+        return defaultActivityContextRef.getResources().getColor(colorRefID, defaultActivityContextRef.getTheme());
     }
 
     public static Drawable getDrawableFromResource(int drawableRefID) throws FileChooserException.InvalidActivityContextException {
-        if(defaultActivityContextRef != null) {
-            return defaultActivityContextRef.getResources().getDrawable(drawableRefID, defaultActivityContextRef.getTheme());
+        if(defaultActivityContextRef == null) {
+            setDefaultActivityContext(FileChooserActivity.getInstance());
         }
-        throw new FileChooserException.InvalidActivityContextException();
+        return defaultActivityContextRef.getResources().getDrawable(drawableRefID, defaultActivityContextRef.getTheme());
     }
 
     public static String getStringFromResource(int strRefID) throws FileChooserException.InvalidActivityContextException {
-        if(defaultActivityContextRef != null) {
-            return defaultActivityContextRef.getString(strRefID);
+        if(defaultActivityContextRef == null) {
+            setDefaultActivityContext(FileChooserActivity.getInstance());
         }
-        throw new FileChooserException.InvalidActivityContextException();
+        return defaultActivityContextRef.getString(strRefID);
     }
 
     public static int resolveColorFromAttribute(int attrID) {
-        if(FileChooserActivity.getInstance() == null) {
+        if(defaultActivityContextRef == null) {
+            setDefaultActivityContext(FileChooserActivity.getInstance());
+        }
+        if(defaultActivityContextRef == null) {
             throw new FileChooserException.InvalidThemeResourceException();
         }
         TypedValue typedValueAttr = new TypedValue();
-        FileChooserActivity.getInstance().getTheme().resolveAttribute(attrID, typedValueAttr, true);
+        defaultActivityContextRef.getTheme().resolveAttribute(attrID, typedValueAttr, true);
         return typedValueAttr.data;
     }
 
     public static Drawable resolveDrawableFromAttribute(int attrID) {
-        if(FileChooserActivity.getInstance() == null) {
+        if(defaultActivityContextRef == null) {
+            setDefaultActivityContext(FileChooserActivity.getInstance());
+        }
+        if(defaultActivityContextRef == null) {
             throw new FileChooserException.InvalidThemeResourceException();
         }
         TypedValue typedValueAttr = new TypedValue();
-        FileChooserActivity.getInstance().getTheme().resolveAttribute(attrID, typedValueAttr, true);
-        return FileChooserActivity.getInstance().getDrawable(typedValueAttr.resourceId);
+        defaultActivityContextRef.getTheme().resolveAttribute(attrID, typedValueAttr, true);
+        return defaultActivityContextRef.getDrawable(typedValueAttr.resourceId);
     }
 
     private static void displayToastMessage(Activity activityInst, String toastMsg, int msgDuration) {
@@ -89,8 +105,8 @@ public class DisplayUtils {
         );
         toastDisplay.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 25);
         toastDisplay.getView().setPadding(10, 10, 10, 10);
-        int toastBackgroundColor = FileChooserActivity.getColorVariantFromTheme(R.attr.colorAccent);
-        int toastTextColor = FileChooserActivity.getColorVariantFromTheme(R.attr.colorPrimaryDark);
+        int toastBackgroundColor = getColorVariantFromTheme(R.attr.colorAccent);
+        int toastTextColor = getColorVariantFromTheme(R.attr.colorPrimaryDark);
         toastDisplay.getView().getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
         TextView toastTextMsg = toastDisplay.getView().findViewById(android.R.id.message);
         if(toastTextMsg != null) {

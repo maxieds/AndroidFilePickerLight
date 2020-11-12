@@ -28,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -42,18 +43,9 @@ public class FileChooserRecyclerView extends RecyclerView {
 
     private static final String LOGTAG = FileChooserRecyclerView.class.getSimpleName();
 
-    private DisplayFragments displayFragmentsCtx;
-
     public FileChooserRecyclerView(Context layoutCtx) {
         super(layoutCtx);
-        displayFragmentsCtx = DisplayFragments.getInstance();
-        setupRecyclerViewLayout(displayFragmentsCtx);
-    }
-
-    public FileChooserRecyclerView(Context layoutCtx, DisplayFragments displayFragmentsContext) {
-        super(layoutCtx);
-        displayFragmentsCtx = displayFragmentsContext;
-        setupRecyclerViewLayout(displayFragmentsCtx);
+        setupRecyclerViewLayout();
     }
 
     public FileChooserRecyclerView(Context context, AttributeSet attrSet) {
@@ -64,7 +56,8 @@ public class FileChooserRecyclerView extends RecyclerView {
         super(context, attrSet, defStyle);
     }
 
-    public void setupRecyclerViewLayout(DisplayFragments displayFragmentsContext) {
+    public void setupRecyclerViewLayout() {
+
         setHasFixedSize(true);
         setItemViewCacheSize(0);
         setNestedScrollingEnabled(false);
@@ -76,10 +69,31 @@ public class FileChooserRecyclerView extends RecyclerView {
         FileChooserRecyclerView.LayoutManager rvLayoutManager = new FileChooserRecyclerView.LayoutManager(getContext());
         setLayoutManager((FileChooserRecyclerView.LayoutManager) rvLayoutManager);
         addItemDecoration(new FileChooserRecyclerView.CustomDividerItemDecoration(R.drawable.rview_file_item_divider));
-        //setOnScrollListener(new FileChooserRecyclerView.OnScrollListener(rvLayoutManager, displayFragmentsContext));
         //addOnItemTouchListener(...);
+
+        /*
+         * This code fragment gets called when the RecyclerView layout is first displayed:
+         */
+        final FileChooserRecyclerView recyclerView = this;
+        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                DisplayFragments displayFragmentsCtx = DisplayFragments.getInstance();
+                if(!displayFragmentsCtx.viewportCapacityMesaured && recyclerView.getLayoutManager().getChildCount() != 0) {
+                    displayFragmentsCtx.fileItemDisplayHeight = recyclerView.getLayoutManager().getChildAt(0).getMeasuredHeight();
+                    if (displayFragmentsCtx.fileItemDisplayHeight > 0) {
+                        displayFragmentsCtx.resetViewportMaxFilesCount(recyclerView);
+                        recyclerView.smoothScrollToPosition(0);
+                    }
+                }
+                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+
     }
 
+    // ??? TODO: ???
+    /*
     @Override
     public boolean fling(int velocityX, int velocityY) {
         final LinearLayoutManager rvLayoutManager = (LinearLayoutManager) getLayoutManager();
@@ -89,6 +103,7 @@ public class FileChooserRecyclerView extends RecyclerView {
         }
         return super.fling(velocityX, velocityY);
     }
+    */
 
     // ??? TODO: ???
     /*
@@ -107,18 +122,17 @@ public class FileChooserRecyclerView extends RecyclerView {
 
     public interface RecyclerViewSlidingContextWindow {
 
-        public void setWeightBufferSize(int size);
+        void setWeightBufferSize(int size);
 
-        public int getBalance();
-        public int getActiveCountToBalanceTop();
-        public int getActiveTopBufferSize();
-        public int getActiveCountToBalanceBottom();
-        public int getActiveBottomBufferSize();
+        int getActiveCountToBalanceTop();
+        int getActiveTopBufferSize();
+        int getActiveCountToBalanceBottom();
+        int getActiveBottomBufferSize();
 
-        public int getLayoutVisibleDisplaySize();
-        public int getLayoutFirstVisibleItemIndex();
-        public int getLayoutLastVisibleItemIndex();
-        public int getActiveLayoutItemsCount();
+        int getLayoutVisibleDisplaySize();
+        int getLayoutFirstVisibleItemIndex();
+        int getLayoutLastVisibleItemIndex();
+        int getActiveLayoutItemsCount();
 
     }
 
@@ -201,7 +215,7 @@ public class FileChooserRecyclerView extends RecyclerView {
             }
         }
 
-        @Override
+        /*@Override
         public void smoothScrollToPosition(RecyclerView recyclerView, State state, int position) {
 
             final LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
@@ -250,7 +264,7 @@ public class FileChooserRecyclerView extends RecyclerView {
             }
             // Keep it where it is located for now:
             return childPosIndex;
-        }
+        }*/
 
     }
 

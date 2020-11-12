@@ -54,15 +54,12 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public DisplayFragments getDisplayFragmentsInstance() { return displayFragmentsInst; }
 
     private DisplayTypes.DirectoryResultContext cwdFolderCtx;
-
     public DisplayTypes.DirectoryResultContext getCwdFolderContext() { return cwdFolderCtx; }
-
     public void setCwdFolderContext(DisplayTypes.DirectoryResultContext nextCwdCtx) { cwdFolderCtx = nextCwdCtx; }
 
-    @ColorInt
-    public static int getColorVariantFromTheme(int attrID) {
-        return getInstance().getTheme().obtainStyledAttributes(new int[] { attrID }).getColor(0, attrID);
-    }
+    private PrefetchFilesUpdater prefetchFilesUpdaterInst;
+    public void startPrefetchFileUpdatesThread() { prefetchFilesUpdaterInst.start(); }
+    public void stopPrefetchFileUpdatesThread() { prefetchFilesUpdaterInst.interrupt(); }
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -109,6 +106,16 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getDisplayFragmentsInstance().allowSelectFiles = fpConfig.allowSelectFileItems();
         getDisplayFragmentsInstance().allowSelectFolders = fpConfig.allowSelectFolderItems();
 
+        prefetchFilesUpdaterInst = new PrefetchFilesUpdater();
+        Handler startPrefetchFilesThreadHandler = new Handler();
+        Runnable startPrefetchFilesThreadRunner = new Runnable() {
+            @Override
+            public void run() {
+                FileChooserActivity.getInstance().startPrefetchFileUpdatesThread();
+            }
+        };
+        startPrefetchFilesThreadHandler.postDelayed(startPrefetchFilesThreadRunner, 200);
+
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {
             Handler execIdleTimeoutHandler = new Handler();
@@ -135,9 +142,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         actionBar.setPadding(5, 8, 5, 6);
         actionBar.setElevation(1.25f);
         actionBar.setLogo(getDrawable(R.drawable.file_chooser_default_toolbar_icon48));
-        getWindow().setTitleColor(getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
-        getWindow().setStatusBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
-        getWindow().setNavigationBarColor(getColorVariantFromTheme(R.attr.colorPrimaryDark));
+        getWindow().setTitleColor(DisplayUtils.getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
+        getWindow().setStatusBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorPrimaryDark));
+        getWindow().setNavigationBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorPrimaryDark));
 
         /* Initialize the next level of nav for the default folder paths selection buttons: */
         List<FileChooserBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
@@ -146,8 +153,6 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             FileChooserBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
             ImageButton dirNavBtn = new ImageButton(this);
             dirNavBtn.setPadding(10, 10, 10, 10);
-            //dirNavBtn.setImageDrawable(GradientDrawableFactory.resolveDrawableFromAttribute(
-            //        FileChooserBuilder.DefaultNavFoldersType.getFolderIconResIdFromName(defaultDirNavFolders.get(folderIdx))));
             dirNavBtn.setTag(baseFolderType.name());
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
                 @Override
@@ -170,6 +175,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 }
             };
             dirNavBtn.setOnClickListener(stockDirNavBtnClickHandler);
+            dirNavBtn.setBackgroundColor(DisplayUtils.getColorVariantFromTheme(R.attr.__colorAccent));
+            dirNavBtn.setImageDrawable(DisplayUtils.resolveDrawableFromAttribute(defaultDirNavFolders.get(folderIdx).getFolderIconResId()));
+            fileDirsNavButtonsContainer.addView(dirNavBtn);
         }
 
         /* The next level of navigation in a top down order is the action buttons to finish or cancel

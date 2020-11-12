@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -85,8 +86,8 @@ public class DisplayFragments {
     public List<String> fileItemBasePathsList = new ArrayList<String>();
     public Stack<DisplayTypes.DirectoryResultContext> pathHistoryStack;
 
-    public static final int SCROLL_QUEUE_BUFFER_SIZE = 2;
-    public static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 50 + SCROLL_QUEUE_BUFFER_SIZE; // set large enough to overfill the window on first load
+    public static final int SCROLL_QUEUE_BUFFER_SIZE = 0;
+    public static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 15 + SCROLL_QUEUE_BUFFER_SIZE; // set large enough to overfill the window on first load
     private int viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
     public int fileItemDisplayHeight = 0;
 
@@ -108,7 +109,6 @@ public class DisplayFragments {
             setViewportMaxFilesCount(SCROLL_QUEUE_BUFFER_SIZE + (int) Math.floor((double) viewportDisplayHeight / fileItemDisplayHeight));
             Log.i(LOGTAG, String.format("DELAYED RESPONSE: VP Height = %d, FItemDisp Height = %d   ====>  %d (with +%d buffer extra)",
                     viewportDisplayHeight, fileItemDisplayHeight, getViewportMaxFilesCount(), SCROLL_QUEUE_BUFFER_SIZE));
-            getMainRecyclerView().setItemViewCacheSize(getViewportMaxFilesCount()); // ??? TODO ???
             viewportCapacityMesaured = true;
         }
     }
@@ -133,7 +133,7 @@ public class DisplayFragments {
 
     public void initializeRecyclerViewLayout(FileChooserRecyclerView rview) {
         if(!recyclerViewAdapterInit) {
-            rview.setupRecyclerViewLayout(this);
+            rview.setupRecyclerViewLayout();
             setRecyclerView(rview);
             fileItemBasePathsList = new ArrayList<String>();
             activeSelectionsList = new ArrayList<DisplayTypes.FileType>();
@@ -189,7 +189,6 @@ public class DisplayFragments {
     public void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
         DisplayTypes.DirectoryResultContext cwdFolderContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
         setCwdFolderContext(cwdFolderContext);
-        Log.i(LOGTAG, "CWD CTX: " + getCwdFolderContext());
         pathHistoryStack.clear();
         pathHistoryStack.push(cwdFolderContext);
         lastFileDataStartIndex = 0;
@@ -209,6 +208,8 @@ public class DisplayFragments {
         if(mainFileListRecyclerView == null) {
             return;
         }
+        LinearLayoutManager rvLayoutManager = (LinearLayoutManager) mainFileListRecyclerView.getLayoutManager();
+        int prevFirstItemVisible = rvLayoutManager.findFirstVisibleItemPosition();
 
         activeSelectionsList.clear();
         activeFileItemsDataList.clear();
@@ -272,8 +273,8 @@ public class DisplayFragments {
             FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
             DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
             DisplayFragments displayCtx = DisplayFragments.getInstance();
-            int startListIndex = 0;
-            int endListIndex = itemCount - 1;
+            int startListIndex = itemCount;
+            int endListIndex = displayCtx.activeFileItemsDataList.size();
             displayCtx.activeFileItemsDataList = new ArrayList<DisplayTypes.FileType>(
                     displayCtx.activeFileItemsDataList.subList(
                             startListIndex,
@@ -293,8 +294,8 @@ public class DisplayFragments {
             FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
             DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
             DisplayFragments displayCtx = DisplayFragments.getInstance();
-            int startListIndex = displayCtx.activeFileItemsDataList.size() - itemCount - 1;
-            int endListIndex = displayCtx.activeFileItemsDataList.size();
+            int startListIndex = 0;
+            int endListIndex = displayCtx.activeFileItemsDataList.size() - itemCount - 1;
             displayCtx.activeFileItemsDataList = new ArrayList<DisplayTypes.FileType>(
                     displayCtx.activeFileItemsDataList.subList(
                             startListIndex,
@@ -313,30 +314,7 @@ public class DisplayFragments {
 
     public static class FileListItemFragment {
 
-        private View layoutContainer;
-        private DisplayTypes.FileType localFileItem;
-        private int displayPositionIndex;
-        private boolean isCheckable;
-
-        public FileListItemFragment(DisplayTypes.FileType fileItem, int displayPosition) {
-            displayPositionIndex = displayPosition;
-            isCheckable = true;
-            localFileItem = fileItem;
-            layoutContainer = View.inflate(FileChooserActivity.getInstance(), R.layout.single_file_entry_item, null);
-            TextView fileSizeText = layoutContainer.findViewById(R.id.fileEntrySizeText);
-            TextView filePermsText = layoutContainer.findViewById(R.id.fileEntryPermsSummaryText);
-            if(fileSizeText != null) {
-                fileSizeText.setText(fileItem.getFileSizeString());
-            }
-            if(filePermsText != null) {
-                filePermsText.setText(fileItem.getChmodStylePermissions());
-            }
-            resetLayout(layoutContainer, fileItem, displayPositionIndex);
-        }
-
-        public View getLayoutContainer() {
-            return layoutContainer;
-        }
+        private static String LOGTAG = FileListItemFragment.class.getSimpleName();
 
         public static void resetLayout(View layoutContainer, DisplayTypes.FileType fileItem, int displayPosition) {
 
@@ -367,44 +345,7 @@ public class DisplayFragments {
                 selectionBox.setVisibility(LinearLayout.INVISIBLE);
             }
             selectionBox.setTag(displayPosition);
-            /*final int cboxDisplayIndexPos = displayPosition;
-            selectionBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View cboxView) {
-                    int fileItemIndex = getInstance().findFileItemIndexByLayout((View) cboxView.getParent());
-                    if(fileItemIndex < 0) {
-                        return;
-                    }
-                    DisplayTypes.FileType fileItemForCB = getInstance().activeFileItemsDataList.get(fileItemIndex);
-                    if(fileItemForCB == null) {
-                        return;
-                    }
-                    RecyclerView mainFileListRecyclerView = getMainRecyclerView();
-                    CheckBox cbItem = (CheckBox) cboxView;
-                    DisplayAdapters.BaseViewHolder.performNewFileItemClick(cbItem, fileItemForCB);
-                }
-            });*/
-            /*selectionBox.setOnTouchListener(new View.OnTouchListener() {
-                final WeakReference<DisplayTypes.FileType> fileItemRef = new WeakReference<>(fileItem);
-                @Override
-                public boolean onTouch(View cboxView, MotionEvent event) {
-                    RecyclerView mainFileListRecyclerView = getMainRecyclerView();
-                    if(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
-                        CheckBox cbItem = (CheckBox) cboxView;
-                        int fileItemIndex = getInstance().findFileItemIndexByLayout((View) cboxView.getParent());
-                        if(fileItemIndex < 0) {
-                            return false;
-                        }
-                        DisplayTypes.FileType fileItemForCB = getInstance().activeFileItemsDataList.get(fileItemIndex);
-                        if(fileItemForCB == null) {
-                            return false;
-                        }
-                        DisplayAdapters.BaseViewHolder.performNewFileItemClick(cbItem, fileItemForCB);
-                        return true; // prevents the checkbox from changing state automatically
-                    }
-                    return false;
-                }
-            });*/
+            selectionBox.setOnCheckedChangeListener(new DisplayAdapters.OnSelectListener());
 
         }
 
@@ -445,6 +386,7 @@ public class DisplayFragments {
     }
 
     public void cancelAllOperationsInProgress() {
+        FileChooserActivity.getInstance().stopPrefetchFileUpdatesThread();
         pathHistoryStack.clear();
     }
 

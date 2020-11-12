@@ -17,9 +17,12 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 /*
  * The logic in this class should be the reason the scolling action
@@ -187,9 +190,16 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
 
         while(true) {
 
-            if(getBalance() > 0) { // Need to append to the bottom, trim the extra buffered layout up top:
+            Log.i(LOGTAG, String.format(Locale.getDefault(),
+                    "PrefetchUpdaterThread: CHECK FOR UPDATES: Visible[%d, %d] ;; ToBalance[%d, %d] ;; ItemsCount = %d, DirLen = %d",
+                    getLayoutFirstVisibleItemIndex(), getLayoutLastVisibleItemIndex(),
+                    getActiveCountToBalanceTop(), getActiveCountToBalanceBottom(),
+                    getActiveLayoutItemsCount(), getActiveFolderContentsSize()));
+            // TODO: Need to fix this ???
 
-                int itemsCountToAppend = getActiveCountToBalanceBottom();
+            // TODO: Check these indices again ...
+            /*int itemsCountToAppend = getActiveCountToBalanceBottom();
+            if(itemsCountToAppend > 0) { // Need to append to the bottom, trim the extra buffered layout up top:
                 int startQueryIndex = getLayoutLastVisibleItemIndex() + 1;
                 int endQueryIndex = getLayoutVisibleDisplaySize() - 1;
                 DisplayFragments displayFragmentsCtx = DisplayFragments.getInstance();
@@ -200,7 +210,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                 List<DisplayTypes.FileType> nextFileItemsList = displayFragmentsCtx.getCwdFolderContext().getWorkingDirectoryContents();
                 displayFragmentsCtx.displayNextDirectoryFilesList(nextFileItemsList);
                 List<String> nextFileNamesList = new ArrayList<String>();
-                for(DisplayTypes.FileType fileItem : nextFileItemsList) {
+                for (DisplayTypes.FileType fileItem : nextFileItemsList) {
                     nextFileNamesList.add(fileItem.getBaseName());
                 }
                 UpdateDataStruct updateDataBlock = new UpdateDataStruct(
@@ -208,13 +218,13 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                         nextFileNamesList,
                         nextFileItemsList
                 );
+                Log.i(LOGTAG, String.format(Locale.getDefault(), "POSTING update to RecyclerView: APPEND #%d data items to BOTTOM", itemsCountToAppend));
                 postUpdateNotifyToRecyclerView(updateDataBlock, displayFragmentsCtx.getMainRecyclerView());
-
             }
-            else if(getBalance() < 0) { // Prepend at top, trim from bottom:
 
-                int itemsCountToAppend = getActiveCountToBalanceTop();
-                int startQueryIndex = Math.min(0, getLayoutFirstVisibleItemIndex() - itemsCountToAppend);
+            itemsCountToAppend = getActiveCountToBalanceTop();
+            if(itemsCountToAppend > 0) { // Prepend at top, trim from bottom:
+                int startQueryIndex = Math.min(0, getLayoutFirstVisibleItemIndex() + 1 - itemsCountToAppend);
                 int endQueryIndex = Math.min(getActiveLayoutItemsCount() - 1, startQueryIndex + itemsCountToAppend - 1);
                 DisplayFragments displayFragmentsCtx = DisplayFragments.getInstance();
                 displayFragmentsCtx.getCwdFolderContext().computeDirectoryContents(
@@ -224,7 +234,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                 List<DisplayTypes.FileType> nextFileItemsList = displayFragmentsCtx.getCwdFolderContext().getWorkingDirectoryContents();
                 displayFragmentsCtx.displayNextDirectoryFilesList(nextFileItemsList);
                 List<String> nextFileNamesList = new ArrayList<String>();
-                for(DisplayTypes.FileType fileItem : nextFileItemsList) {
+                for (DisplayTypes.FileType fileItem : nextFileItemsList) {
                     nextFileNamesList.add(fileItem.getBaseName());
                 }
                 UpdateDataStruct updateDataBlock = new UpdateDataStruct(
@@ -232,9 +242,10 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                         nextFileNamesList,
                         nextFileItemsList
                 );
+                Log.i(LOGTAG, String.format(Locale.getDefault(), "POSTING update to RecyclerView: PREPEND #%d data items to TOP", itemsCountToAppend));
                 postUpdateNotifyToRecyclerView(updateDataBlock, displayFragmentsCtx.getMainRecyclerView());
+            }*/
 
-            }
             try {
                 Thread.sleep(THREAD_PAUSE_TIMEOUT);
             } catch(InterruptedException ie) {
@@ -247,85 +258,76 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
 
     public void setWeightBufferSize(int size) throws IllegalStateException {
         if(isAlive()) {
-            throw new IllegalStateException("The buffer size parameter must be reset _before_ starting the updater thread");
+            throw new IllegalStateException("The buffer size parameter must be reset _BEFORE_ starting the updater thread");
         }
         BalancedBufferSize = size;
     }
 
-    public int getBalance() {
-        return getActiveTopBufferSize() - getActiveBottomBufferSize();
-    }
+    /*
+     * Note: Since we cannot load files before the zeroth index in the directory, we need to do some
+     *       accounting to make sure that we really are keeping things balanced as planned.
+     *       Similarly, we cannot load files beyond the last indexed file in the current folder.
+     */
 
-    public int getActiveCountToBalanceTop() {
-        return BalancedBufferSize - getActiveTopBufferSize();
+    public int getActiveCountToBalanceTop() { // ??? TODO ???
+        if(getLayoutFirstVisibleItemIndex() == 0) {
+            return 0;
+        }
+        else if(getLayoutFirstVisibleItemIndex() + 1 < BalancedBufferSize) {
+            return getLayoutFirstVisibleItemIndex();
+        }
+        else {
+            return BalancedBufferSize - getActiveTopBufferSize();
+        }
     }
 
     public int getActiveTopBufferSize() {
         return getLayoutFirstVisibleItemIndex() + 1;
     }
 
-    public int getActiveCountToBalanceBottom() {
-        return BalancedBufferSize - getActiveBottomBufferSize();
+    public int getActiveCountToBalanceBottom() { // ??? TODO ???
+        if(getActiveFolderContentsSize() >= getActiveLayoutItemsCount()) {
+            return 0;
+        }
+        else if(getActiveFolderContentsSize() - getLayoutLastVisibleItemIndex() - 1 < BalancedBufferSize) {
+            return getActiveFolderContentsSize() - getLayoutLastVisibleItemIndex() - 1 - getActiveBottomBufferSize();
+        }
+        else {
+            return BalancedBufferSize - getActiveBottomBufferSize();
+        }
     }
 
-    public int getActiveBottomBufferSize() {
+    public int getActiveBottomBufferSize() { // ??? TODO ???
         int totalItemsCount = getActiveLayoutItemsCount();
         int firstVisibleIndex = getLayoutFirstVisibleItemIndex();
-        int displayVisibleSize = getLayoutVisibleDisplaySize();
+        int displayVisibleSize = Math.min(getActiveFolderContentsSize(), getLayoutVisibleDisplaySize());
         return totalItemsCount - displayVisibleSize - firstVisibleIndex + 1; // ??? Check ???
+    }
+
+    public int getActiveFolderContentsSize() {
+        return DisplayFragments.getInstance().getCwdFolderContext().getFolderChildCount();
     }
 
     public int getLayoutVisibleDisplaySize() {
         return DisplayFragments.getInstance().getViewportMaxFilesCount();
     }
 
-    private static class CallableRunner<T> implements Runnable {
-
-        protected T returnValue;
-        public T getReturnValue() { return returnValue; }
-
-        @Override
-        public void run() {}
-
-    }
-
     public int getLayoutFirstVisibleItemIndex() {
-        CallableRunner<Integer> getLayoutParamsRunner = new CallableRunner<Integer>() {
-            @Override
-            public void run() {
-                FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
-                FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-                returnValue = rvLayoutManager.findFirstCompletelyVisibleItemPosition();
-            }
-        };
-        FileChooserActivity.getInstance().runOnUiThread(getLayoutParamsRunner);
-        return getLayoutParamsRunner.getReturnValue().intValue();
+        FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+        FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+        return rvLayoutManager.findFirstCompletelyVisibleItemPosition();
     }
 
     public int getLayoutLastVisibleItemIndex() {
-        CallableRunner<Integer> getLayoutParamsRunner = new CallableRunner<Integer>() {
-            @Override
-            public void run() {
-                FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
-                FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-                returnValue = rvLayoutManager.findLastCompletelyVisibleItemPosition();
-            }
-        };
-        FileChooserActivity.getInstance().runOnUiThread(getLayoutParamsRunner);
-        return getLayoutParamsRunner.getReturnValue().intValue();
+        FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+        FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+        return rvLayoutManager.findLastCompletelyVisibleItemPosition();
     }
 
     public int getActiveLayoutItemsCount() {
-        CallableRunner<Integer> getLayoutParamsRunner = new CallableRunner<Integer>() {
-            @Override
-            public void run() {
-                FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
-                FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-                returnValue = rvLayoutManager.getItemCount();
-            }
-        };
-        FileChooserActivity.getInstance().runOnUiThread(getLayoutParamsRunner);
-        return getLayoutParamsRunner.getReturnValue().intValue();
+        FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
+        FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
+        return rvLayoutManager.getItemCount();
     }
 
 }
