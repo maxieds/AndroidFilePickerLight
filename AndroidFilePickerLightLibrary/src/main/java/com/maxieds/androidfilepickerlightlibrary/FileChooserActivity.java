@@ -57,8 +57,14 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public DisplayTypes.DirectoryResultContext getCwdFolderContext() { return cwdFolderCtx; }
     public void setCwdFolderContext(DisplayTypes.DirectoryResultContext nextCwdCtx) { cwdFolderCtx = nextCwdCtx; }
 
+    private FileChooserBuilder.BaseFolderPathType topLevelBaseFolder;
+    public FileChooserBuilder.BaseFolderPathType getTopLevelBaseFolder() { return topLevelBaseFolder; }
+    public void setTopLevelBaseFolder(FileChooserBuilder.BaseFolderPathType tlFolder) { topLevelBaseFolder = tlFolder; }
+
     private PrefetchFilesUpdater prefetchFilesUpdaterInst;
-    public void startPrefetchFileUpdatesThread() { prefetchFilesUpdaterInst.start(); }
+    public void startPrefetchFileUpdatesThread() {
+        prefetchFilesUpdaterInst.start();
+    }
     public void stopPrefetchFileUpdatesThread() { prefetchFilesUpdaterInst.interrupt(); }
 
     /**
@@ -106,7 +112,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getDisplayFragmentsInstance().allowSelectFiles = fpConfig.allowSelectFileItems();
         getDisplayFragmentsInstance().allowSelectFolders = fpConfig.allowSelectFolderItems();
 
+        topLevelBaseFolder = fpConfig.getInitialBaseFolder();
         prefetchFilesUpdaterInst = new PrefetchFilesUpdater();
+        startPrefetchFileUpdatesThread();
 
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {

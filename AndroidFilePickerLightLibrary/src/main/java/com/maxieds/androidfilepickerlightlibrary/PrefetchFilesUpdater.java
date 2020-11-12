@@ -17,6 +17,7 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -116,47 +117,68 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
     }
 
     private int BalancedBufferSize;
+    private boolean isInit;
+    private int topBufferSize;
+    private int bottomBufferSize;
 
     public PrefetchFilesUpdater() {
         // Set a sane default: My testing Android phone comfortably fits 12-15 layout items.
         BalancedBufferSize = 15;
+        isInit = false;
+        topBufferSize = bottomBufferSize = 0;
     }
 
-    private synchronized boolean postUpdateNotifyToRecyclerView(UpdateDataStruct updateDataBlock, FileChooserRecyclerView mainRV) {
-        final UpdateDataStruct updateDataInit = updateDataBlock;
-        mainRV.post(new Runnable() {
+    public void initializeFromRenderedLayout() {
+        topBufferSize = 0;
+        bottomBufferSize = getActiveLayoutItemsCount() - getLayoutVisibleDisplaySize();
+        isInit = true;
+    }
+
+    private boolean postUpdateNotifyToRecyclerView(UpdateDataStruct updateDataBlock, FileChooserRecyclerView mainRV) {
+
+        DisplayFragments displayCtx = DisplayFragments.getInstance();
+        if(updateDataBlock.postedDataBlockType.equals(UpdateDataStruct.UpdateDataType.APPEND_DATA_TO_BOTTOM)) {
+            //rvLayoutManager.setAppendToBackMode();
+            Log.i(LOGTAG, "BEFORE append: " + displayCtx.fileItemBasePathsList.size());
+            displayCtx.appendItemsToBack(
+                    updateDataBlock.nextFileNamesList,
+                    updateDataBlock.nextFileItemsList
+            );
+            Log.i(LOGTAG, "AFTER append: " + displayCtx.fileItemBasePathsList.size());
+            //mainRV.setAdapter(new DisplayAdapters.FileListAdapter(displayCtx.fileItemBasePathsList, displayCtx.activeFileItemsDataList));
+            //rvAdapter.reloadDataSets(displayCtx.fileItemBasePathsList, displayCtx.activeFileItemsDataList, true);
+                            /*rvAdapter.notifyItemRangeInserted(
+                                    displayCtx.fileItemBasePathsList.size() - updateData.nextFileItemsList.size(),
+                                    updateData.nextFileItemsList.size()
+                            );*/
+            //rvAdapter.notifyItemRangeChanged(displayCtx.fileItemBasePathsList.size() - 1 - updateData.nextFileNamesList.size(), updateData.nextFileNamesList.size());
+            /////mainRV.smoothScrollToPosition(curFirstVisibleIndex);
+            // TODO: Somewhere, need to prune this ...
+            //DisplayFragments.RecyclerViewUtils.removeItemsAtTop(updateData.nextFileItemsList.size());
+            //rvAdapter.reloadDataSets(updateData.nextFileNamesList, updateData.nextFileItemsList, false);
+            //rvAdapter.notifyItemRangeRemoved(0, updateData.nextFileItemsList.size());
+            //rvAdapter.notifyItemRangeChanged(0, getActiveLayoutItemsCount());
+            //rvLayoutManager.restoreDefaultMode();
+        }
+
+        final UpdateDataStruct updateData = updateDataBlock;
+        final Thread prefetchUpdatesThread = this;
+        FileChooserActivity.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final UpdateDataStruct updateData = updateDataInit;
-                FileChooserActivity.getInstance().runOnUiThread(new Runnable() {
+                mainRV.post(new Runnable() {
                     @Override
                     public void run() {
 
-                        // ?? TODO: Look back over this logic one more time ... ???
-                        FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
                         FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
                         DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+                        DisplayFragments displayCtx = DisplayFragments.getInstance();
 
-                        if(updateData.postedDataBlockType.equals(UpdateDataStruct.UpdateDataType.APPEND_DATA_TO_BOTTOM)) {
-                            rvLayoutManager.setAppendToBackMode();
-                            DisplayFragments.RecyclerViewUtils.appendItemsToBack(
-                                    updateData.nextFileNamesList.size(),
-                                    updateData.nextFileNamesList,
-                                    updateData.nextFileItemsList
-                            );
-                            rvAdapter.reloadDataSets(updateData.nextFileNamesList, updateData.nextFileItemsList, false);
-                            rvAdapter.notifyItemRangeInserted(
-                                    getActiveLayoutItemsCount() - updateData.nextFileItemsList.size(),
-                                    getActiveLayoutItemsCount()
-                            );
-                            rvAdapter.notifyItemRangeChanged(0, getActiveLayoutItemsCount());
-                            DisplayFragments.RecyclerViewUtils.removeItemsAtTop(updateData.nextFileItemsList.size());
-                            rvAdapter.reloadDataSets(updateData.nextFileNamesList, updateData.nextFileItemsList, false);
-                            rvAdapter.notifyItemRangeRemoved(0, updateData.nextFileItemsList.size());
-                            rvAdapter.notifyItemRangeChanged(0, getActiveLayoutItemsCount());
-                            rvLayoutManager.restoreDefaultMode();
-                        }
-                        else { // Prepend items to top, trim the extra from the bottom:
+                        int prevFirstVisibleIndex = rvLayoutManager.findFirstVisibleItemPosition() - updateData.nextFileNamesList.size();
+                        rvAdapter.reloadDataSets(displayCtx.fileItemBasePathsList, displayCtx.activeFileItemsDataList, true);
+                        mainRV.smoothScrollToPosition(prevFirstVisibleIndex);
+
+                        /*else { // Prepend items to top, trim the extra from the bottom:
                             rvLayoutManager.setInsertAtFrontMode();
                             DisplayFragments.RecyclerViewUtils.insertItemsAtTop(
                                     updateData.nextFileNamesList.size(),
@@ -166,15 +188,17 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                             rvAdapter.reloadDataSets(updateData.nextFileNamesList, updateData.nextFileItemsList, false);
                             rvAdapter.notifyItemRangeInserted(0, updateData.nextFileItemsList.size());
                             rvAdapter.notifyItemRangeChanged(0, getActiveLayoutItemsCount());
-                            DisplayFragments.RecyclerViewUtils.removeItemsFromBack(updateData.nextFileItemsList.size());
-                            rvAdapter.reloadDataSets(updateData.nextFileNamesList, updateData.nextFileItemsList, false);
-                            rvAdapter.notifyItemRangeRemoved(
-                                    getActiveLayoutItemsCount() - updateData.nextFileItemsList.size(),
-                                    getActiveLayoutItemsCount()
-                            );
-                            rvAdapter.notifyItemRangeChanged(0, getActiveLayoutItemsCount());
-                            rvLayoutManager.restoreDefaultMode();
-                        }
+                            // TODO: Somewhere, need to prune this ...
+                            //DisplayFragments.RecyclerViewUtils.removeItemsFromBack(updateData.nextFileItemsList.size());
+                            //rvAdapter.reloadDataSets(updateData.nextFileNamesList, updateData.nextFileItemsList, false);
+                            //rvAdapter.notifyItemRangeRemoved(
+                            //        getActiveLayoutItemsCount() - updateData.nextFileItemsList.size(),
+                            //        getActiveLayoutItemsCount()
+                            //);
+                            //rvAdapter.notifyItemRangeChanged(0, getActiveLayoutItemsCount());
+                            //rvLayoutManager.restoreDefaultMode();
+                        }*/
+                        prefetchUpdatesThread.interrupt();
 
                     }
                 });
@@ -183,56 +207,144 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
         return true;
     }
 
-    private static final long THREAD_PAUSE_TIMEOUT = 50; // milliseconds
+    private class PrefetchFilesAsyncTask extends AsyncTask<Void, Integer, Long> {
+
+        private int balanceBottomCount, balanceTopCount;
+
+        public PrefetchFilesAsyncTask() {
+            balanceTopCount = balanceBottomCount = 0;
+        }
+
+        protected Long doInBackground(Void... urls) {
+            //publishProgress((int) ((i / (float) count) * 100));
+            return Long.valueOf(0);
+        }
+
+        protected void onPreExecute() {
+            balanceBottomCount = getActiveCountToBalanceBottom();
+            balanceTopCount = getActiveCountToBalanceTop();
+            Log.i(LOGTAG, String.format(Locale.getDefault(),
+                    "PrefetchUpdaterThread: CHECK FOR UPDATES: Visible[%d, %d] ;; ToBalance[%d, %d] (%d, %d);; ItemsCount = %d, DirLen = %d",
+                    getLayoutFirstVisibleItemIndex(), getLayoutLastVisibleItemIndex(),
+                    balanceTopCount, balanceBottomCount,
+                    topBufferSize, bottomBufferSize,
+                    getActiveLayoutItemsCount(), getActiveFolderContentsSize()));
+        }
+
+        protected void onProgressUpdate(Integer... progress) {
+            //publishProgress((int) ((i / (float) count) * 100));
+            //setProgressBar(progress[0]);
+        }
+
+        protected void onPostExecute(Long result) {
+            //showDialog("Fetched: " + result + " file items");
+        }
+
+    }
+
+
+    private static final long THREAD_INIT_PAUSE_TIMEOUT = 150; // milliseconds
+    private static final long THREAD_PAUSE_TIMEOUT = 100; // milliseconds
+
+    private void pauseUntilInterrupted() {
+        try {
+            while (true) {
+                sleep(THREAD_PAUSE_TIMEOUT);
+            }
+        } catch(InterruptedException ie) {
+            Log.i(LOGTAG, "Prefetch thread caught interrupted exception");
+        }
+    }
 
     @Override
-    public synchronized void run() {
+    public void run() {
 
+        DisplayFragments displayCtx = DisplayFragments.getInstance();
         while(true) {
 
-            Log.i(LOGTAG, String.format(Locale.getDefault(),
-                    "PrefetchUpdaterThread: CHECK FOR UPDATES: Visible[%d, %d] ;; ToBalance[%d, %d] ;; ItemsCount = %d, DirLen = %d",
-                    getLayoutFirstVisibleItemIndex(), getLayoutLastVisibleItemIndex(),
-                    getActiveCountToBalanceTop(), getActiveCountToBalanceBottom(),
-                    getActiveLayoutItemsCount(), getActiveFolderContentsSize()));
-            // TODO: Need to fix these references in case are scrolling ???
+            if(!isInit) {
 
-            // TODO: Check these indices again ...
-            /*int itemsCountToAppend = getActiveCountToBalanceBottom();
+                Log.i(LOGTAG, "PRFETCH NOT INIT ...");
+                FileChooserActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!displayCtx.viewportCapacityMesaured && displayCtx.getMainRecyclerView().getLayoutManager().getChildCount() != 0) {
+                            displayCtx.fileItemDisplayHeight = displayCtx.getMainRecyclerView().getLayoutManager().getChildAt(0).getMeasuredHeight();
+
+                            if (displayCtx.resetViewportMaxFilesCount(displayCtx.getMainRecyclerView())) {
+                                displayCtx.getMainRecyclerView().scrollToPosition(0);
+                                initializeFromRenderedLayout();
+                            }
+                        } else if (displayCtx.viewportCapacityMesaured) {
+                            initializeFromRenderedLayout();
+                        }
+                    }
+                });
+                try {
+                    Thread.sleep(THREAD_INIT_PAUSE_TIMEOUT);
+                    continue;
+                } catch(InterruptedException ie) {
+                    ie.printStackTrace();
+                    break;
+                }
+
+            }
+
+            int balBottomCount = getActiveCountToBalanceBottom();
+            int balTopCount = getActiveCountToBalanceTop();
+            Log.i(LOGTAG, String.format(Locale.getDefault(),
+                    "PrefetchUpdaterThread: CHECK FOR UPDATES: Visible[%d, %d] ;; ToBalance[%d, %d] (%d, %d);; ItemsCount = %d, DirLen = %d",
+                    getLayoutFirstVisibleItemIndex(), getLayoutLastVisibleItemIndex(),
+                    balTopCount, balBottomCount,
+                    topBufferSize, bottomBufferSize,
+                    getActiveLayoutItemsCount(), getActiveFolderContentsSize()));
+
+            if(displayCtx.getCwdFolderContext() == null) {
+                try {
+                    Thread.sleep(THREAD_INIT_PAUSE_TIMEOUT);
+                    continue;
+                } catch(InterruptedException ie) {
+                    ie.printStackTrace();
+                    break;
+                }
+            }
+
+            int itemsCountToAppend = balBottomCount;
             if(itemsCountToAppend > 0) { // Need to append to the bottom, trim the extra buffered layout up top:
-                int startQueryIndex = getLayoutLastVisibleItemIndex() + 1;
-                int endQueryIndex = getLayoutVisibleDisplaySize() - 1;
-                DisplayFragments displayFragmentsCtx = DisplayFragments.getInstance();
-                displayFragmentsCtx.getCwdFolderContext().computeDirectoryContents(
-                        startQueryIndex, endQueryIndex, itemsCountToAppend,
-                        0, itemsCountToAppend, true
+                int startQueryIndex = displayCtx.lastFileDataStartIndex;
+                int endQueryIndex = displayCtx.lastFileDataEndIndex + itemsCountToAppend;
+                displayCtx.getCwdFolderContext().computeDirectoryContents(
+                        startQueryIndex, endQueryIndex,
+                        0, 0,
+                        itemsCountToAppend, true
                 );
-                List<DisplayTypes.FileType> nextFileItemsList = displayFragmentsCtx.getCwdFolderContext().getWorkingDirectoryContents();
-                displayFragmentsCtx.displayNextDirectoryFilesList(nextFileItemsList);
+                List<DisplayTypes.FileType> nextFileItemsList = displayCtx.getCwdFolderContext().getWorkingDirectoryContents();
+                nextFileItemsList = nextFileItemsList.subList(nextFileItemsList.size() - 1 - itemsCountToAppend, nextFileItemsList.size() - 1);
                 List<String> nextFileNamesList = new ArrayList<String>();
                 for (DisplayTypes.FileType fileItem : nextFileItemsList) {
                     nextFileNamesList.add(fileItem.getBaseName());
                 }
+                Log.i(LOGTAG, "Next append size: " + nextFileItemsList.size());
                 UpdateDataStruct updateDataBlock = new UpdateDataStruct(
                         UpdateDataStruct.UpdateDataType.APPEND_DATA_TO_BOTTOM,
                         nextFileNamesList,
                         nextFileItemsList
                 );
                 Log.i(LOGTAG, String.format(Locale.getDefault(), "POSTING update to RecyclerView: APPEND #%d data items to BOTTOM", itemsCountToAppend));
-                postUpdateNotifyToRecyclerView(updateDataBlock, displayFragmentsCtx.getMainRecyclerView());
-            }*/
+                postUpdateNotifyToRecyclerView(updateDataBlock, displayCtx.getMainRecyclerView());
+                pauseUntilInterrupted();
+            }
 
             /*itemsCountToAppend = getActiveCountToBalanceTop();
             if(itemsCountToAppend > 0) { // Prepend at top, trim from bottom:
                 int startQueryIndex = Math.min(0, getLayoutFirstVisibleItemIndex() + 1 - itemsCountToAppend);
                 int endQueryIndex = Math.min(getActiveLayoutItemsCount() - 1, startQueryIndex + itemsCountToAppend - 1);
-                DisplayFragments displayFragmentsCtx = DisplayFragments.getInstance();
-                displayFragmentsCtx.getCwdFolderContext().computeDirectoryContents(
+                displayCtx.getCwdFolderContext().computeDirectoryContents(
                         startQueryIndex, endQueryIndex, itemsCountToAppend,
                         itemsCountToAppend, 0, true
                 );
-                List<DisplayTypes.FileType> nextFileItemsList = displayFragmentsCtx.getCwdFolderContext().getWorkingDirectoryContents();
-                displayFragmentsCtx.displayNextDirectoryFilesList(nextFileItemsList);
+                List<DisplayTypes.FileType> nextFileItemsList = displayCtx.getCwdFolderContext().getWorkingDirectoryContents();
+
                 List<String> nextFileNamesList = new ArrayList<String>();
                 for (DisplayTypes.FileType fileItem : nextFileItemsList) {
                     nextFileNamesList.add(fileItem.getBaseName());
@@ -243,7 +355,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                         nextFileItemsList
                 );
                 Log.i(LOGTAG, String.format(Locale.getDefault(), "POSTING update to RecyclerView: PREPEND #%d data items to TOP", itemsCountToAppend));
-                postUpdateNotifyToRecyclerView(updateDataBlock, displayFragmentsCtx.getMainRecyclerView());
+                postUpdateNotifyToRecyclerView(updateDataBlock, displayCtx.getMainRecyclerView());
             }*/
 
             try {
@@ -269,39 +381,39 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
      *       Similarly, we cannot load files beyond the last indexed file in the current folder.
      */
 
-    public int getActiveCountToBalanceTop() { // ??? TODO ???
-        if(getLayoutFirstVisibleItemIndex() == 0) {
-            return 0;
-        }
-        else if(getLayoutFirstVisibleItemIndex() + 1 < BalancedBufferSize) {
-            return getLayoutFirstVisibleItemIndex();
-        }
-        else {
-            return BalancedBufferSize - getActiveTopBufferSize();
-        }
+    public int getActiveCountToBalanceTop() {
+        return 0;
     }
 
-    public int getActiveTopBufferSize() {
-        return getLayoutFirstVisibleItemIndex() + 1;
+    public int getTopBufferPosition() {
+        DisplayFragments displayCtx = DisplayFragments.getInstance();
+        return displayCtx.lastFileDataStartIndex;
     }
 
     public int getActiveCountToBalanceBottom() {
-        if(getActiveFolderContentsSize() <= getActiveLayoutItemsCount()) {
+        if(getActiveLayoutItemsCount() == 0 || getLayoutVisibleDisplaySize() >= getActiveFolderContentsSize() - topBufferSize) {
+            // If layout not initialized, or fits into single window, do not grow the padding buffer:
             return 0;
         }
-        else if(getActiveFolderContentsSize() - getLayoutLastVisibleItemIndex() - 1 < BalancedBufferSize) {
-            return getActiveFolderContentsSize() - getLayoutLastVisibleItemIndex() - 1 - getActiveBottomBufferSize();
+        if(!isInit && bottomBufferSize < Math.min(Math.max(0, getActiveFolderContentsSize() - topBufferSize - getLayoutVisibleDisplaySize()), BalancedBufferSize)) {
+            // Handles the initialization case (loading the buffer the first time):
+            int nextBalanceCount = Math.min(Math.max(0, getActiveFolderContentsSize() - topBufferSize - getLayoutVisibleDisplaySize()), BalancedBufferSize) - bottomBufferSize;
+            bottomBufferSize = Math.min(Math.max(0, getActiveFolderContentsSize() - topBufferSize - getLayoutVisibleDisplaySize()), BalancedBufferSize);
+            return nextBalanceCount;
+        }
+        int lastVisibleItemIndex = getLayoutLastVisibleItemIndex(); // avoiding a potential race condition when scrolling
+        if(lastVisibleItemIndex <= getBottomBufferPosition() &&
+                getBottomBufferPosition() - lastVisibleItemIndex < Math.min(getActiveFolderContentsSize() - getBottomBufferPosition(), BalancedBufferSize)) {
+            return Math.min(getActiveFolderContentsSize() - getBottomBufferPosition(), BalancedBufferSize) - getBottomBufferPosition() + lastVisibleItemIndex;
         }
         else {
-            return BalancedBufferSize - getActiveBottomBufferSize();
+            return 0;
         }
     }
 
-    public int getActiveBottomBufferSize() { // ??? TODO ???
-        int totalItemsCount = getActiveLayoutItemsCount();
-        int firstVisibleIndex = getLayoutFirstVisibleItemIndex();
-        int displayVisibleSize = Math.min(getActiveFolderContentsSize(), getLayoutVisibleDisplaySize());
-        return totalItemsCount - displayVisibleSize - firstVisibleIndex + 1; // ??? Check ???
+    public int getBottomBufferPosition() {
+        DisplayFragments displayCtx = DisplayFragments.getInstance();
+        return displayCtx.lastFileDataEndIndex;
     }
 
     public int getActiveFolderContentsSize() {
@@ -315,19 +427,19 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
     public int getLayoutFirstVisibleItemIndex() {
         FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
         FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-        return rvLayoutManager.findFirstCompletelyVisibleItemPosition();
+        return rvLayoutManager.findFirstVisibleItemPosition();
     }
 
     public int getLayoutLastVisibleItemIndex() {
         FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
         FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-        return rvLayoutManager.findLastCompletelyVisibleItemPosition();
+        return rvLayoutManager.findLastVisibleItemPosition();
     }
 
     public int getActiveLayoutItemsCount() {
         FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
-        FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-        return rvLayoutManager.getItemCount();
+        DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+        return rvAdapter.getItemCount();
     }
 
 }

@@ -80,10 +80,6 @@ public class DisplayTypes {
 
         public int getFolderChildCount() { return folderMaxChildCount; }
 
-        public static final int STATUS_ERROR = -1;
-        public static final int STATUS_SUCCESS = 0;
-        public static final int STATUS_END_OF_FOLDER = 2;
-
         public void computeDirectoryContents(int startIndexPos, int maxIndexPos,
                                              int trimFromFrontCount, int trimFromBackCount, int newItemsCount,
                                              boolean updateGlobalIndices) {
@@ -93,6 +89,7 @@ public class DisplayTypes {
                 return;
             }
             fpInst.setFilesStartIndex(startIndexPos);
+            fpInst.setFilesListLength(maxIndexPos - startIndexPos + 1);
             int initStartIndexPos = startIndexPos;
             try {
                 fpInst.noUpdateQueryFilesList(); // save some time processing if we haven't recently loaded a new folder to process
@@ -108,7 +105,7 @@ public class DisplayTypes {
                 }
                 startIndexPos = newItemsCount < 0 ? startIndexPos : startIndexPos + numItemsRequested - newItemsCount;
                 maxIndexPos = newItemsCount > 0 ? maxIndexPos : maxIndexPos + newItemsCount;
-                initMatrixCursorListing.moveToFirst();
+                initMatrixCursorListing.moveToPosition(maxIndexPos - startIndexPos + 1 - newItemsCount);
                 boolean appendNewItems = newItemsCount > 0;
                 List<FileType> filesDataList = new ArrayList<FileType>(directoryContentsList.subList(trimFromFrontCount, directoryContentsList.size() - trimFromBackCount));
                 int prependInsertIdx = 0, mcRowIdx;
@@ -132,16 +129,17 @@ public class DisplayTypes {
                 }
                 if(updateGlobalIndices) {
                     int resultSizeDiff = Math.abs(newItemsCount) - mcRowIdx;
-                    Log.i(LOGTAG, String.format(Locale.getDefault(), "UPDATING GLOBAL INDICES: [%d, %d] -> [%d, %d]", initStartIndexPos,
-                            DisplayFragments.getInstance().lastFileDataEndIndex, initStartIndexPos,
-                            DisplayFragments.getInstance().lastFileDataEndIndex - resultSizeDiff));
-                    DisplayFragments.getInstance().lastFileDataEndIndex = DisplayFragments.getInstance().lastFileDataEndIndex - resultSizeDiff;
+                    Log.i(LOGTAG, String.format(Locale.getDefault(), "UPDATING GLOBAL INDICES: [%d, %d] -> [%d, %d]",
+                            DisplayFragments.getInstance().lastFileDataStartIndex, DisplayFragments.getInstance().lastFileDataEndIndex,
+                            initStartIndexPos, maxIndexPos - resultSizeDiff));
+                    DisplayFragments.getInstance().lastFileDataStartIndex = initStartIndexPos;
+                    DisplayFragments.getInstance().lastFileDataEndIndex = maxIndexPos - resultSizeDiff;
                 }
                 setNextDirectoryContents(filesDataList);
-                Log.i(LOGTAG, "computeDirectoryContents: PRINTING NEXT (truncated) folder contents list:");
-                for(int fcidx = 0; fcidx < directoryContentsList.size(); fcidx++) {
-                    Log.i(LOGTAG, String.format(Locale.getDefault(), "   [#%02d] FILE BASE NAME => \"%s\" ... ", fcidx + 1, directoryContentsList.get(fcidx).getBaseName()));
-                }
+                //Log.i(LOGTAG, "computeDirectoryContents: PRINTING NEXT (truncated) folder contents list:");
+                //for(int fcidx = 0; fcidx < directoryContentsList.size(); fcidx++) {
+                //    Log.i(LOGTAG, String.format(Locale.getDefault(), "   [#%02d] FILE BASE NAME => \"%s\" ... ", fcidx + 1, directoryContentsList.get(fcidx).getBaseName()));
+                //}
             }
             catch(FileNotFoundException ioe) {
                 ioe.printStackTrace();
@@ -195,7 +193,7 @@ public class DisplayTypes {
                 cursoryProbe.moveToFirst();
                 String initDirBaseName = fpInst.getBaseNameAtCurrentRow(cursoryProbe, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
                 DisplayFragments.updateFolderHistoryPaths(initDirBaseName, false);
-                String cursoryProbeFolderCwd = fpInst.getPropertiesOfCurrentRow(cursoryProbe, BasicFileProvider.CURSOR_TYPE_IS_ROOT)[BasicFileProvider.PROPERTY_ABSPATH];
+                String cursoryProbeFolderCwd = cursoryProbe.getString(ArrayUtils.indexOf(cursoryProbe.getColumnNames(), BasicFileProvider.ROOT_COLUMN_NAME_ABSPATH));
                 String parentDocsId = cursoryProbe.getString(BasicFileProvider.ROOT_PROJ_ROOTID_COLUMN_INDEX);
                 MatrixCursor expandedFolderContents = (MatrixCursor) fpInst.queryChildDocuments(parentDocsId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
                 return new DirectoryResultContext(expandedFolderContents, parentDocsId, cursoryProbeFolderCwd);

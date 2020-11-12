@@ -72,13 +72,8 @@ public class FileUtils {
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(getFileExtension(filePath).toLowerCase());
     }
 
-    public static String getFilePosixPermissionsString(File fileOnDisk) {
-        try {
-            return PosixFilePermissions.toString(Files.getPosixFilePermissions(fileOnDisk.toPath()));
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-            return "";
-        }
+    public static String getFilePosixPermissionsString(Path fileOnDiskPath) throws IOException {
+        return PosixFilePermissions.toString(Files.getPosixFilePermissions(fileOnDiskPath));
     }
 
     public static String filePermsStringToShortChmodStyleCode(String rwxDashPerms, boolean isDir) {

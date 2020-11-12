@@ -31,9 +31,9 @@
     android:background="@color/__colorAccent"
     android:scrollbars="none"
     android:clickable="true"
+    android:fillViewport="true"
     tools:context=".FileChooserActivity"
     >
-    <!--android:fillViewport="true"-->
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/mainLayoutToolbarActionBar"

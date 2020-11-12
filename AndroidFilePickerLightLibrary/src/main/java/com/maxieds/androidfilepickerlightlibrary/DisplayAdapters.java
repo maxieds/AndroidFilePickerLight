@@ -44,20 +44,28 @@ public class DisplayAdapters {
 
         public FileListAdapter(List<String> nextFileListData, List<DisplayTypes.FileType> nextFileItemsData) {
             this.fileListData = new ArrayList<String>();
-            this.fileListData.addAll(nextFileListData);
             this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
-            this.fileItemsData.addAll(nextFileItemsData);
-            this.setHasStableIds(true); // ???
+            this.setHasStableIds(false); // ???
+            reloadDataSets(nextFileListData, nextFileItemsData, false);
         }
 
         public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData, boolean notifyAdapter) {
-            fileListData.clear();
-            fileListData.addAll(nextDataSet);
-            fileItemsData.clear();
-            fileItemsData.addAll(nextFileItemsData);
+            Log.i(LOGTAG, "PREV SIZE = " + fileListData.size() + ", " + nextDataSet.size());
+            if(fileListData != nextDataSet) {
+                fileListData.clear();
+                fileListData.addAll(nextDataSet);
+                //fileListData = nextDataSet;
+            }
+            if(fileItemsData != nextFileItemsData) {
+                fileItemsData.clear();
+                fileItemsData.addAll(nextFileItemsData);
+                //fileItemsData = nextFileItemsData;
+            }
             if(notifyAdapter) {
                 notifyDataSetChanged();
+                //notifyItemRangeInserted(0, nextDataSet.size());
             }
+            Log.i(LOGTAG, "POST SIZE = " + fileListData.size());
         }
 
         public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData) {
@@ -107,10 +115,10 @@ public class DisplayAdapters {
 
         @Override
         public long getItemId(int posIndex) {
-            if(fileItemsData.get(posIndex).getLayoutContainer() != null){
+            if(fileItemsData.size() > posIndex && fileItemsData.get(posIndex).getLayoutContainer() != null){
                 return fileItemsData.get(posIndex).getLayoutContainer().hashCode();
             }
-            else if(fileItemsData.get(posIndex) != null) {
+            else if(fileItemsData.size() > posIndex) {
                 return fileItemsData.get(posIndex).hashCode();
             }
             return posIndex;
@@ -156,7 +164,7 @@ public class DisplayAdapters {
             v.setOnLongClickListener(this);
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
             initIndexPos = -1;
-            setIsRecyclable(false); // ???
+            //setIsRecyclable(false); // ???
         }
 
         public TextView getDisplayText() { return displayText; }
@@ -173,7 +181,7 @@ public class DisplayAdapters {
         @Override
         public boolean onLongClick(View v) {
             Log.i(LOGTAG, "BaseViewHolder::onLongClick");
-            int fileItemPosIndex = DisplayFragments.RecyclerViewUtils.findFileItemIndexByLayout(v);
+            int fileItemPosIndex = DisplayFragments.getInstance().findFileItemIndexByLayout(v);
             if(fileItemPosIndex < 0) {
                 return false;
             }
@@ -274,7 +282,7 @@ public class DisplayAdapters {
         @Override
         public void onCheckedChanged(CompoundButton btnView, boolean isChecked) {
             CheckBox cbView = (CheckBox) btnView;
-            int fileItemPosIndex = DisplayFragments.RecyclerViewUtils.findFileItemIndexByLayout((View) btnView.getParent());
+            int fileItemPosIndex = DisplayFragments.getInstance().findFileItemIndexByLayout((View) btnView.getParent());
             if(fileItemPosIndex < 0) {
                 Log.i(LOGTAG, "onCheckedChanged: Unable to find parent view index ...");
                 return;

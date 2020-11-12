@@ -33,13 +33,17 @@ import android.webkit.MimeTypeMap;
 
 import androidx.core.content.FileProvider;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -188,6 +192,13 @@ public class BasicFileProvider extends DocumentsProvider {
         return true;
     }
 
+    public static final String ROOT_COLUMN_NAME_ABSPATH = "Root.CustomColumn.AbsolutePath";
+    public static final String DOCUMENT_COLUMN_NAME_ABSPATH = "Document.CustomColumn.AbsolutePath";
+    public static final String DOCUMENT_COLUMN_NAME_FILE_SIZE_LABEL = "Document.CustomColumn.FileSizeLabel";
+    public static final String DOCUMENT_COLUMN_NAME_POSIX_PERMS = "Document.CustomColumn.PosixPerms";
+    public static final String DOCUMENT_COLUMN_NAME_ISDIR = "Document.CustomColumn.IsDir";
+    public static final String DOCUMENT_COLUMN_NAME_ISHIDDEN = "Document.CustomColumn.IsHidden";
+
     public static final String[] DEFAULT_ROOT_PROJECTION = new String[] {
             DocumentsContract.Root.COLUMN_ROOT_ID,
             DocumentsContract.Root.COLUMN_MIME_TYPES,
@@ -196,7 +207,8 @@ public class BasicFileProvider extends DocumentsProvider {
             DocumentsContract.Root.COLUMN_TITLE,
             DocumentsContract.Root.COLUMN_SUMMARY,
             DocumentsContract.Root.COLUMN_DOCUMENT_ID,
-            DocumentsContract.Root.COLUMN_AVAILABLE_BYTES
+            DocumentsContract.Root.COLUMN_AVAILABLE_BYTES,
+            ROOT_COLUMN_NAME_ABSPATH
     };
 
     public static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[] {
@@ -205,12 +217,16 @@ public class BasicFileProvider extends DocumentsProvider {
             DocumentsContract.Document.COLUMN_DISPLAY_NAME,
             DocumentsContract.Document.COLUMN_LAST_MODIFIED,
             DocumentsContract.Document.COLUMN_FLAGS,
-            DocumentsContract.Document.COLUMN_SIZE
+            DocumentsContract.Document.COLUMN_SIZE,
+            DOCUMENT_COLUMN_NAME_ABSPATH,
+            DOCUMENT_COLUMN_NAME_FILE_SIZE_LABEL,
+            DOCUMENT_COLUMN_NAME_POSIX_PERMS,
+            DOCUMENT_COLUMN_NAME_ISDIR,
+            DOCUMENT_COLUMN_NAME_ISHIDDEN
     };
 
     public static final int ROOT_PROJ_ROOTID_COLUMN_INDEX = 6;
-    public static final int ROOT_PROJ_DOCID_COLUMN_INDEX = 6;
-    public static final int DOCS_PROJ_PARENTID_COLUMN_INDEX = 0;
+    public static final int DOCS_PROJ_DOCID_COLUMN_INDEX = 0;
 
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {
@@ -231,7 +247,8 @@ public class BasicFileProvider extends DocumentsProvider {
         row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, getChildMimeTypes(baseDirPath));
         row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, baseDirPath != null ? baseDirPath.getFreeSpace() : 0);
         row.add(DocumentsContract.Root.COLUMN_ICON, R.drawable.library_profile_icon_round_background);
-
+        // Custom columns:
+        row.add(ROOT_COLUMN_NAME_ABSPATH, baseDirPath.getAbsolutePath());
         return mcResult;
 
     }
@@ -527,6 +544,17 @@ public class BasicFileProvider extends DocumentsProvider {
         row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, file.lastModified());
         row.add(DocumentsContract.Document.COLUMN_FLAGS, flags);
         row.add(DocumentsContract.Document.COLUMN_ICON, R.drawable.library_profile_icon_round_background);
+        // Custom columns:
+        row.add(DOCUMENT_COLUMN_NAME_ABSPATH, file.getAbsolutePath());
+        row.add(DOCUMENT_COLUMN_NAME_FILE_SIZE_LABEL, FileUtils.getFileSizeString(file));
+        try {
+            row.add(DOCUMENT_COLUMN_NAME_POSIX_PERMS, FileUtils.getFilePosixPermissionsString(file.toPath()));
+        } catch(Exception ex) {
+            row.add(DOCUMENT_COLUMN_NAME_POSIX_PERMS, "---------");
+        }
+        row.add(DOCUMENT_COLUMN_NAME_ISDIR, file.isDirectory() ? "true" : "false");
+        row.add(DOCUMENT_COLUMN_NAME_ISHIDDEN, file.isHidden() ? "true" : "false");
+
     }
 
     private File getFileForDocId(String docId) throws FileNotFoundException {
@@ -554,27 +582,18 @@ public class BasicFileProvider extends DocumentsProvider {
         if(mcResult.getCount() == 0) {
             return null;
         }
-        String docId = "";
+        String columnName = "";
         if(cursorType == CURSOR_TYPE_IS_ROOT) {
-            docId = mcResult.getString(ROOT_PROJ_ROOTID_COLUMN_INDEX);
+            columnName = DocumentsContract.Root.COLUMN_DOCUMENT_ID;
         }
         else {
-            docId = mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX);
+            columnName = DocumentsContract.Document.COLUMN_DOCUMENT_ID;
         }
-        return docId;
-    }
-
-    public File getFileAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
-        if(mcResult.getCount() == 0) {
-            return null;
+        int docIdColumnIndex = ArrayUtils.indexOf(mcResult.getColumnNames(), columnName);
+        if(docIdColumnIndex >= 0) {
+            return mcResult.getString(docIdColumnIndex);
         }
-        String docId = getDocumentIdForCursorType(mcResult, cursorType);
-        try {
-            return getFileForDocId(docId);
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-        }
+        return null;
     }
 
     public String getAbsPathAtCurrentRow(MatrixCursor mcResult, boolean cursorType) {
@@ -621,15 +640,28 @@ public class BasicFileProvider extends DocumentsProvider {
             File curWorkingFile = getFileForDocId(docId);
             return new String[] {
                     curWorkingFile.getAbsolutePath(),
-                    mcResult.getString(DOCS_PROJ_PARENTID_COLUMN_INDEX),
+                    mcResult.getString(DOCS_PROJ_DOCID_COLUMN_INDEX),
                     FileUtils.getFileSizeString(curWorkingFile),
-                    FileUtils.getFilePosixPermissionsString(curWorkingFile),
+                    FileUtils.getFilePosixPermissionsString(curWorkingFile.toPath()),
                     String.format(Locale.getDefault(), "%s", curWorkingFile.isDirectory() ? "true" : "false"),
                     String.format(Locale.getDefault(), "%s", curWorkingFile.isHidden() ? "true" : "false")
             };
         } catch(IOException ioe) {
-            ioe.printStackTrace();
-            return null;
+            //ioe.printStackTrace();
+            try {
+                String[] mcColumnNames = mcResult.getColumnNames();
+                return new String[] {
+                        mcResult.getString(ArrayUtils.indexOf(mcColumnNames, DOCUMENT_COLUMN_NAME_ABSPATH)),
+                        getDocumentIdForCursorType(mcResult, !CURSOR_TYPE_IS_ROOT),
+                        mcResult.getString(ArrayUtils.indexOf(mcColumnNames, DOCUMENT_COLUMN_NAME_FILE_SIZE_LABEL)),
+                        mcResult.getString(ArrayUtils.indexOf(mcColumnNames, DOCUMENT_COLUMN_NAME_POSIX_PERMS)),
+                        mcResult.getString(ArrayUtils.indexOf(mcColumnNames, DOCUMENT_COLUMN_NAME_ISDIR)),
+                        mcResult.getString(ArrayUtils.indexOf(mcColumnNames, DOCUMENT_COLUMN_NAME_ISHIDDEN))
+                };
+            } catch(Exception ex) {
+                ex.printStackTrace();
+                return null;
+            }
         }
     }
 
