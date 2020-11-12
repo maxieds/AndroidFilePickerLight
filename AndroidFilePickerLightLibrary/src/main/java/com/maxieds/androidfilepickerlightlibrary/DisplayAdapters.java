@@ -45,31 +45,33 @@ public class DisplayAdapters {
         public FileListAdapter(List<String> nextFileListData, List<DisplayTypes.FileType> nextFileItemsData) {
             this.fileListData = new ArrayList<String>();
             this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
-            this.setHasStableIds(false); // ???
+            this.setHasStableIds(true);
             reloadDataSets(nextFileListData, nextFileItemsData, false);
         }
 
         public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData, boolean notifyAdapter) {
-            Log.i(LOGTAG, "PREV SIZE = " + fileListData.size() + ", " + nextDataSet.size());
             if(fileListData != nextDataSet) {
                 fileListData.clear();
                 fileListData.addAll(nextDataSet);
-                //fileListData = nextDataSet;
             }
             if(fileItemsData != nextFileItemsData) {
                 fileItemsData.clear();
                 fileItemsData.addAll(nextFileItemsData);
-                //fileItemsData = nextFileItemsData;
             }
             if(notifyAdapter) {
                 notifyDataSetChanged();
-                //notifyItemRangeInserted(0, nextDataSet.size());
             }
-            Log.i(LOGTAG, "POST SIZE = " + fileListData.size());
         }
 
         public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData) {
             reloadDataSets(nextDataSet, nextFileItemsData, true);
+        }
+
+        public DisplayTypes.FileType getFileItemByIndex(int indexPos) {
+            if(indexPos < 0 || indexPos >= fileItemsData.size()) {
+                return null;
+            }
+            return fileItemsData.get(indexPos);
         }
 
         private static final int VIEW_TYPE_FILE_ITEM = 0;
@@ -83,29 +85,30 @@ public class DisplayAdapters {
 
         @Override
         public void onBindViewHolder(BaseViewHolder bvHolder, int posIndex) {
-            bvHolder.getDisplayText().setText(fileListData.get(posIndex));
-            //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
+            bvHolder.setInitialIndexPosition(posIndex);
             if(!fileItemsData.isEmpty()) {
                 DisplayTypes.FileType fileItem = fileItemsData.get(posIndex);
                 fileItem.setLayoutContainer(bvHolder.getMainViewLayoutContainer());
                 View viewItemContainer = bvHolder.getMainViewLayoutContainer();
                 DisplayFragments.FileListItemFragment.resetLayout(viewItemContainer, fileItem, posIndex);
-           }
+            }
+            //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s (ADAPTER -> %s) [DATA ITEMS SIZE = %d]", posIndex,
+            //        bvHolder.getDisplayText().getText(), fileListData.get(posIndex), fileItemsData.size()));
         }
 
         @Override
         public void onViewRecycled(BaseViewHolder bvHolder) {
-            //Log.i(LOGTAG,"onViewRecycled: " + bvHolder);
+            //Log.i(LOGTAG,"onViewRecycled: " + bvHolder + " AT initial INDEX " + bvHolder.getInitialIndexPosition());
         }
 
         @Override
         public void onViewDetachedFromWindow(BaseViewHolder bvHolder) {
-            //Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder);
+            //Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder + " AT initial INDEX " + bvHolder.getInitialIndexPosition());
         }
 
         @Override
         public void onViewAttachedToWindow(BaseViewHolder bvHolder) {
-            //Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder);
+            //Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder + " AT initial INDEX " + bvHolder.getInitialIndexPosition());
         }
 
         @Override
@@ -115,19 +118,12 @@ public class DisplayAdapters {
 
         @Override
         public long getItemId(int posIndex) {
-            if(fileItemsData.size() > posIndex && fileItemsData.get(posIndex).getLayoutContainer() != null){
-                return fileItemsData.get(posIndex).getLayoutContainer().hashCode();
-            }
-            else if(fileItemsData.size() > posIndex) {
-                return fileItemsData.get(posIndex).hashCode();
-            }
             return posIndex;
         }
 
         @Override
         public int getItemViewType(int posIndex) {
-            //return posIndex;
-            return VIEW_TYPE_FILE_ITEM;
+            return posIndex;
         }
 
     }
@@ -164,14 +160,33 @@ public class DisplayAdapters {
             v.setOnLongClickListener(this);
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
             initIndexPos = -1;
-            //setIsRecyclable(false); // ???
+
         }
 
         public TextView getDisplayText() { return displayText; }
+        public void setDisplayText(TextView nextDisplayText) { displayText = nextDisplayText; }
 
         public int getInitialIndexPosition() { return initIndexPos; }
+        public void setInitialIndexPosition(int initIdx) { initIndexPos = initIdx; }
 
         public View getMainViewLayoutContainer() { return fileItemContainerView; }
+
+        private static int getPositionForView(View v) {
+            DisplayFragments displayCtx = DisplayFragments.getInstance();
+            FileChooserRecyclerView mainRV = displayCtx.getMainRecyclerView();
+            BaseViewHolder bvHolder = (BaseViewHolder) mainRV.getChildViewHolder(v);
+            if(bvHolder == null) {
+                return -1;
+            }
+            return bvHolder.getInitialIndexPosition();
+        }
+
+        public static DisplayTypes.FileType getFileItemForView(View v) {
+            DisplayFragments displayCtx = DisplayFragments.getInstance();
+            FileChooserRecyclerView mainRV = displayCtx.getMainRecyclerView();
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+            return rvAdapter.getFileItemByIndex(getPositionForView(v));
+        }
 
         @Override
         public void onClick(View v) {
@@ -181,17 +196,14 @@ public class DisplayAdapters {
         @Override
         public boolean onLongClick(View v) {
             Log.i(LOGTAG, "BaseViewHolder::onLongClick");
-            int fileItemPosIndex = DisplayFragments.getInstance().findFileItemIndexByLayout(v);
-            if(fileItemPosIndex < 0) {
-                return false;
-            }
-            DisplayTypes.FileType fileItem = DisplayFragments.getInstance().activeFileItemsDataList.get(fileItemPosIndex);
+            DisplayTypes.FileType fileItem = getFileItemForView(v);
             if(fileItem != null && fileItem.isDirectory()) {
                 // Recursively descend into the clicked directory location:
                 DisplayTypes.DirectoryResultContext nextFolder = fileItem.getParentFolderContext();
                 if(nextFolder == null) {
                     return false;
                 }
+                int fileItemPosIndex = getPositionForView(v);
                 DisplayTypes.DirectoryResultContext workingFolder = DisplayFragments.getInstance().pathHistoryStack.peek();
                 DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
                 if(workingFolder == null) {
@@ -282,12 +294,7 @@ public class DisplayAdapters {
         @Override
         public void onCheckedChanged(CompoundButton btnView, boolean isChecked) {
             CheckBox cbView = (CheckBox) btnView;
-            int fileItemPosIndex = DisplayFragments.getInstance().findFileItemIndexByLayout((View) btnView.getParent());
-            if(fileItemPosIndex < 0) {
-                Log.i(LOGTAG, "onCheckedChanged: Unable to find parent view index ...");
-                return;
-            }
-            DisplayTypes.FileType fileItem = DisplayFragments.getInstance().activeFileItemsDataList.get(fileItemPosIndex);
+            DisplayTypes.FileType fileItem = BaseViewHolder.getFileItemForView((View) btnView.getParent());
             if(fileItem != null) {
                 performNewFileItemClick(cbView, fileItem);
             }

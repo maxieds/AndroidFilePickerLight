@@ -84,30 +84,33 @@ public class DisplayTypes {
                                              int trimFromFrontCount, int trimFromBackCount, int newItemsCount,
                                              boolean updateGlobalIndices) {
             Log.i(LOGTAG, String.format(Locale.getDefault(), "STARTING: Computing dir contents [%d, %d] -- %s", startIndexPos, maxIndexPos, activeCWDAbsPath));
+            if(startIndexPos >= getFolderChildCount() || maxIndexPos < startIndexPos) {
+                Log.e(LOGTAG, String.format("RETURNING positions out of range %d / [%d, %d] ... ", getFolderChildCount(), startIndexPos, maxIndexPos));
+                directoryContentsList.clear();
+                return;
+            }
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             if(fpInst == null) {
                 return;
             }
-            fpInst.setFilesStartIndex(startIndexPos);
-            fpInst.setFilesListLength(maxIndexPos - startIndexPos + 1);
+            if(newItemsCount > 0) {
+                fpInst.setFilesStartIndex(maxIndexPos + 1 - Math.abs(newItemsCount));
+                fpInst.setFilesListLength(Math.abs(newItemsCount));
+                Log.i(LOGTAG, "REQUESTING start index = " + (maxIndexPos + 1 - Math.abs(newItemsCount)) + ", LEN = " + Math.abs(newItemsCount));
+            }
+            else {
+                fpInst.setFilesStartIndex(startIndexPos);
+                fpInst.setFilesListLength(Math.abs(newItemsCount));
+                Log.i(LOGTAG, "REQUESTING start index = " + startIndexPos + ", LEN = " + Math.abs(newItemsCount));
+            }
             int initStartIndexPos = startIndexPos;
             try {
                 fpInst.noUpdateQueryFilesList(); // save some time processing if we haven't recently loaded a new folder to process
                 String parentDocsId = parentDocId;
                 initMatrixCursorListing = (MatrixCursor) fpInst.queryChildDocuments(parentDocsId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
-                int numItemsRequested = maxIndexPos + 1 - startIndexPos;
-                maxIndexPos = maxIndexPos - startIndexPos;
-                startIndexPos = 0;
-                if(startIndexPos >= getInitialMatrixCursor().getCount() || maxIndexPos < startIndexPos) {
-                    Log.e(LOGTAG, String.format("RETURNING cursor positions out of range %d / [%d, %d] ... ", getInitialMatrixCursor().getCount(), startIndexPos, maxIndexPos));
-                    directoryContentsList.clear();
-                    return;
-                }
-                startIndexPos = newItemsCount < 0 ? startIndexPos : startIndexPos + numItemsRequested - newItemsCount;
-                maxIndexPos = newItemsCount > 0 ? maxIndexPos : maxIndexPos + newItemsCount;
-                initMatrixCursorListing.moveToPosition(maxIndexPos - startIndexPos + 1 - newItemsCount);
+                initMatrixCursorListing.moveToPosition(0);
                 boolean appendNewItems = newItemsCount > 0;
-                List<FileType> filesDataList = new ArrayList<FileType>(directoryContentsList.subList(trimFromFrontCount, directoryContentsList.size() - trimFromBackCount));
+                List<FileType> filesDataList = directoryContentsList.subList(trimFromFrontCount, directoryContentsList.size() - trimFromBackCount);
                 int prependInsertIdx = 0, mcRowIdx;
                 for (mcRowIdx = 0; mcRowIdx < Math.min(initMatrixCursorListing.getCount(), Math.abs(newItemsCount)); mcRowIdx++) {
                     String[] filePropertiesList = fpInst.getPropertiesOfCurrentRow(initMatrixCursorListing, !BasicFileProvider.CURSOR_TYPE_IS_ROOT);
@@ -136,10 +139,11 @@ public class DisplayTypes {
                     DisplayFragments.getInstance().lastFileDataEndIndex = maxIndexPos - resultSizeDiff;
                 }
                 setNextDirectoryContents(filesDataList);
-                //Log.i(LOGTAG, "computeDirectoryContents: PRINTING NEXT (truncated) folder contents list:");
-                //for(int fcidx = 0; fcidx < directoryContentsList.size(); fcidx++) {
-                //    Log.i(LOGTAG, String.format(Locale.getDefault(), "   [#%02d] FILE BASE NAME => \"%s\" ... ", fcidx + 1, directoryContentsList.get(fcidx).getBaseName()));
-                //}
+                Log.i(LOGTAG, "computeDirectoryContents: PRINTING NEXT (truncated) folder contents list:");
+                for(int fcidx = Math.max(0, directoryContentsList.size() - 3); fcidx < directoryContentsList.size(); fcidx++) {
+                    Log.i(LOGTAG, String.format(Locale.getDefault(), "   [#%02d => %02d ACTUAL Idx] FILE BASE NAME => \"%s\" ... ", fcidx + 1,
+                            fcidx + 1 + DisplayFragments.getInstance().lastFileDataStartIndex, directoryContentsList.get(fcidx).getBaseName()));
+                }
             }
             catch(FileNotFoundException ioe) {
                 ioe.printStackTrace();

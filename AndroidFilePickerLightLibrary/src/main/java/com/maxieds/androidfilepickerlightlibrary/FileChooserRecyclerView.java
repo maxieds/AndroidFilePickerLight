@@ -60,8 +60,8 @@ public class FileChooserRecyclerView extends RecyclerView {
 
     public void setupRecyclerViewLayout() {
 
-        setHasFixedSize(true);
-        setItemViewCacheSize(0);
+        setHasFixedSize(false);
+        //setItemViewCacheSize(0);
         setNestedScrollingEnabled(false);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -76,32 +76,27 @@ public class FileChooserRecyclerView extends RecyclerView {
         /*
          * This code fragment gets called when the RecyclerView layout is first displayed:
          */
-        /*final FileChooserRecyclerView recyclerView = this;
+        /*
+        final FileChooserRecyclerView recyclerView = this;
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                recyclerView.isVisible = true;
                 recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                DisplayFragments displayFragmentsCtx = DisplayFragments.getInstance();
-                if(!displayFragmentsCtx.viewportCapacityMesaured && recyclerView.getLayoutManager().getChildCount() != 0) {
-                    displayFragmentsCtx.fileItemDisplayHeight = recyclerView.getLayoutManager().getChildAt(0).getMeasuredHeight();
-                    if (displayFragmentsCtx.fileItemDisplayHeight > 0) {
-                        displayFragmentsCtx.resetViewportMaxFilesCount(recyclerView);
-                        recyclerView.smoothScrollToPosition(0);
-                    }
-                }
+                // DOES NOT always work ...
             }
-        });*/
+        });
+        */
 
     }
 
     // We want it to move when flung and be responsive, but keep a constant rate of movement:
-    public static final float SCROLLER_MILLISECONDS_PER_INCH = 24.0f; // larger values slow it down
+    public static final float SCROLLER_MILLISECONDS_PER_INCH = 62.0f; // larger values slow it down
 
     /*@Override
     public boolean fling(int velocityX, int velocityY) {
-        float slowDownBy = calculateSpeedPerPixel(FileChooserActivity.getInstance().getResources().getDisplayMetrics());
-        return super.fling((int) (velocityX * slowDownBy), (int) (velocityY * slowDownBy));
+        //float slowDownBy = calculateSpeedPerPixel(FileChooserActivity.getInstance().getResources().getDisplayMetrics());
+        //return super.fling((int) (velocityX * slowDownBy), (int) (velocityY * slowDownBy));
+        return super.fling(velocityX, 0);
     }
 
     protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
@@ -139,7 +134,7 @@ public class FileChooserRecyclerView extends RecyclerView {
             setOrientation(LinearLayoutManager.VERTICAL);
             setAutoMeasureEnabled(true);
             setReverseLayout(false);
-            setStackFromEnd(true);
+            setStackFromEnd(true); // ???
             setSmoothScrollbarEnabled(true);
             localStaticInst = this;
             nextPositionOffsetDiff = 1;
@@ -148,21 +143,6 @@ public class FileChooserRecyclerView extends RecyclerView {
         @Override
         public boolean isAutoMeasureEnabled() {
             return true;
-        }
-
-        public void setInsertAtFrontMode() {
-            //setReverseLayout(true);
-            //setStackFromEnd(false);
-        }
-
-        public void setAppendToBackMode() {
-            setReverseLayout(false);
-            setStackFromEnd(true);
-        }
-
-        public void restoreDefaultMode() {
-            setReverseLayout(false);
-            setStackFromEnd(true);
         }
 
         /*@Override
