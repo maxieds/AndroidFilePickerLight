@@ -19,7 +19,7 @@
 
 <resources>
 
-    <color name="colorMainToolbarBackground">#031B29</color>
+    <color name="colorMainToolbarBackground">#0D212D</color>
     <color name="colorMainToolbarBackground2">#1C323E</color>
     <color name="colorMainToolbarBackground3">#354954</color>
     <color name="colorMainToolbarBackground4">#4f5F69</color>
@@ -27,6 +27,8 @@
     <color name="colorFileListDivider_border">#90A9B8</color>
     <color name="colorFileListDivider_gradientStart">#BCCBD4</color>
     <color name="colorFileListDivider_gradientEnd">#E9EEF1</color>
+    <color name="colorToolbarDivider">#215270</color>
+    <color name="colorToolbarNav">#A6BAC6</color>
     <color name="__colorPrimary">#72B1D6</color>
     <color name="__colorPrimaryDark">#215270</color>
     <color name="__colorPrimaryVeryDark">#061B29</color>

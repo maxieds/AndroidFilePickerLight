@@ -186,7 +186,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
     private static final long THREAD_PAUSE_TIMEOUT = 50; // milliseconds
 
     @Override
-    public void run() {
+    public synchronized void run() {
 
         while(true) {
 
@@ -195,7 +195,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                     getLayoutFirstVisibleItemIndex(), getLayoutLastVisibleItemIndex(),
                     getActiveCountToBalanceTop(), getActiveCountToBalanceBottom(),
                     getActiveLayoutItemsCount(), getActiveFolderContentsSize()));
-            // TODO: Need to fix this ???
+            // TODO: Need to fix these references in case are scrolling ???
 
             // TODO: Check these indices again ...
             /*int itemsCountToAppend = getActiveCountToBalanceBottom();
@@ -220,9 +220,9 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                 );
                 Log.i(LOGTAG, String.format(Locale.getDefault(), "POSTING update to RecyclerView: APPEND #%d data items to BOTTOM", itemsCountToAppend));
                 postUpdateNotifyToRecyclerView(updateDataBlock, displayFragmentsCtx.getMainRecyclerView());
-            }
+            }*/
 
-            itemsCountToAppend = getActiveCountToBalanceTop();
+            /*itemsCountToAppend = getActiveCountToBalanceTop();
             if(itemsCountToAppend > 0) { // Prepend at top, trim from bottom:
                 int startQueryIndex = Math.min(0, getLayoutFirstVisibleItemIndex() + 1 - itemsCountToAppend);
                 int endQueryIndex = Math.min(getActiveLayoutItemsCount() - 1, startQueryIndex + itemsCountToAppend - 1);
@@ -285,8 +285,8 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
         return getLayoutFirstVisibleItemIndex() + 1;
     }
 
-    public int getActiveCountToBalanceBottom() { // ??? TODO ???
-        if(getActiveFolderContentsSize() >= getActiveLayoutItemsCount()) {
+    public int getActiveCountToBalanceBottom() {
+        if(getActiveFolderContentsSize() <= getActiveLayoutItemsCount()) {
             return 0;
         }
         else if(getActiveFolderContentsSize() - getLayoutLastVisibleItemIndex() - 1 < BalancedBufferSize) {

@@ -29,6 +29,8 @@
     <attr name="mainToolbarBackgroundColor3" format="reference|color" />
     <attr name="mainToolbarBackgroundColor4" format="reference|color" />
     <attr name="mainToolbarForegroundTextColor" format="reference|color" />
+    <attr name="colorToolbarDivider" format="reference|color" />
+    <attr name="colorToolbarNav" format="reference|color" />
     <attr name="__colorPrimary" format="reference|color" />
     <attr name="__colorPrimaryDark" format="reference|color" />
     <attr name="__colorPrimaryVeryDark" format="reference|color" />

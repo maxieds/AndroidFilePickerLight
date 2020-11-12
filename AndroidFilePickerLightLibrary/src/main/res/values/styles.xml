@@ -39,6 +39,8 @@
         <item name="mainToolbarBackgroundColor3">@color/colorMainToolbarBackground3</item>
         <item name="mainToolbarBackgroundColor4">@color/colorMainToolbarBackground4</item>
         <item name="mainToolbarForegroundTextColor">@color/colorMainToolbarForegroundText</item>
+        <item name="colorToolbarDivider">@color/colorToolbarDivider</item>
+        <item name="colorToolbarNav">@color/colorToolbarNav</item>
         <item name="__colorPrimary">@color/__colorPrimary</item>
         <item name="__colorPrimaryDark">@color/__colorPrimaryDark</item>
         <item name="__colorPrimaryVeryDark">@color/__colorPrimaryVeryDark</item>
@@ -57,7 +59,7 @@
 
     <style name="LibraryToolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">normal|bold|italic</item>
+        <item name="android:textStyle">normal|bold</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:typeface">serif</item>
         <item name="android:gravity">center_vertical|left</item>
@@ -66,7 +68,7 @@
 
     <style name="LibraryToolbar.SubtitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">normal|italic|bold</item>
+        <item name="android:textStyle">normal|bold</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:typeface">serif</item>
         <item name="android:gravity">center_vertical|center</item>

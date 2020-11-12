@@ -48,7 +48,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
+        android:background="?colorToolbarDivider" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -58,7 +58,7 @@
         android:padding="0dp"
         android:layout_gravity="right|center_vertical"
         android:gravity="right|center_vertical"
-        android:background="?__colorAccent"
+        android:background="?colorToolbarNav"
         android:orientation="vertical"
         android:clickable="true"
         >
@@ -71,7 +71,7 @@
             android:layout_marginBottom="1dp"
             android:layout_marginRight="8dp"
             android:layout_marginLeft="8dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="6dp"
             android:paddingRight="15dp"
             android:layout_gravity="left|center_vertical"
             android:gravity="left|center_vertical"
@@ -102,7 +102,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
+        android:background="?colorToolbarDivider" />
 
     <LinearLayout
         android:id="@+id/mainDirPrevPathsNavContainer"
@@ -123,23 +123,23 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
             android:layout_margin="2dp"
-            android:paddingLeft="18dp"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
             android:background="@android:color/transparent"
             android:src="@drawable/nav_back_button_icon32"
             />
 
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="3dp"
-            android:layout_marginLeft="12dp"
-            android:src="@drawable/nav_dirs_path_dotdotdot_icon48" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="2dp"
-            android:src="@drawable/nav_dirs_path_separator_icon48" />
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:text=" {...} / "
+            android:textColor="?__colorPrimaryDark"
+            android:textSize="14sp"
+            android:textStyle="normal|bold"
+            android:typeface="serif"
+            />
 
         <TextView
             android:id="@+id/mainDirNavBackTwoPathDisplayText"
@@ -149,16 +149,22 @@
             android:layout_gravity="right|center_vertical"
             android:text="---"
             android:textColor="?__colorPrimaryDark"
-            android:textSize="11sp"
+            android:textSize="14sp"
             android:textStyle="normal|bold"
             android:typeface="serif"
             />
 
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="2dp"
-            android:src="@drawable/nav_dirs_path_separator_icon48" />
+            android:gravity="right|center_vertical"
+            android:layout_gravity="right|center_vertical"
+            android:text=" / "
+            android:textColor="?__colorPrimaryDark"
+            android:textSize="14sp"
+            android:textStyle="normal|bold"
+            android:typeface="serif"
+            />
 
         <TextView
             android:id="@+id/mainDirNavBackOnePathDisplayText"
@@ -168,7 +174,7 @@
             android:layout_gravity="right|center_vertical"
             android:text="---"
             android:textColor="?__colorPrimaryDark"
-            android:textSize="11sp"
+            android:textSize="14sp"
             android:textStyle="normal|bold"
             android:typeface="serif"
             />
@@ -178,7 +184,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
+        android:background="?colorToolbarDivider" />
 
     <LinearLayout
         android:id="@+id/mainRecyclerViewContainer"
@@ -213,14 +219,13 @@
             android:overScrollMode="never"
             android:scrollbarSize="30dp"
             />
-        <!--android:clickable="true"-->
 
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="?__colorPrimaryVeryDark" />
+        android:background="?colorToolbarDivider" />
 
     <LinearLayout
         android:layout_width="fill_parent"

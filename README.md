@@ -45,7 +45,7 @@ Key features in the library include the following:
   
 ### Screenshots of the library in action (TODO)
 
-<img src="" width="250" /><img src="" width="250" /><img src="" width="250" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /><img src="" width="250" /><img src="" width="250" />
 
 <img src="" width="250" /><img src="" width="250" /><img src="" width="250" />
 

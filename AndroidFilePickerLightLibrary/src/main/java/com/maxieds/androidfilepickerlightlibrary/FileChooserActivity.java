@@ -107,14 +107,6 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getDisplayFragmentsInstance().allowSelectFolders = fpConfig.allowSelectFolderItems();
 
         prefetchFilesUpdaterInst = new PrefetchFilesUpdater();
-        Handler startPrefetchFilesThreadHandler = new Handler();
-        Runnable startPrefetchFilesThreadRunner = new Runnable() {
-            @Override
-            public void run() {
-                FileChooserActivity.getInstance().startPrefetchFileUpdatesThread();
-            }
-        };
-        startPrefetchFilesThreadHandler.postDelayed(startPrefetchFilesThreadRunner, 200);
 
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {
@@ -134,8 +126,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
-        actionBar.setTitle(String.format(Locale.getDefault(), " %s (v%s)", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
-        actionBar.setSubtitle(String.format(Locale.getDefault(), "⇤%s⇥", getString(R.string.filePickerTitleText)));
+        actionBar.setTitle(String.format(Locale.getDefault(), "    %s (v%s)", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
+        actionBar.setSubtitle(String.format(Locale.getDefault(), "    ⇤%s⇥", getString(R.string.filePickerTitleText)));
         actionBar.setTitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
         actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
         actionBar.setTitleMargin(10, 3, 5, 3);
@@ -175,7 +167,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 }
             };
             dirNavBtn.setOnClickListener(stockDirNavBtnClickHandler);
-            dirNavBtn.setBackgroundColor(DisplayUtils.getColorVariantFromTheme(R.attr.__colorAccent));
+            dirNavBtn.setBackgroundColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorToolbarNav));
             dirNavBtn.setImageDrawable(DisplayUtils.resolveDrawableFromAttribute(defaultDirNavFolders.get(folderIdx).getFolderIconResId()));
             fileDirsNavButtonsContainer.addView(dirNavBtn);
         }

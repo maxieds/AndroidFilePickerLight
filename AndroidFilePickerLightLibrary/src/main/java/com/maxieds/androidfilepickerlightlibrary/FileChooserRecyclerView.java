@@ -78,6 +78,7 @@ public class FileChooserRecyclerView extends RecyclerView {
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 DisplayFragments displayFragmentsCtx = DisplayFragments.getInstance();
                 if(!displayFragmentsCtx.viewportCapacityMesaured && recyclerView.getLayoutManager().getChildCount() != 0) {
                     displayFragmentsCtx.fileItemDisplayHeight = recyclerView.getLayoutManager().getChildAt(0).getMeasuredHeight();
@@ -86,39 +87,24 @@ public class FileChooserRecyclerView extends RecyclerView {
                         recyclerView.smoothScrollToPosition(0);
                     }
                 }
-                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                FileChooserActivity.getInstance().startPrefetchFileUpdatesThread();
             }
         });
 
     }
 
-    // ??? TODO: ???
-    /*
+    // We want it to move when flung and be responsive, but keep a constant rate of movement:
+    public static final float SCROLLER_MILLISECONDS_PER_INCH = 24.0f; // larger values slow it down
+
     @Override
     public boolean fling(int velocityX, int velocityY) {
-        final LinearLayoutManager rvLayoutManager = (LinearLayoutManager) getLayoutManager();
-        if (rvLayoutManager != null && rvLayoutManager instanceof FileChooserRecyclerView.LayoutManager) {
-            super.smoothScrollToPosition(((FileChooserRecyclerView.LayoutManager) getLayoutManager()).getPositionForVelocity(velocityX, velocityY));
-            return true;
-        }
-        return super.fling(velocityX, velocityY);
+        float slowDownBy = calculateSpeedPerPixel(FileChooserActivity.getInstance().getResources().getDisplayMetrics());
+        return super.fling((int) (velocityX * slowDownBy), (int) (velocityY * slowDownBy));
     }
-    */
 
-    // ??? TODO: ???
-    /*
-    @Override
-    public boolean onTouchEvent(MotionEvent mevent) {
-        final boolean returnStatus = super.onTouchEvent(mevent);
-        final FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) getLayoutManager();
-        if (rvLayoutManager instanceof FileChooserRecyclerView.LayoutManager && getScrollState() == SCROLL_STATE_IDLE &&
-                (mevent.getAction() == MotionEvent.ACTION_UP || mevent.getAction() == MotionEvent.ACTION_CANCEL)) {
-            //smoothScrollToPosition(((FileChooserRecyclerView.LayoutManager) rvLayoutManager).getScrollPositionToFixSnapState());
-            smoothScrollToPosition(((FileChooserRecyclerView.LayoutManager) rvLayoutManager).findFirstVisibleItemPosition());
-        }
-        return returnStatus;
+    protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+        return SCROLLER_MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
     }
-    */
 
     public interface RecyclerViewSlidingContextWindow {
 
@@ -177,94 +163,17 @@ public class FileChooserRecyclerView extends RecyclerView {
             setStackFromEnd(true);
         }
 
-        public int getPositionForVelocity(int velocityX, int velocityY) {
-            if (getChildCount() == 0) {
-                return 0;
-            }
-            if (getOrientation() == HORIZONTAL) {
-                return getPositionForVelocity(
-                        velocityX,
-                        getChildAt(0).getLeft(),
-                        getChildAt(0).getWidth(),
-                        getPosition(getChildAt(0))
-                );
-            }
-            else if (getOrientation() == VERTICAL) {
-                return getPositionForVelocity(
-                        velocityY,
-                        getChildAt(0).getTop(),
-                        getChildAt(0).getHeight(),
-                        getPosition(getChildAt(0))
-                );
-            }
-            else {
-                return 0;
-            }
-        }
-
-        // We want it to move when flung and be responsive, but keep a constant rate of movement:
-        public static final float SCROLLER_MILLISECONDS_PER_INCH = 45f; // larger values slow it down
-
-        private int getPositionForVelocity(int velocity, int scrollPos, int childSize, int curPos) {
-            final double distDelta = ViewConfiguration.getScrollFriction() * velocity * SCROLLER_MILLISECONDS_PER_INCH;
-            final double nextScrollPos = scrollPos + (velocity > 0 ? distDelta : -distDelta);
-            if (velocity < 0) {
-                return (int) Math.max(0, curPos + nextScrollPos / childSize);
-            } else {
-                return (int) (curPos + (nextScrollPos / childSize) + getNextPositionOffset());
-            }
-        }
-
-        /*@Override
+        @Override
         public void smoothScrollToPosition(RecyclerView recyclerView, State state, int position) {
-
             final LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
-
-                private float distanceInPixels = 250;
-                private float scrollDuration = 1.65f;
-
-                protected int getHorizontalSnapPreference() {
-                    return SNAP_TO_START;
-                }
-
-                protected int getVerticalSnapPreference() {
-                    // This will scroll at the topmost position (which is the behavior we want):
-                    return SNAP_TO_START;
-                }
-
                 @Override
                 protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
                     return SCROLLER_MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
                 }
-
-                //@Override
-                //protected int calculateTimeForScrolling(int deltaX) {
-                //    float alpha = (float) deltaX / distanceInPixels;
-                //    return (int) (scrollDuration * alpha);
-                //}
-
             };
             linearSmoothScroller.setTargetPosition(position);
             startSmoothScroll(linearSmoothScroller);
-
         }
-
-        public int getScrollPositionToFixSnapState() {
-            if (getChildCount() == 0) {
-                return 0;
-            }
-            final View child = getChildAt(0);
-            final int childPosIndex = getPosition(child);
-            if (getOrientation() == HORIZONTAL && Math.abs(child.getLeft()) > child.getMeasuredWidth() / 2) {
-                // Scrolled first view is more than halfway offscreen
-                return childPosIndex + 1;
-            } else if (getOrientation() == VERTICAL && Math.abs(child.getTop()) > child.getMeasuredWidth() / 2) {
-                // Scrolled first view is more than halfway offscreen
-                return childPosIndex + 1;
-            }
-            // Keep it where it is located for now:
-            return childPosIndex;
-        }*/
 
     }
 

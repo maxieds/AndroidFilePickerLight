@@ -86,8 +86,7 @@ public class DisplayFragments {
     public List<String> fileItemBasePathsList = new ArrayList<String>();
     public Stack<DisplayTypes.DirectoryResultContext> pathHistoryStack;
 
-    public static final int SCROLL_QUEUE_BUFFER_SIZE = 0;
-    public static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 15 + SCROLL_QUEUE_BUFFER_SIZE; // set large enough to overfill the window on first load
+    public static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 28; // set large enough to overfill the window on first load
     private int viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
     public int fileItemDisplayHeight = 0;
 
@@ -106,9 +105,9 @@ public class DisplayFragments {
             if(fileItemDisplayHeight == 0) {
                 return;
             }
-            setViewportMaxFilesCount(SCROLL_QUEUE_BUFFER_SIZE + (int) Math.floor((double) viewportDisplayHeight / fileItemDisplayHeight));
-            Log.i(LOGTAG, String.format("DELAYED RESPONSE: VP Height = %d, FItemDisp Height = %d   ====>  %d (with +%d buffer extra)",
-                    viewportDisplayHeight, fileItemDisplayHeight, getViewportMaxFilesCount(), SCROLL_QUEUE_BUFFER_SIZE));
+            setViewportMaxFilesCount((int) Math.floor((double) viewportDisplayHeight / fileItemDisplayHeight));
+            Log.i(LOGTAG, String.format("DELAYED RESPONSE: VP Height = %d, FItemDisp Height = %d   ====>  %d",
+                    viewportDisplayHeight, fileItemDisplayHeight, getViewportMaxFilesCount()));
             viewportCapacityMesaured = true;
         }
     }
