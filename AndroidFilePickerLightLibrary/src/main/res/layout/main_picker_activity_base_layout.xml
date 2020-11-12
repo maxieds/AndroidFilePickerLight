@@ -30,6 +30,7 @@
     android:padding="0dp"
     android:background="@color/__colorAccent"
     android:scrollbars="none"
+    android:clickable="true"
     tools:context=".FileChooserActivity"
     >
     <!--android:fillViewport="true"-->
@@ -59,6 +60,7 @@
         android:gravity="right|center_vertical"
         android:background="?__colorAccent"
         android:orientation="vertical"
+        android:clickable="true"
         >
 
         <TextView
@@ -87,6 +89,7 @@
             android:layout_gravity="center_horizontal|center_vertical"
             android:gravity="center_horizontal|center_vertical"
             android:orientation="horizontal"
+            android:clickable="true"
             >
         </LinearLayout>
 
@@ -107,6 +110,7 @@
         android:gravity="left|center_vertical"
         android:background="?__colorAccentLight"
         android:orientation="horizontal"
+        android:clickable="true"
         >
 
         <ImageButton
@@ -183,6 +187,7 @@
         android:gravity="left|center_vertical"
         android:background="?__colorPrimary"
         android:orientation="horizontal"
+        android:clickable="true"
         >
 
         <com.maxieds.androidfilepickerlightlibrary.FileChooserRecyclerView
@@ -203,6 +208,7 @@
             android:verticalScrollbarPosition="right"
             android:overScrollMode="never"
             />
+        <!--android:clickable="true"-->
 
     </LinearLayout>
 

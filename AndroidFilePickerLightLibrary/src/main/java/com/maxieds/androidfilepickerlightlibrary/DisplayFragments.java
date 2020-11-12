@@ -48,9 +48,9 @@ public class DisplayFragments {
     public FileFilter.FileItemsSortFunc localFilesListSortFunc;
 
     public DisplayFragments() {
-        folderIconInst = DrawUtils.getDrawableFromResource(R.drawable.folder_icon32);
-        fileIconInst = DrawUtils.getDrawableFromResource(R.drawable.generic_file_icon32);
-        hiddenFileIconInst = DrawUtils.getDrawableFromResource(R.drawable.hidden_file_icon32);
+        folderIconInst = DisplayUtils.getDrawableFromResource(R.drawable.folder_icon32);
+        fileIconInst = DisplayUtils.getDrawableFromResource(R.drawable.generic_file_icon32);
+        hiddenFileIconInst = DisplayUtils.getDrawableFromResource(R.drawable.hidden_file_icon32);
         localFilesListFilter = null;
         localFilesListSortFunc = null;
     }
@@ -245,87 +245,69 @@ public class DisplayFragments {
             return -1;
         }
 
-        public static boolean insertItemsAtTop(int itemCount,
+        public static void insertItemsAtTop(int itemCount,
                                                List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
-
             FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
             FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
             DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
-            rvLayoutManager.setInsertAtFrontMode();
-            // REMOVE THE VIEWS MANUALLY ...
-            rvLayoutManager.restoreDefaultMode();
-            return true;
-
+            DisplayFragments displayCtx = DisplayFragments.getInstance();
+            fileItemsList.addAll(displayCtx.activeFileItemsDataList);
+            displayCtx.activeFileItemsDataList = fileItemsList;
+            fileNamesList.addAll(displayCtx.fileItemBasePathsList);
+            displayCtx.fileItemBasePathsList = fileNamesList;
         }
 
-        public static boolean appendItemsToBack(int itemCount,
-                                                List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
-
+        public static void appendItemsToBack(int itemCount,
+                                             List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
             FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
             FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
             DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
-            rvLayoutManager.setAppendToBackMode();
-            // REMOVE THE VIEWS MANUALLY ...
-            rvLayoutManager.restoreDefaultMode();
-            return true;
-
+            DisplayFragments displayCtx = DisplayFragments.getInstance();
+            displayCtx.activeFileItemsDataList.addAll(fileItemsList);
+            displayCtx.fileItemBasePathsList.addAll(fileNamesList);
         }
 
-        public static boolean removeItemsAtTop(int itemCount) {
-
+        public static void removeItemsAtTop(int itemCount) {
             FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
             FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
             DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
-            rvLayoutManager.setAppendToBackMode();
-            // REMOVE THE VIEWS MANUALLY ...
-            rvLayoutManager.restoreDefaultMode();
-            return true;
-
+            DisplayFragments displayCtx = DisplayFragments.getInstance();
+            int startListIndex = 0;
+            int endListIndex = itemCount - 1;
+            displayCtx.activeFileItemsDataList = new ArrayList<DisplayTypes.FileType>(
+                    displayCtx.activeFileItemsDataList.subList(
+                            startListIndex,
+                            endListIndex
+                    )
+            );
+            displayCtx.fileItemBasePathsList = new ArrayList<String>(
+                    displayCtx.fileItemBasePathsList.subList(
+                            startListIndex,
+                            endListIndex
+                    )
+            );
         }
 
-        public static boolean removeItemsFromBack(int itemCount) {
-
+        public static void removeItemsFromBack(int itemCount) {
             FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
             FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
             DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
-            rvLayoutManager.setAppendToBackMode();
-            // REMOVE THE VIEWS MANUALLY ...
-            rvLayoutManager.restoreDefaultMode();
-            return true;
-
+            DisplayFragments displayCtx = DisplayFragments.getInstance();
+            int startListIndex = displayCtx.activeFileItemsDataList.size() - itemCount - 1;
+            int endListIndex = displayCtx.activeFileItemsDataList.size();
+            displayCtx.activeFileItemsDataList = new ArrayList<DisplayTypes.FileType>(
+                    displayCtx.activeFileItemsDataList.subList(
+                            startListIndex,
+                            endListIndex
+                    )
+            );
+            displayCtx.fileItemBasePathsList = new ArrayList<String>(
+                    displayCtx.fileItemBasePathsList.subList(
+                            startListIndex,
+                            endListIndex
+                    )
+            );
         }
-
-        /*public static boolean appendItemsToBackTrimmedFromFront(int itemCount,
-                                                                List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
-
-            FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
-            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
-            rvLayoutManager.setAppendToBackMode();
-            rvAdapter.reloadDataSets(fileNamesList, fileItemsList, false);
-            rvAdapter.notifyItemRangeRemoved(0, itemCount);
-            rvAdapter.notifyItemRangeChanged(0, fileItemsList.size());
-            rvAdapter.notifyItemRangeInserted(fileItemsList.size() - itemCount, itemCount);
-            rvLayoutManager.restoreDefaultMode();
-            return true;
-
-        }
-
-        public static boolean prependItemsAtTopTrimmedFromBack(int itemCount,
-                                                               List<String> fileNamesList, List<DisplayTypes.FileType> fileItemsList) {
-
-            FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
-            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
-            rvLayoutManager.setAppendToBackMode();
-            rvAdapter.reloadDataSets(fileNamesList, fileItemsList, false);
-            rvAdapter.notifyItemRangeRemoved(fileNamesList.size() - itemCount, itemCount);
-            rvAdapter.notifyItemRangeChanged(0, fileItemsList.size());
-            rvAdapter.notifyItemRangeInserted(0, itemCount);
-            rvLayoutManager.restoreDefaultMode();
-            return true;
-
-        }*/
 
     }
 

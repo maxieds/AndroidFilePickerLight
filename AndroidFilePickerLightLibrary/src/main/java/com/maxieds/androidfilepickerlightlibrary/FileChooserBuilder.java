@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.ContentProvider;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.view.Display;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -131,7 +132,7 @@ public class FileChooserBuilder implements Serializable {
 
         public Drawable getFolderIconDrawable() {
             if(customIconObj == null) {
-                return DrawUtils.resolveDrawableFromAttribute(folderIconResId);
+                return DisplayUtils.resolveDrawableFromAttribute(folderIconResId);
             }
             return customIconObj;
         }

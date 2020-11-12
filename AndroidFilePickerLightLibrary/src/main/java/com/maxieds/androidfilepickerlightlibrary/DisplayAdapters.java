@@ -46,18 +46,14 @@ public class DisplayAdapters {
             this.fileListData.addAll(nextFileListData);
             this.fileItemsData = new ArrayList<DisplayTypes.FileType>();
             this.fileItemsData.addAll(nextFileItemsData);
-            this.setHasStableIds(true); // TODO ???
+            this.setHasStableIds(true); // ???
         }
 
         public void reloadDataSets(List<String> nextDataSet, List<DisplayTypes.FileType> nextFileItemsData, boolean notifyAdapter) {
-            //DisplayFragments.getInstance().getMainRecyclerView().setLayoutFrozen(true);
-            int fileItemsListSize = fileListData.size();
             fileListData.clear();
             fileListData.addAll(nextDataSet);
             fileItemsData.clear();
             fileItemsData.addAll(nextFileItemsData);
-            //DisplayFragments.getInstance().getMainRecyclerView().setLayoutFrozen(false);
-            //notifyItemRangeRemoved(0, fileItemsListSize);
             if(notifyAdapter) {
                 notifyDataSetChanged();
             }
@@ -71,7 +67,7 @@ public class DisplayAdapters {
 
         @Override
         public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            //Log.i(LOGTAG,"onCreateViewHolder");
+            Log.i(LOGTAG,"onCreateViewHolder");
             View rowItem = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_file_entry_item, parent, false);
             return new BaseViewHolder(rowItem);
         }
@@ -79,7 +75,7 @@ public class DisplayAdapters {
         @Override
         public void onBindViewHolder(BaseViewHolder bvHolder, int posIndex) {
             bvHolder.getDisplayText().setText(fileListData.get(posIndex));
-            //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s", posIndex, bvHolder.getDisplayText().getText()));
             if(!fileItemsData.isEmpty()) {
                 DisplayTypes.FileType fileItem = fileItemsData.get(posIndex);
                 fileItem.setLayoutContainer(bvHolder.getMainViewLayoutContainer());
@@ -89,18 +85,18 @@ public class DisplayAdapters {
         }
 
         @Override
-        public void onViewRecycled(BaseViewHolder bvHolder){
-            //Log.i(LOGTAG,"onViewRecycled: " + bvHolder);
+        public void onViewRecycled(BaseViewHolder bvHolder) {
+            Log.i(LOGTAG,"onViewRecycled: " + bvHolder);
         }
 
         @Override
-        public void onViewDetachedFromWindow(BaseViewHolder bvHolder){
-            //Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder);
+        public void onViewDetachedFromWindow(BaseViewHolder bvHolder) {
+            Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder);
         }
 
         @Override
-        public void onViewAttachedToWindow(BaseViewHolder bvHolder){
-            //Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder);
+        public void onViewAttachedToWindow(BaseViewHolder bvHolder) {
+            Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder);
         }
 
         @Override
@@ -121,7 +117,8 @@ public class DisplayAdapters {
 
         @Override
         public int getItemViewType(int posIndex) {
-            return posIndex;
+            //return posIndex;
+            return VIEW_TYPE_FILE_ITEM;
         }
 
     }
@@ -130,6 +127,7 @@ public class DisplayAdapters {
 
         private View fileItemContainerView;
         public  TextView displayText;
+        private int initIndexPos;
 
         private GestureDetector gestureDetector = new GestureDetector(FileChooserActivity.getInstance(), new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -138,6 +136,7 @@ public class DisplayAdapters {
             }
             @Override
             public void onLongPress(MotionEvent e) {
+                Log.i(LOGTAG, "onLongPress::onLongPress");
                 RecyclerView mainFileListRecyclerView = DisplayFragments.getMainRecyclerView();
                 View childView = mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
                 if(childView != null) {
@@ -150,13 +149,18 @@ public class DisplayAdapters {
         public BaseViewHolder(View v) {
             super(v);
             fileItemContainerView = v;
+            v.setClickable(true);
+            v.setFocusable(true);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
-            //setIsRecyclable(false);
+            initIndexPos = -1;
+            setIsRecyclable(false); // ???
         }
 
         public TextView getDisplayText() { return displayText; }
+
+        public int getInitialIndexPosition() { return initIndexPos; }
 
         public View getMainViewLayoutContainer() { return fileItemContainerView; }
 
@@ -217,7 +221,7 @@ public class DisplayAdapters {
 
         @Override
         public void onClick(View v) {
-            Log.i(LOGTAG, "onClick");
+            Log.i(LOGTAG, "BaseViewHolder::onClick");
             int fileItemPosIndex = DisplayFragments.RecyclerViewUtils.findFileItemIndexByLayout(v);
             if(fileItemPosIndex < 0) {
                 return;
@@ -234,7 +238,7 @@ public class DisplayAdapters {
 
         @Override
         public boolean onLongClick(View v) {
-            Log.i(LOGTAG, "onLongClick");
+            Log.i(LOGTAG, "BaseViewHolder::onLongClick");
             int fileItemPosIndex = DisplayFragments.RecyclerViewUtils.findFileItemIndexByLayout(v);
             if(fileItemPosIndex < 0) {
                 return false;

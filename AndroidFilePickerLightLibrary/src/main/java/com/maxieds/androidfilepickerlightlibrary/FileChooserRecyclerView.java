@@ -77,6 +77,7 @@ public class FileChooserRecyclerView extends RecyclerView {
         setLayoutManager((FileChooserRecyclerView.LayoutManager) rvLayoutManager);
         addItemDecoration(new FileChooserRecyclerView.CustomDividerItemDecoration(R.drawable.rview_file_item_divider));
         //setOnScrollListener(new FileChooserRecyclerView.OnScrollListener(rvLayoutManager, displayFragmentsContext));
+        //addOnItemTouchListener(...);
     }
 
     @Override
@@ -89,16 +90,20 @@ public class FileChooserRecyclerView extends RecyclerView {
         return super.fling(velocityX, velocityY);
     }
 
+    // ??? TODO: ???
+    /*
     @Override
     public boolean onTouchEvent(MotionEvent mevent) {
         final boolean returnStatus = super.onTouchEvent(mevent);
         final FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) getLayoutManager();
         if (rvLayoutManager instanceof FileChooserRecyclerView.LayoutManager && getScrollState() == SCROLL_STATE_IDLE &&
                 (mevent.getAction() == MotionEvent.ACTION_UP || mevent.getAction() == MotionEvent.ACTION_CANCEL)) {
-            smoothScrollToPosition(((FileChooserRecyclerView.LayoutManager) rvLayoutManager).getScrollPositionToFixSnapState());
+            //smoothScrollToPosition(((FileChooserRecyclerView.LayoutManager) rvLayoutManager).getScrollPositionToFixSnapState());
+            smoothScrollToPosition(((FileChooserRecyclerView.LayoutManager) rvLayoutManager).findFirstVisibleItemPosition());
         }
         return returnStatus;
     }
+    */
 
     public interface RecyclerViewSlidingContextWindow {
 
@@ -249,170 +254,6 @@ public class FileChooserRecyclerView extends RecyclerView {
 
     }
 
-    /*public static class OnScrollListener extends RecyclerView.OnScrollListener {
-
-        private static final String LOGTAG = OnScrollListener.class.getSimpleName();
-
-        private int scrollByDelta;
-        private FileChooserRecyclerView.LayoutManager rvLayoutManager;
-        private DisplayFragments displayFragmentsCtx;
-        private int SCROLL_BY_ITEMS;
-        private boolean scrollingUp;
-
-        OnScrollListener(FileChooserRecyclerView.LayoutManager layoutManager, DisplayFragments displayFragmentsCtxRef) {
-            scrollByDelta = layoutManager.getNextPositionOffset();
-            rvLayoutManager = layoutManager;
-            displayFragmentsCtx = displayFragmentsCtxRef;
-            SCROLL_BY_ITEMS = rvLayoutManager.getNextPositionOffset();
-            scrollingUp = false;
-        }
-
-        private boolean invokeNewDataLoader() {
-
-            RecyclerView mainFileListRecyclerView = displayFragmentsCtx.getMainRecyclerView();
-            LinearLayoutManager rvLayoutManager = (LinearLayoutManager) mainFileListRecyclerView.getLayoutManager();
-            BasicFileProvider fpInst = BasicFileProvider.getInstance();
-            DisplayTypes.DirectoryResultContext cwdFolderContextLocal = displayFragmentsCtx.getCwdFolderContext();
-            if(cwdFolderContextLocal == null) {
-                Log.i(LOGTAG, "invokeNewDataLoader: CWD CONTEXT IS NULL!");
-                return false;
-            }
-            int nextFileItemsLength = mainFileListRecyclerView.getAdapter().getItemCount();
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "invokeNewDataLoader: FIRST SHOWING [%d, %d] -- getCount = %d",
-                    rvLayoutManager.findFirstCompletelyVisibleItemPosition(), rvLayoutManager.findLastCompletelyVisibleItemPosition(),
-                    displayFragmentsCtx.getInstance().getMainRecyclerView().getAdapter().getItemCount()));
-            fpInst.setFilesListLength(SCROLL_BY_ITEMS);
-            if (!mainFileListRecyclerView.canScrollVertically(-1)) {
-                // Have reached the first item in the list (queue more files above to trigger scrolling):
-                Log.i(LOGTAG, "onScrollStateChanged: SCROLLING UP CASE");
-                if (displayFragmentsCtx.lastFileDataStartIndex == 0) { // cannot scroll more above:
-                    return false;
-                }
-                int initFirstItemIndex = rvLayoutManager.findFirstCompletelyVisibleItemPosition();
-                displayFragmentsCtx.lastFileDataStartIndex = Math.max(0, displayFragmentsCtx.lastFileDataStartIndex - SCROLL_BY_ITEMS);
-                displayFragmentsCtx.lastFileDataEndIndex = Math.max(0, displayFragmentsCtx.lastFileDataEndIndex - SCROLL_BY_ITEMS);
-                DisplayFragments.RecyclerViewUtils.removeItemsFromBack(SCROLL_BY_ITEMS);
-                cwdFolderContextLocal.computeDirectoryContents(
-                        displayFragmentsCtx.lastFileDataStartIndex,
-                        displayFragmentsCtx.lastFileDataEndIndex,
-                        0, SCROLL_BY_ITEMS, -SCROLL_BY_ITEMS, true
-                );
-                displayFragmentsCtx.displayNextDirectoryFilesList(cwdFolderContextLocal.getWorkingDirectoryContents());
-                // ??? NEED TO MANUALLY INSERT THE NEXT ITEMS ???
-                DisplayFragments.RecyclerViewUtils.prependItemsAtTopTrimmedFromBack(
-                        SCROLL_BY_ITEMS,
-                        DisplayFragments.getInstance().fileItemBasePathsList,
-                        DisplayFragments.getInstance().activeFileItemsDataList
-                );
-                try {
-                    int targetPosition = initFirstItemIndex + SCROLL_BY_ITEMS;
-                    if(rvLayoutManager.getItemCount() <= targetPosition) {
-                        Log.i(LOGTAG, "Could not scroll to " + targetPosition + " from " + initFirstItemIndex);
-                        targetPosition = rvLayoutManager.getItemCount() - 1;
-                    }
-                    //rvLayoutManager.smoothScrollToPosition(mainFileListRecyclerView, new RecyclerView.State(), targetPosition);
-                } catch(Exception ex) {
-                    Log.i(LOGTAG, "Could not scroll to " + (initFirstItemIndex + SCROLL_BY_ITEMS) + " from " + initFirstItemIndex);
-                    ex.printStackTrace();
-                }
-                Log.i(LOGTAG, "SIZE OF DIRECTORY CONTENTS: " + cwdFolderContextLocal.getWorkingDirectoryContents().size());
-                return true;
-            }
-            else if (!mainFileListRecyclerView.canScrollVertically(1)) {
-                // Have reached the last item in the list (queue more files below to trigger scrolling):
-                Log.i(LOGTAG, "onScrollStateChanged: SCROLLING DOWN CASE");
-                int initFirstItemIndex = rvLayoutManager.findFirstCompletelyVisibleItemPosition();
-                displayFragmentsCtx.lastFileDataEndIndex = Math.min(
-                        cwdFolderContextLocal.getFolderMaxChildCount(),
-                        displayFragmentsCtx.lastFileDataEndIndex + SCROLL_BY_ITEMS
-                );
-                displayFragmentsCtx.lastFileDataStartIndex = Math.min(
-                        cwdFolderContextLocal.getFolderMaxChildCount(),
-                        displayFragmentsCtx.lastFileDataStartIndex + SCROLL_BY_ITEMS
-                );
-                DisplayFragments.RecyclerViewUtils.removeItemsAtTop(SCROLL_BY_ITEMS);
-                cwdFolderContextLocal.computeDirectoryContents(
-                        displayFragmentsCtx.lastFileDataStartIndex,
-                        displayFragmentsCtx.lastFileDataEndIndex,
-                        SCROLL_BY_ITEMS, 0, SCROLL_BY_ITEMS, true
-                );
-                displayFragmentsCtx.displayNextDirectoryFilesList(cwdFolderContextLocal.getWorkingDirectoryContents());
-                // ??? NEED TO MANUALLY INSERT THE NEXT ITEMS ???
-                DisplayFragments.RecyclerViewUtils.appendItemsToBackTrimmedFromFront(
-                        SCROLL_BY_ITEMS,
-                        DisplayFragments.getInstance().fileItemBasePathsList,
-                        DisplayFragments.getInstance().activeFileItemsDataList
-                );
-                try {
-                    int targetPosition = initFirstItemIndex - SCROLL_BY_ITEMS;
-                    if(targetPosition < 0) {
-                        Log.i(LOGTAG, "Could not scroll to " + targetPosition + " from " + initFirstItemIndex);
-                        targetPosition = 0;
-                    }
-                    //rvLayoutManager.smoothScrollToPosition(mainFileListRecyclerView, new RecyclerView.State(), targetPosition);
-                } catch(Exception ex) {
-                    Log.i(LOGTAG, "Could not scroll to " + (initFirstItemIndex - SCROLL_BY_ITEMS) + " from " + initFirstItemIndex);
-                    ex.printStackTrace();
-                }
-                Log.v(LOGTAG, "SIZE OF DIRECTORY CONTENTS: " + cwdFolderContextLocal.getWorkingDirectoryContents().size());
-                return true;
-            }
-            return false;
-
-        }
-
-        @Override
-        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int nextState) {
-
-            //Log.i(LOGTAG, "onScrollStateChanged");
-            DisplayTypes.DirectoryResultContext cwdFolderContextLocal = displayFragmentsCtx.getCwdFolderContext();
-            if(cwdFolderContextLocal == null) {
-                Log.i(LOGTAG, "onScrollStateChanged: CWD CONTEXT IS NULL!");
-                return;
-            }
-            BasicFileProvider fpInst = BasicFileProvider.getInstance();
-            int prevFileItemsLength = displayFragmentsCtx.getViewportMaxFilesCount();
-            if(!displayFragmentsCtx.viewportCapacityMesaured && displayFragmentsCtx.getMainRecyclerView().getLayoutManager().getChildCount() != 0) {
-                displayFragmentsCtx.fileItemDisplayHeight = displayFragmentsCtx.getMainRecyclerView().getLayoutManager().getChildAt(0).getMeasuredHeight();
-                if (displayFragmentsCtx.fileItemDisplayHeight > 0) {
-                    displayFragmentsCtx.resetViewportMaxFilesCount(FileChooserActivity.getInstance().findViewById(R.id.mainRecyclerViewContainer));
-                }
-            }
-            int indexingByNewSizeDiff = displayFragmentsCtx.getViewportMaxFilesCount() - prevFileItemsLength;
-
-            if(indexingByNewSizeDiff != 0) {
-                int initTrimFromBackCount = indexingByNewSizeDiff < 0 ? -indexingByNewSizeDiff : 0;
-                fpInst.setFilesListLength(Math.abs(indexingByNewSizeDiff));
-                cwdFolderContextLocal.computeDirectoryContents(
-                        displayFragmentsCtx.lastFileDataStartIndex,
-                        Math.min(displayFragmentsCtx.lastFileDataStartIndex, displayFragmentsCtx.lastFileDataEndIndex + indexingByNewSizeDiff),
-                        0, initTrimFromBackCount, Math.abs(indexingByNewSizeDiff), true
-                );
-                displayFragmentsCtx.displayNextDirectoryFilesList(cwdFolderContextLocal.getWorkingDirectoryContents());
-            }
-
-            // Check a corner case to ensure smoother scrolling:
-            if (nextState == RecyclerView.SCROLL_STATE_IDLE || nextState == RecyclerView.SCROLL_STATE_SETTLING) {
-                displayFragmentsCtx.getMainRecyclerView().stopScroll();
-                displayFragmentsCtx.getMainRecyclerView().stopNestedScroll(ViewCompat.TYPE_TOUCH);
-                scrollingUp = true;
-            }
-
-            // Load new data if we are scrolling at the very top or bottom of the visible layout:
-            invokeNewDataLoader();
-
-        }
-
-        @Override
-        public void onScrolled(@NonNull RecyclerView recyclerView, int deltaX, int deltaY) {
-            //super.onScrolled(recyclerView, deltaX, deltaY);
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "onScrolled: SCROLLER SHOWING [%d, %d] -- getCount = %d",
-                    rvLayoutManager.findFirstCompletelyVisibleItemPosition(), rvLayoutManager.findLastCompletelyVisibleItemPosition(),
-                    displayFragmentsCtx.getInstance().getMainRecyclerView().getAdapter().getItemCount()));
-        }
-
-    }*/
-
     public static class CustomDividerItemDecoration extends RecyclerView.ItemDecoration {
 
         private static final int[] DIVIDER_DEFAULT_ATTRS = new int[]{
@@ -435,7 +276,7 @@ public class FileChooserRecyclerView extends RecyclerView {
         }
 
         public CustomDividerItemDecoration(int resId) {
-            listingsDivider = DrawUtils.getDrawableFromResource(resId);
+            listingsDivider = DisplayUtils.getDrawableFromResource(resId);
         }
 
         public static void setMarginAdjustments(int leftAdjust, int topAdjust, int rightAdjust, int bottomAdjust) {

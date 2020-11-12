@@ -84,11 +84,11 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                 }
             }
 
-            public static UpdateDataType getUpdataDataTypeByName(String constName) {
+            public static UpdateDataType getUpdateDataTypeByName(String constName) {
                 return dataTypeByNameMap.get(constName);
             }
 
-            public static UpdateDataType getUpdataDataTypeByIndex(int indexPos) {
+            public static UpdateDataType getUpdateDataTypeByIndex(int indexPos) {
                 return dataTypeByIndex.get(Integer.valueOf(indexPos));
             }
 
@@ -295,7 +295,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
             public void run() {
                 FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
                 FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-                returnValue = rvLayoutManager.findFirstVisibleItemPosition();
+                returnValue = rvLayoutManager.findFirstCompletelyVisibleItemPosition();
             }
         };
         FileChooserActivity.getInstance().runOnUiThread(getLayoutParamsRunner);
@@ -308,7 +308,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
             public void run() {
                 FileChooserRecyclerView mainRV = DisplayFragments.getInstance().getMainRecyclerView();
                 FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-                returnValue = rvLayoutManager.findLastVisibleItemPosition();
+                returnValue = rvLayoutManager.findLastCompletelyVisibleItemPosition();
             }
         };
         FileChooserActivity.getInstance().runOnUiThread(getLayoutParamsRunner);
