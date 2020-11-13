@@ -94,8 +94,8 @@ public class DisplayAdapters {
                 View viewItemContainer = bvHolder.getMainViewLayoutContainer();
                 DisplayFragments.FileListItemFragment.resetLayout(viewItemContainer, fileItem, posIndex);
             }
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- (ADAPTER -> %s) [DATA ITEMS SIZE = %d]", posIndex,
-                    fileListData.get(posIndex), fileItemsData.size()));
+            //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- (ADAPTER -> %s) [DATA ITEMS SIZE = %d]", posIndex,
+            //        fileListData.get(posIndex), fileItemsData.size()));
         }
 
         @Override

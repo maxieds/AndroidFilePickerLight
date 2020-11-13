@@ -21,6 +21,16 @@ import android.graphics.drawable.Drawable;
 
 public class CustomThemeBuilder {
 
+    /*
+     * TODO: Note that all of this should be more eaily approached by simply making all
+     *       of these theme-specific stylized attributes accessible in the default themes
+     *       in /res/values/style.xml. Then the user can simply implement all of those
+     *       attributes in their own custom theme, pass a resolved instance of that theme
+     *       into the File Chooser Builder along with an Activity reference from which
+     *       the resources can be resolved, and voila, no need for kludgy settings like
+     *       diagrammed below :)
+     */
+
     private static final String LOGTAG = CustomThemeBuilder.class.getSimpleName();
 
     public static CustomThemeBuilder getDefaultsInstance() {

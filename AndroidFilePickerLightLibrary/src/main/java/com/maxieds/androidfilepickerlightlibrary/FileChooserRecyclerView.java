@@ -96,6 +96,11 @@ public class FileChooserRecyclerView extends RecyclerView {
         return false;*/
     }
 
+    @Override
+    public void smoothScrollToPosition(int indexPos) {
+        getLayoutManager().smoothScrollToPosition(this, new RecyclerView.State(), indexPos);
+    }
+
     public interface RecyclerViewSlidingContextWindow {
 
         void setWeightBufferSize(int size);
@@ -118,10 +123,6 @@ public class FileChooserRecyclerView extends RecyclerView {
         private static LayoutManager localStaticInst = null;
         public static LayoutManager getInstance() { return localStaticInst; }
 
-        private int nextPositionOffsetDiff;
-        public int getNextPositionOffset() { return nextPositionOffsetDiff; }
-        public void setNextPositionOffset(int newOffset) { nextPositionOffsetDiff = newOffset; }
-
         public LayoutManager(Context layoutCtx) {
             super(layoutCtx);
             setOrientation(LinearLayoutManager.VERTICAL);
@@ -130,7 +131,9 @@ public class FileChooserRecyclerView extends RecyclerView {
             setStackFromEnd(true); // ???
             setSmoothScrollbarEnabled(true);
             localStaticInst = this;
-            nextPositionOffsetDiff = 1;
+            intendedNextScrollPos = 0;
+            linearSmoothScroller = null;
+            scrollInvokingRV = null;
         }
 
         @Override
@@ -138,11 +141,17 @@ public class FileChooserRecyclerView extends RecyclerView {
             return true;
         }
 
-        /*
-        public static final float SCROLLER_MILLISECONDS_PER_INCH = 62.0f; // larger values slow it down
+        // intent is to speed it up for the prefetch thread smooth scrolling:
+        public static final float SCROLLER_MILLISECONDS_PER_INCH = 16.0f; // larger values slow it down, 25.0 ~ default behavior
+
+        private int intendedNextScrollPos;
+        private LinearSmoothScroller linearSmoothScroller;
+        private RecyclerView scrollInvokingRV;
+
         @Override
         public void smoothScrollToPosition(RecyclerView recyclerView, State state, int position) {
-            final LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
+            scrollInvokingRV = recyclerView;
+            linearSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
                 @Override
                 protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
                     return SCROLLER_MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
@@ -151,7 +160,19 @@ public class FileChooserRecyclerView extends RecyclerView {
             linearSmoothScroller.setTargetPosition(position);
             startSmoothScroll(linearSmoothScroller);
         }
-        */
+
+        public boolean completeLastSmoothScroll() {
+            if(linearSmoothScroller == null || intendedNextScrollPos < 0 ||
+                    intendedNextScrollPos >= getItemCount() || scrollInvokingRV == null) {
+                return false;
+            }
+            else if(!linearSmoothScroller.isRunning()) {
+                return false;
+            }
+            scrollInvokingRV.stopScroll();
+            scrollInvokingRV.scrollToPosition(intendedNextScrollPos);
+            return true;
+        }
 
     }
 

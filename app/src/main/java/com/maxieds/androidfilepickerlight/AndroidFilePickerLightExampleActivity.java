@@ -71,7 +71,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
             errorRationaleDisplayText.setTextColor(getColor(R.color.colorOnErrorDisplayText));
             errorRationaleDisplayText.setText(errorDisplayText.toString());
             adBuilder.setView(errorRationaleDisplayText);
-            adBuilder.setNegativeButton("[X] That sucks, boo.", null);
+            adBuilder.setNegativeButton("[X] That bytes, boo.", null);
             adBuilder.create().show();
             return;
         }
