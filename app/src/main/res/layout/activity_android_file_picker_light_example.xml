@@ -61,7 +61,7 @@
         android:id="@+id/textview_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Launch a single folder chooser activity:"
+        android:text=" ‣ Single directory chooser activity (root):"
        />
 
     <Button
@@ -78,7 +78,7 @@
         android:id="@+id/textview_second"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Launch a single directory chooser activity:"
+        android:text=" ‣ Single file chooser activity (screenshots):"
         />
 
     <Button
@@ -96,7 +96,7 @@
         android:id="@+id/textview_third"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Launch an omnivorous multi-path chooser:"
+        android:text=" ‣ Omnivorous multi-path chooser (root):"
         />
 
     <Button

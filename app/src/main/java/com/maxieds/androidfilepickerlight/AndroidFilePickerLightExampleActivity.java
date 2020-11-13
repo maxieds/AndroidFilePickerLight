@@ -114,14 +114,14 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         rteErrorMsg = null;
     }
 
-    public void actionButtonLaunchSingleFilePickerActivity(View btnView) {
+    public void actionButtonLaunchSingleFolderPickerActivity(View btnView) {
         FileChooserBuilder fpInst = FileChooserBuilder.getDirectoryChooserInstance(this);
         fpInst.showHidden(true);
         fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
         fpInst.launchFilePicker();
     }
 
-    public void actionButtonLaunchSingleFolderPickerActivity(View btnView) {
+    public void actionButtonLaunchSingleFilePickerActivity(View btnView) {
         FileChooserBuilder fpInst = FileChooserBuilder.getDirectoryChooserInstance(this);
         fpInst.showHidden(true);
         fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS);
@@ -130,7 +130,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
 
     public void actionButtonLaunchOmnivorousMultiPickerActivity(View btnView) {
         FileChooserBuilder fpInst = new FileChooserBuilder(this);
-        fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_FILE);
+        fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE);
         fpInst.setSelectMultiple(5);
         fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
         fpInst.showHidden(true);

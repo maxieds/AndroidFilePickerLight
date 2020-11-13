@@ -80,6 +80,10 @@ public class DisplayTypes {
 
         public int getFolderChildCount() { return folderMaxChildCount; }
 
+        public String getCWDBasePath() {
+            return FileUtils.getFileBaseNameFromPath(activeCWDAbsPath);
+        }
+
         public void computeDirectoryContents(int startIndexPos, int maxIndexPos,
                                              int trimFromFrontCount, int trimFromBackCount, int newItemsCount,
                                              boolean updateGlobalIndices) {
@@ -96,12 +100,12 @@ public class DisplayTypes {
             if(newItemsCount > 0) {
                 fpInst.setFilesStartIndex(maxIndexPos + 1 - Math.abs(newItemsCount));
                 fpInst.setFilesListLength(Math.abs(newItemsCount));
-                Log.i(LOGTAG, "REQUESTING start index = " + (maxIndexPos + 1 - Math.abs(newItemsCount)) + ", LEN = " + Math.abs(newItemsCount));
+                Log.d(LOGTAG, "REQUESTING start index = " + (maxIndexPos + 1 - Math.abs(newItemsCount)) + ", LEN = " + Math.abs(newItemsCount));
             }
             else {
                 fpInst.setFilesStartIndex(startIndexPos);
                 fpInst.setFilesListLength(Math.abs(newItemsCount));
-                Log.i(LOGTAG, "REQUESTING start index = " + startIndexPos + ", LEN = " + Math.abs(newItemsCount));
+                Log.d(LOGTAG, "REQUESTING start index = " + startIndexPos + ", LEN = " + Math.abs(newItemsCount));
             }
             int initStartIndexPos = startIndexPos;
             try {
@@ -132,16 +136,16 @@ public class DisplayTypes {
                 }
                 if(updateGlobalIndices) {
                     int resultSizeDiff = Math.abs(newItemsCount) - mcRowIdx;
-                    Log.i(LOGTAG, String.format(Locale.getDefault(), "UPDATING GLOBAL INDICES: [%d, %d] -> [%d, %d]",
+                    Log.d(LOGTAG, String.format(Locale.getDefault(), "UPDATING GLOBAL INDICES: [%d, %d] -> [%d, %d]",
                             DisplayFragments.getInstance().lastFileDataStartIndex, DisplayFragments.getInstance().lastFileDataEndIndex,
                             initStartIndexPos, maxIndexPos - resultSizeDiff));
                     DisplayFragments.getInstance().lastFileDataStartIndex = initStartIndexPos;
                     DisplayFragments.getInstance().lastFileDataEndIndex = maxIndexPos - resultSizeDiff;
                 }
                 setNextDirectoryContents(filesDataList);
-                Log.i(LOGTAG, "computeDirectoryContents: PRINTING NEXT (truncated) folder contents list:");
+                Log.d(LOGTAG, "computeDirectoryContents: PRINTING NEXT (truncated) folder contents list:");
                 for(int fcidx = Math.max(0, directoryContentsList.size() - 3); fcidx < directoryContentsList.size(); fcidx++) {
-                    Log.i(LOGTAG, String.format(Locale.getDefault(), "   [#%02d => %02d ACTUAL Idx] FILE BASE NAME => \"%s\" ... ", fcidx + 1,
+                    Log.d(LOGTAG, String.format(Locale.getDefault(), "   [#%02d => %02d ACTUAL Idx] FILE BASE NAME => \"%s\" ... ", fcidx + 1,
                             fcidx + 1 + DisplayFragments.getInstance().lastFileDataStartIndex, directoryContentsList.get(fcidx).getBaseName()));
                 }
             }
@@ -167,13 +171,15 @@ public class DisplayTypes {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             DisplayFragments.updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(activeCWDAbsPath), initNewFileTree);
             try {
-                fpInst.updateQueryFilesList(); // cancel any previously pending noUpdate requests
-                FileType requestedFileItem = directoryContentsList.get(posIndex);
-                String nextActiveDocId = requestedFileItem.getFileProviderDocumentId();
-                MatrixCursor nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
-                clearDirectoryContentsList();
-                DirectoryResultContext nextFolderCtx = new DirectoryResultContext(nextDirCursor, requestedFileItem.getFileProviderDocumentId(), requestedFileItem.getAbsolutePath());
-                return nextFolderCtx;
+                // Load the document ID for the current position in case it is out of range:
+                computeDirectoryContents(posIndex, posIndex);
+                FileType selectedFileItem = directoryContentsList.get(0);
+                return probeAtCursoryFolderQuery(selectedFileItem.getBaseName());
+                //String nextActiveDocId = selectedFileItem.getFileProviderDocumentId();
+                //MatrixCursor nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
+                //clearDirectoryContentsList();
+                //DirectoryResultContext nextFolderCtx = new DirectoryResultContext(nextDirCursor, selectedFileItem.getFileProviderDocumentId(), selectedFileItem.getAbsolutePath());
+                //return nextFolderCtx;
             } catch(Exception ioe) {
                 ioe.printStackTrace();
                 DisplayFragments.getInstance().pathHistoryStack.pop();
@@ -181,16 +187,8 @@ public class DisplayTypes {
             }
         }
 
-        public static DirectoryResultContext probeAtCursoryFolderQuery(FileChooserBuilder.BaseFolderPathType baseFolderChoice) {
+        private static DirectoryResultContext probeAtCursoryFolderQueryGetNext() {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
-            if(fpInst == null) {
-                return null;
-            }
-            else {
-                fpInst.setCustomFileFilter(DisplayFragments.getInstance().localFilesListFilter);
-                fpInst.setCustomFolderSort(DisplayFragments.getInstance().localFilesListSortFunc);
-            }
-            fpInst.selectBaseDirectoryByType(baseFolderChoice);
             try {
                 fpInst.updateQueryFilesList(); // cancel any previously pending noUpdate requests
                 MatrixCursor cursoryProbe = (MatrixCursor) fpInst.queryRoots(BasicFileProvider.DEFAULT_ROOT_PROJECTION);
@@ -206,6 +204,35 @@ public class DisplayTypes {
                 ioe.printStackTrace();
                 return null;
             }
+        }
+
+        public static DirectoryResultContext probeAtCursoryFolderQuery(FileChooserBuilder.BaseFolderPathType baseFolderChoice) {
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            if(fpInst == null) {
+                return null;
+            }
+            else {
+                fpInst.setCustomFileFilter(DisplayFragments.getInstance().localFilesListFilter);
+                fpInst.setCustomFolderSort(DisplayFragments.getInstance().localFilesListSortFunc);
+            }
+            fpInst.selectBaseDirectoryByType(baseFolderChoice);
+            return probeAtCursoryFolderQueryGetNext();
+        }
+
+        public static DirectoryResultContext probeAtCursoryFolderQuery(String nextSubfolderPath) {
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            if(fpInst == null) {
+                return null;
+            }
+            else {
+                fpInst.setCustomFileFilter(DisplayFragments.getInstance().localFilesListFilter);
+                fpInst.setCustomFolderSort(DisplayFragments.getInstance().localFilesListSortFunc);
+            }
+            if(!fpInst.enterNextSubfolder(nextSubfolderPath)) {
+                return null;
+            }
+            Log.i(LOGTAG, "ENTERING subfolder \"" + nextSubfolderPath + "\" ...");
+            return probeAtCursoryFolderQueryGetNext();
         }
 
     }

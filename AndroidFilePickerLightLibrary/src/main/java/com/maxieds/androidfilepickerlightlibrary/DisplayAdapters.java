@@ -201,19 +201,30 @@ public class DisplayAdapters {
             DisplayTypes.FileType fileItem = getFileItemForView(v);
             if(fileItem != null && fileItem.isDirectory()) {
                 // Recursively descend into the clicked directory location:
-                DisplayTypes.DirectoryResultContext nextFolder = fileItem.getParentFolderContext();
-                if(nextFolder == null) {
+                DisplayTypes.DirectoryResultContext nextFolderParent = fileItem.getParentFolderContext();
+                if(nextFolderParent == null) {
                     return false;
                 }
                 int fileItemPosIndex = getPositionForView(v);
-                DisplayTypes.DirectoryResultContext workingFolder = DisplayFragments.getInstance().pathHistoryStack.peek();
-                DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
+                DisplayTypes.DirectoryResultContext workingFolder;
+                if(DisplayFragments.getInstance().pathHistoryStack.empty()) {
+                    workingFolder = null;
+                }
+                else {
+                    workingFolder = DisplayFragments.getInstance().pathHistoryStack.peek();
+                }
+                nextFolderParent.clearDirectoryContentsList();
+                DisplayFragments.getInstance().pathHistoryStack.push(nextFolderParent);
                 if(workingFolder == null) {
-                    nextFolder.loadNextFolderAtIndex(fileItemPosIndex, true);
+                    DisplayTypes.DirectoryResultContext nextFolder = nextFolderParent.loadNextFolderAtIndex(fileItemPosIndex, true);
+                    nextFolder = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(nextFolder.getCWDBasePath());
+                    DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
                     DisplayFragments.getInstance().descendIntoNextDirectory(true);
                 }
                 else {
-                    nextFolder.loadNextFolderAtIndex(fileItemPosIndex, false);
+                    DisplayTypes.DirectoryResultContext nextFolder = nextFolderParent.loadNextFolderAtIndex(fileItemPosIndex, false);
+                    nextFolder = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(nextFolder.getCWDBasePath());
+                    DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
                     DisplayFragments.getInstance().descendIntoNextDirectory(false);
                 }
                 String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recursively into DIR \"%s\".", fileItem.getBaseName());
@@ -257,20 +268,18 @@ public class DisplayAdapters {
         private static String LOGTAG = OnSelectListener.class.getSimpleName();
 
         public static boolean performNewFileItemClick(CheckBox cbView, DisplayTypes.FileType fileItem) {
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "INIT PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+            Log.d(LOGTAG, String.format(Locale.getDefault(), "INIT PERFORM CLICK: (selected, max allowed) = (%d, %d)",
                     DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
             if(cbView == null || fileItem == null) {
                 return false;
             }
             boolean isDir = fileItem.isDirectory();
             if(!isDir && !DisplayFragments.getInstance().allowSelectFiles) {
-                Log.i(LOGTAG, "Blocking FILE item selection I");
                 cbView.setChecked(false);
                 cbView.jumpDrawablesToCurrentState(); // No animations
                 return false;
             }
             else if(isDir && !DisplayFragments.getInstance().allowSelectFolders) {
-                Log.i(LOGTAG, "Blocking DIR item selection II");
                 cbView.setChecked(false);
                 cbView.jumpDrawablesToCurrentState();
                 return false;
@@ -288,8 +297,7 @@ public class DisplayAdapters {
                 cbView.setEnabled(true);
                 DisplayFragments.getInstance().activeSelectionsList.remove(fileItem);
                 DisplayFragments.getInstance().curSelectionCount--;
-                Log.i(LOGTAG, "DE-Selected next checkbox (file item)");
-                Log.i(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+                Log.d(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
                         DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
                 return true;
             }
@@ -303,8 +311,7 @@ public class DisplayAdapters {
             cbView.setEnabled(true);
             DisplayFragments.getInstance().activeSelectionsList.add(fileItem);
             DisplayFragments.getInstance().curSelectionCount++;
-            Log.i(LOGTAG, "Selected next checkbox (file item)");
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
+            Log.d(LOGTAG, String.format(Locale.getDefault(), "RETURNING PERFORM CLICK: (selected, max allowed) = (%d, %d)",
                     DisplayFragments.getInstance().curSelectionCount, DisplayFragments.getInstance().maxAllowedSelections));
             return true;
         }

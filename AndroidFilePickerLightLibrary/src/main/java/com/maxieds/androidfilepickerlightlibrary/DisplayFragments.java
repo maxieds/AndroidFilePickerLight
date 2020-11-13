@@ -86,7 +86,7 @@ public class DisplayFragments {
     public List<String> fileItemBasePathsList = new ArrayList<String>();
     public Stack<DisplayTypes.DirectoryResultContext> pathHistoryStack;
 
-    public static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 25; // set large enough to overfill the window on first load
+    public static final int DEFAULT_VIEWPORT_FILE_ITEMS_COUNT = 50; // set large enough to overfill the window on first load
     private int viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
     public int fileItemDisplayHeight = 0;
 
@@ -170,14 +170,22 @@ public class DisplayFragments {
             FileChooserException.GenericRuntimeErrorException rte = new FileChooserException.GenericRuntimeErrorException("Empty context for folder history ( no more history ??? )");
             FileChooserActivity.getInstance().postSelectedFilesActivityResult(rte);
         }
-        DisplayTypes.DirectoryResultContext nextFolder = pathHistoryStack.peek();
+        DisplayTypes.DirectoryResultContext nextFolder = pathHistoryStack.pop();
         if(nextFolder != null) {
+
+            // Stop the prefetch thread for the current directory:
+            FileChooserActivity.getInstance().stopPrefetchFileUpdatesThread();
 
             // Completely clear out the previously displayed contents:
             FileChooserRecyclerView mainRV = getMainRecyclerView();
+            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+            int priorAdapterCount = rvAdapter.getItemCount();
+            rvAdapter.reloadDataSets(new ArrayList<String>(), new ArrayList<DisplayTypes.FileType>(), false);
+            rvAdapter.notifyItemRangeRemoved(0, priorAdapterCount);
+            rvAdapter.notifyDataSetChanged();
             mainRV.removeAllViews();
             mainRV.removeAllViewsInLayout();
-            // ??? Need to also clear out the adapter contents ???
+            mainRV.invalidate();
 
             // Descend into the next directory:
             lastFileDataStartIndex = 0;
@@ -188,6 +196,9 @@ public class DisplayFragments {
             displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
             DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
             DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
+
+            // Restart the prefetch thread for the current directory:
+            FileChooserActivity.getInstance().startPrefetchFileUpdatesThread();
 
         }
         else {

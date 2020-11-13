@@ -114,19 +114,19 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
     }
 
     private int BalancedBufferSize;
-    private boolean isInit;
     private int topBufferSize;
     private int bottomBufferSize;
+    private boolean isInit;
 
     public PrefetchFilesUpdater() {
 
         // Set a sane default with some scroll buffer space:
         // My testing Android phone comfortably fits 12-15 layout items.
-        // Let's buffer in 25 by default to not have to restruct the scroller
+        // Let's buffer in 35 by default to not have to restruct the scroller
         // and default fling velocities too much:
-        BalancedBufferSize = 25;
-        isInit = false;
+        BalancedBufferSize = 35;
         topBufferSize = bottomBufferSize = 0;
+        isInit = false;
 
         setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread threadRef, Throwable ex) {
@@ -262,7 +262,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
             firstVisibleIndex = getLayoutFirstVisibleItemIndex();
             lastVisibleIndex = getLayoutLastVisibleItemIndex();
 
-            Log.i(LOGTAG, String.format(Locale.getDefault(),
+            Log.d(LOGTAG, String.format(Locale.getDefault(),
                     "PrefetchUpdaterThread: CHECK FOR UPDATES: Visible[%d, %d] ;; ToBalance[%d, %d] (%d, %d);; ItemsCount = %d, DirLen = %d",
                     firstVisibleIndex, lastVisibleIndex,
                     balanceTopCount, balanceBottomCount,
@@ -291,7 +291,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
 
             if(updateDataType.equals(UpdateDataStruct.UpdateDataType.APPEND_DATA_TO_BOTTOM)) {
 
-                Log.i(LOGTAG, String.format(Locale.getDefault(),
+                Log.d(LOGTAG, String.format(Locale.getDefault(),
                         "POSTING update to RecyclerView: APPEND #%d data items to BOTTOM, RM #%d from TOP",
                         itemsAppendedCount, itemsPrunedCount));
                 int prevFirstVisibleIndex = firstVisibleIndex;
@@ -314,7 +314,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
             }
             else if(updateDataType.equals(UpdateDataStruct.UpdateDataType.PREPEND_DATA_AT_TOP)) { // Prepend items to top, trim the extra from the bottom:
 
-                Log.i(LOGTAG, String.format(Locale.getDefault(),
+                Log.d(LOGTAG, String.format(Locale.getDefault(),
                         "POSTING update to RecyclerView: PREPEND #%d data items to TOP, RM #%02d from BOTTOM",
                         itemsAppendedCount, itemsPrunedCount));
                 int prevFirstVisibleIndex = firstVisibleIndex;

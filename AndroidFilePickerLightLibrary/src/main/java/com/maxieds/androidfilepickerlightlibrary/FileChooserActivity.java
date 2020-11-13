@@ -63,6 +63,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     private PrefetchFilesUpdater prefetchFilesUpdaterInst;
     public void startPrefetchFileUpdatesThread() {
+        if(prefetchFilesUpdaterInst.isAlive()) {
+            prefetchFilesUpdaterInst.interrupt();
+        }
+        prefetchFilesUpdaterInst = new PrefetchFilesUpdater();
         prefetchFilesUpdaterInst.start();
     }
     public void stopPrefetchFileUpdatesThread() { prefetchFilesUpdaterInst.interrupt(); }

@@ -179,6 +179,15 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
+    public boolean enterNextSubfolder(String subfolderPath) {
+        File nextSubfolder = new File(baseDirPath, subfolderPath);
+        boolean status = nextSubfolder.exists() && nextSubfolder.isDirectory();
+        if(status) {
+            baseDirPath = nextSubfolder;
+        }
+        return status;
+    }
+
     @Override
     public boolean onCreate() {
         if(fileProviderStaticInst == null) {
