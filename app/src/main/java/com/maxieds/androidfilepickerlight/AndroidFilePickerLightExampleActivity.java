@@ -66,8 +66,9 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
             adBuilder.setIcon(R.drawable.file_picker_error);
             adBuilder.setTitle("Unfortunately the file picker has failed :(");
             TextView errorRationaleDisplayText = new TextView(this);
+            errorRationaleDisplayText.setPadding(25, 10, 25, 10);
             String errorDisplayText = String.format(Locale.getDefault(), "Error Rationale: %s", onErrorMsg);
-            errorRationaleDisplayText.setTextColor(R.color.colorOnErrorDisplayText);
+            errorRationaleDisplayText.setTextColor(getColor(R.color.colorOnErrorDisplayText));
             errorRationaleDisplayText.setText(errorDisplayText.toString());
             adBuilder.setView(errorRationaleDisplayText);
             adBuilder.setNegativeButton("[X] That sucks, boo.", null);
@@ -81,6 +82,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 "No file nor directory paths were selected.";
         adBuilder.setMessage(String.format(Locale.getDefault(), "The stylized file picker worked. Congratulations!\n\n%s", descTrailingPathsList));
         TextView fileSelectionsDisplayText = new TextView(this);
+        fileSelectionsDisplayText.setPadding(25, 10, 25, 10);
         StringBuilder displayText = new StringBuilder();
         for(String fileItem : fileItemsList) {
             displayText.append(" • " + fileItem + "\n");

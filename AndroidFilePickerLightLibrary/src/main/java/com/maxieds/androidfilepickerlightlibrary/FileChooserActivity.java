@@ -196,8 +196,20 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
             }
         };
-        doneActionBtn.setOnClickListener(quitActivityBtnClickListener);
         cancelActionBtn.setOnClickListener(quitActivityBtnClickListener);
+        Button.OnClickListener doneActivityBtnClickListener = new Button.OnClickListener() {
+            @Override
+            public void onClick(View btnView) {
+                getDisplayFragmentsInstance().cancelAllOperationsInProgress();
+                if(DisplayFragments.getInstance().activeSelectionsList.size() == 0) {
+                    getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
+                }
+                else {
+                    getInstance().postSelectedFilesActivityResult();
+                }
+            }
+        };
+        doneActionBtn.setOnClickListener(doneActivityBtnClickListener);
 
         /*
          * Last, there is the global back button and previous directory history display.
@@ -214,6 +226,22 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getDisplayFragmentsInstance().initializeRecyclerViewLayout(mainLayoutRecyclerView);
         getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //if(prefetchFilesUpdaterInst.isAlive()) {
+        //    stopPrefetchFileUpdatesThread();
+        //}
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //if(prefetchFilesUpdaterInst.isInterrupted()) {
+        //    startPrefetchFileUpdatesThread();
+        //}
     }
 
     @Override
@@ -288,21 +316,16 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
         setResult(Activity.RESULT_OK, filesResultIntent);
         finish();
-        //System.exit(0); // ??? TODO ???
     }
 
     public void postSelectedFilesActivityResult(Exception runtimeExcpt) {
         runtimeExcpt.printStackTrace();
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
-        if(runtimeExcpt instanceof FileChooserException.AndroidFilePickerLightException) {
-            FileChooserException.AndroidFilePickerLightException rteLocal = (FileChooserException.AndroidFilePickerLightException) runtimeExcpt;
-            filesResultIntent.putExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_MESSAGE_KEY, rteLocal.getMessage());
-            filesResultIntent.putExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_CAUSE_KEY, rteLocal.getCauseAsString());
-        }
+        FileChooserException.AndroidFilePickerLightException rteLocal = (FileChooserException.AndroidFilePickerLightException) runtimeExcpt;
+        filesResultIntent.putExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_MESSAGE_KEY, rteLocal.getMessage());
+        filesResultIntent.putExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_CAUSE_KEY, rteLocal.getCauseAsString());
         setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
-        //ActivityCompat.finishAffinity(this);
-        //System.exit(0); // ??? TODO ???
     }
 
 }

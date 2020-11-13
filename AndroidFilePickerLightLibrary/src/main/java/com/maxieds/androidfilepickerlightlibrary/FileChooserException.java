@@ -60,7 +60,7 @@ public class FileChooserException {
 
     }
 
-    abstract public static class AndroidFilePickerLightException extends RuntimeException {
+    public static class AndroidFilePickerLightException extends RuntimeException {
 
         private boolean isError;
         private int errorCode;
@@ -81,7 +81,7 @@ public class FileChooserException {
         }
 
         protected static AndroidFilePickerLightException getNewInstance() {
-            return null;
+            return new AndroidFilePickerLightException();
         }
 
         public AndroidFilePickerLightException newExceptionInstance(Exception javaBaseExcpt) {
@@ -104,13 +104,21 @@ public class FileChooserException {
         }
 
         protected void configureExceptionParams(int errorCode, String baseExcptDesc, boolean defaultIsError,
-                                                Object defaultDataTypeT, ExceptionDataFieldFormatter dataFmtObjType) {}
+                                                Object defaultDataTypeT, ExceptionDataFieldFormatter dataFmtObjType) {
+            this.errorCode = errorCode;
+            this.errorMsg = baseExcptDesc;
+            this.isError = defaultIsError;
+        }
+
+        @Override
+        public String getMessage() {
+            return getErrorMessage();
+        }
 
         /* Standard-ish Exception class handling and methods: */
         public String getExceptionMessage() { return null; }
         public String[] getStackTraceAsStringArray() { return null; }
-        public void printStackTrace() {}
-        public String toString() { return null; }
+        public String toString() { return getMessage(); }
 
         /* For uses of communicating other information by exception: */
         public boolean isError() { return isError; }
@@ -119,9 +127,9 @@ public class FileChooserException {
         public String getCauseAsString() { return this.getClass().getName(); }
 
         /* Custom error messages and printing methods: */
-        public String getExceptionName() { return null; }
+        public String getExceptionName() { return this.getClass().getName(); }
         public String getExceptionBaseDesc() { return null; }
-        public String getErrorMessage() { return null; }
+        public String getErrorMessage() { return errorMsg; }
         public String getErrorMessageFull() { return null; }
         public String getInvokingSourceFile() { return null; }
         public int getInvokingLineNumber() { return -1; }
@@ -254,7 +262,7 @@ public class FileChooserException {
 
         public CommunicateSelectionDataException() {
             configureExceptionParams(UNIQUE_ERROR_CODE,
-                    "Wrapper for exception type to throw to return normal data on success",
+                    "No selections by the user",
                     false, DEFAULT_DATA_ITEMS_TYPE, null);
         }
 

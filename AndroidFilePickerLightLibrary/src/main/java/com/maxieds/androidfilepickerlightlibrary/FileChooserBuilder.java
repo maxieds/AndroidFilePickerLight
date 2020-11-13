@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 public class FileChooserBuilder implements Serializable {
@@ -422,15 +423,22 @@ public class FileChooserBuilder implements Serializable {
             case ACTIVITY_CODE_SELECT_DIRECTORY_ONLY:
             case ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
                 if(resultCode == RESULT_OK) {
-                    List<String> selectedDataItems = Arrays.asList(data.getStringArrayExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY));
+                    List<String> selectedDataItems = data.getStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY);
                     finishActivityResultHandler(activityInst);
+                    try { // A short pause to give the calling Activity time to resume form at the top of the display:
+                        Thread.sleep(250);
+                    } catch(InterruptedException ie) {}
                     return selectedDataItems;
                 }
-                try {
-                    String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
-                    finishActivityResultHandler(activityInst);
-                    throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
-                } catch(NullPointerException npe) {}
+                else if(resultCode == RESULT_CANCELED) {
+                    try {
+                        String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
+                        finishActivityResultHandler(activityInst);
+                        throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
+                    } catch (NullPointerException npe) {
+                        npe.printStackTrace();
+                    }
+                }
                 break;
             default:
                 break;
@@ -450,6 +458,7 @@ public class FileChooserBuilder implements Serializable {
         Intent bringToFrontIntent = new Intent(activityInst, activityInst.getClass());
         bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         activityInst.startActivity(bringToFrontIntent);
+        //ActivityCompat.finishAffinity(this);
     }
 
     public StringBuilder readFileContentsAsString() {

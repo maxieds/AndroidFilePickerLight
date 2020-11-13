@@ -73,35 +73,28 @@ public class FileChooserRecyclerView extends RecyclerView {
         addItemDecoration(new FileChooserRecyclerView.CustomDividerItemDecoration(R.drawable.rview_file_item_divider));
         //addOnItemTouchListener(...);
 
-        /*
-         * This code fragment gets called when the RecyclerView layout is first displayed:
-         */
-        /*
-        final FileChooserRecyclerView recyclerView = this;
-        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                // DOES NOT always work ...
-            }
-        });
-        */
-
     }
 
     // We want it to move when flung and be responsive, but keep a constant rate of movement:
-    public static final float SCROLLER_MILLISECONDS_PER_INCH = 62.0f; // larger values slow it down
+    private static final int FLING_VELOCITY_DAMPENAT = 1750;
+    //private static final int FLING_MOVE_BY = 2;
 
-    /*@Override
+    @Override
     public boolean fling(int velocityX, int velocityY) {
-        //float slowDownBy = calculateSpeedPerPixel(FileChooserActivity.getInstance().getResources().getDisplayMetrics());
-        //return super.fling((int) (velocityX * slowDownBy), (int) (velocityY * slowDownBy));
-        return super.fling(velocityX, 0);
+        //Log.i(LOGTAG, "FLUNG at velY = " + velocityY);
+        if(Math.abs(velocityY) <= FLING_VELOCITY_DAMPENAT) {
+            return super.fling(0, velocityY);
+        }
+        int scaledVelocityY = FLING_VELOCITY_DAMPENAT + (int) ((velocityY - FLING_VELOCITY_DAMPENAT) * Math.exp(-Math.pow(velocityY - FLING_VELOCITY_DAMPENAT, 0.25)));
+        //Log.i(LOGTAG, "RE-FLUNG at velY = " + scaledVelocityY);
+        return super.fling(0, scaledVelocityY);
+        /*int firstVisiblePos = ((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+        boolean flingStatus = false;
+        if(firstVisiblePos + FLING_MOVE_BY < getLayoutManager().getChildCount()) {
+            getLayoutManager().smoothScrollToPosition(this, new RecyclerView.State(), firstVisiblePos + FLING_MOVE_BY);
+        }
+        return false;*/
     }
-
-    protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
-        return SCROLLER_MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
-    }*/
 
     public interface RecyclerViewSlidingContextWindow {
 
@@ -145,7 +138,9 @@ public class FileChooserRecyclerView extends RecyclerView {
             return true;
         }
 
-        /*@Override
+        /*
+        public static final float SCROLLER_MILLISECONDS_PER_INCH = 62.0f; // larger values slow it down
+        @Override
         public void smoothScrollToPosition(RecyclerView recyclerView, State state, int position) {
             final LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
                 @Override
@@ -155,7 +150,8 @@ public class FileChooserRecyclerView extends RecyclerView {
             };
             linearSmoothScroller.setTargetPosition(position);
             startSmoothScroll(linearSmoothScroller);
-        }*/
+        }
+        */
 
     }
 

@@ -27,6 +27,6 @@
     <color name="colorButtonStockBGToCorners">#f6f7ff</color>
     <color name="colorButtonStockBorder">#31354c</color>
     <color name="colorButtonStockBGPressedState">#838dcc</color>
-    <color name="colorOnErrorDisplayText">#7A1A1D</color>
+    <color name="colorOnErrorDisplayText">#FF5722</color>
 
 </resources>

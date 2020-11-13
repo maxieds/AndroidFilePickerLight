@@ -105,8 +105,8 @@ public class DisplayUtils {
         );
         toastDisplay.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 25);
         toastDisplay.getView().setPadding(10, 10, 10, 10);
-        int toastBackgroundColor = getColorVariantFromTheme(R.attr.colorAccent);
-        int toastTextColor = getColorVariantFromTheme(R.attr.colorPrimaryDark);
+        int toastBackgroundColor = getColorVariantFromTheme(R.attr.__colorAccent);
+        int toastTextColor = getColorVariantFromTheme(R.attr.__colorPrimaryDark);
         toastDisplay.getView().getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
         TextView toastTextMsg = toastDisplay.getView().findViewById(android.R.id.message);
         if(toastTextMsg != null) {
@@ -132,6 +132,28 @@ public class DisplayUtils {
 
     public static void displayToastMessageLong(String toastMsg) {
         displayToastMessageLong(FileChooserActivity.getInstance(), toastMsg);
+    }
+
+    public static void displayFolderScrollContents(int scrolledToPosSoFar, int maxScrollPos) {
+        int percentage = (int) scrolledToPosSoFar / maxScrollPos;
+        Toast toastDisplay = Toast.makeText(
+                FileChooserActivity.getInstance(),
+                String.format(Locale.getDefault(), "%d %%", percentage),
+                Toast.LENGTH_SHORT
+        );
+        toastDisplay.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
+        toastDisplay.getView().setPadding(2, 2, 2, 2);
+        int toastBackgroundColor = getColorVariantFromTheme(R.attr.__colorPrimaryDark);
+        int toastTextColor = getColorVariantFromTheme(R.attr.__colorAccentLight);
+        toastDisplay.getView().getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
+        TextView toastTextMsg = toastDisplay.getView().findViewById(android.R.id.message);
+        if(toastTextMsg != null) {
+            toastTextMsg.setTextColor(toastTextColor);
+            toastTextMsg.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f);
+            toastTextMsg.setTypeface(Typeface.SANS_SERIF, Typeface.ITALIC);
+        }
+        toastDisplay.getView().setAlpha(0.65f);
+        toastDisplay.show();
     }
 
     private static int[] PROGRESS_BAR_VISUAL_MARKERS = new int[] {

@@ -39,6 +39,8 @@ public class DisplayAdapters {
 
     public static class FileListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
+        private static String LOGTAG = FileListAdapter.class.getSimpleName();
+
         private List<String> fileListData;
         private List<DisplayTypes.FileType> fileItemsData;
 
@@ -92,8 +94,8 @@ public class DisplayAdapters {
                 View viewItemContainer = bvHolder.getMainViewLayoutContainer();
                 DisplayFragments.FileListItemFragment.resetLayout(viewItemContainer, fileItem, posIndex);
             }
-            //Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- %s (ADAPTER -> %s) [DATA ITEMS SIZE = %d]", posIndex,
-            //        bvHolder.getDisplayText().getText(), fileListData.get(posIndex), fileItemsData.size()));
+            Log.i(LOGTAG, String.format(Locale.getDefault(), "onBindViewHolder @ %d -- (ADAPTER -> %s) [DATA ITEMS SIZE = %d]", posIndex,
+                    fileListData.get(posIndex), fileItemsData.size()));
         }
 
         @Override
@@ -130,8 +132,9 @@ public class DisplayAdapters {
 
     public static class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, RecyclerView.OnItemTouchListener {
 
+        private static String LOGTAG = BaseViewHolder.class.getSimpleName();
+
         private View fileItemContainerView;
-        public  TextView displayText;
         private int initIndexPos;
 
         private GestureDetector gestureDetector = new GestureDetector(FileChooserActivity.getInstance(), new GestureDetector.SimpleOnGestureListener() {
@@ -141,11 +144,10 @@ public class DisplayAdapters {
             }
             @Override
             public void onLongPress(MotionEvent e) {
-                Log.i(LOGTAG, "onLongPress::onLongPress");
+                Log.i(LOGTAG, "BaseViewHolder::GestureDetector::onLongPress");
                 RecyclerView mainFileListRecyclerView = DisplayFragments.getMainRecyclerView();
                 View childView = mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
                 if(childView != null) {
-                    ////clickListener.onLongClick(child, DisplayFragments.mainFileListRecyclerView, DisplayFragments.mainFileListRecyclerView.getChildPosition(child));
                     onLongClick(childView);
                 }
             }
@@ -158,13 +160,9 @@ public class DisplayAdapters {
             v.setFocusable(true);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
-            displayText = (TextView) v.findViewById(R.id.fileEntryBaseName);
             initIndexPos = -1;
 
         }
-
-        public TextView getDisplayText() { return displayText; }
-        public void setDisplayText(TextView nextDisplayText) { displayText = nextDisplayText; }
 
         public int getInitialIndexPosition() { return initIndexPos; }
         public void setInitialIndexPosition(int initIdx) { initIndexPos = initIdx; }
@@ -190,7 +188,8 @@ public class DisplayAdapters {
 
         @Override
         public void onClick(View v) {
-            Log.i(LOGTAG, "BaseViewHolder::onClick [RETURNING, DOING NOTHING] ... ");
+            Log.i(LOGTAG, "BaseViewHolder::onClick");
+            onLongClick(v);
         }
 
         @Override
@@ -218,6 +217,18 @@ public class DisplayAdapters {
                 DisplayUtils.displayToastMessageShort(displayRecurseMsg);
                 return true;
             }
+            /*else if(fileItem != null && !fileItem.isDirectory()) {
+                View cbView = v.findViewById(R.id.fileSelectCheckBox);
+                if(cbView == null) {
+                    return false;
+                }
+                CheckBox selectionBox = (CheckBox) cbView;
+                if(!selectionBox.isEnabled()) {
+                    return false;
+                }
+                boolean isPrevSelected = selectionBox.isSelected();
+                return (isPrevSelected == !selectionBox.performClick()); // if the click performed changed the selection, then success
+            }*/
             return false;
         }
 
@@ -225,7 +236,6 @@ public class DisplayAdapters {
         public boolean onInterceptTouchEvent(RecyclerView rview, MotionEvent mevt) {
             View childView = rview.findChildViewUnder(mevt.getX(), mevt.getY());
             if(childView != null && gestureDetector.onTouchEvent(mevt)) {
-                ////clickListener.onClick(child, rview.getChildPosition(child));
                 onClick(childView);
             }
             return false;

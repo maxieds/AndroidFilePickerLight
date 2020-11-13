@@ -162,6 +162,7 @@ public class DisplayFragments {
     }
 
     public void descendIntoNextDirectory(boolean initNewFileTree) {
+
         if(pathHistoryStack.empty()) {
             cancelAllOperationsInProgress();
             FileChooserException.GenericRuntimeErrorException rte = new FileChooserException.GenericRuntimeErrorException("Empty context for folder history ( no more history ??? )");
@@ -169,17 +170,28 @@ public class DisplayFragments {
         }
         DisplayTypes.DirectoryResultContext nextFolder = pathHistoryStack.peek();
         if(nextFolder != null) {
-            setCwdFolderContext(nextFolder);
+
+            // Completely clear out the previously displayed contents:
+            FileChooserRecyclerView mainRV = getMainRecyclerView();
+            mainRV.removeAllViews();
+            mainRV.removeAllViewsInLayout();
+            // ??? Need to also clear out the adapter contents ???
+
+            // Descend into the next directory:
             lastFileDataStartIndex = 0;
             lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount() - 1;
+            setCwdFolderContext(nextFolder);
+            // ??? TODO: Later, may want to display a loading notice if initializing a new directory is sluggish ???
             getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
             displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
             DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
             DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
+
         }
         else {
             Log.i(LOGTAG, "descendIntoNextDirectory: CWD Ctx is NULL!");
         }
+
     }
 
     /* Re-initiate the inquisition: Static reusable wrapper function to invoke loading a new directory
@@ -306,7 +318,6 @@ public class DisplayFragments {
     }
 
     public void cancelAllOperationsInProgress() {
-        FileChooserActivity.getInstance().stopPrefetchFileUpdatesThread();
         FileChooserActivity.getInstance().stopPrefetchFileUpdatesThread();
         pathHistoryStack.clear();
     }
