@@ -63,7 +63,7 @@ import java.util.Locale;
  * and post notifications to the adapter. The scroller (and its listener) know what to do by default when it can just
  * smooth scroll through a linear layout with items already available. What results is a nothing too fancy interface to
  * avoid the messy UI intensive work in the scroll handler.
- * 
+ *
  */
 public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerView.RecyclerViewSlidingContextWindow {
 
@@ -235,19 +235,6 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
 
         protected Long doInBackground(Void... unusedArgsList) {
 
-            // Figure out which edge (if either) needs to get balanced first:
-            // Basically the procedure is:
-            // At the start, favor loading in new buffer items from the bottom.
-            // Once things get going, we want to maintain at least semi-comparable
-            // buffering on each side. So handle the strange corner situations where:
-            // IF:   BOT wants balance > 0, but if
-            //       TopBufferSize < BAL_BUFFER_SIZE and FirstVisible - TopBufferSize > BottomToBalance,
-            // THEN: Offer up the loading time to pad the TOP buffer instead.
-            // OW:   If TOP and BOT both want balance > 0, defer to the edge that requires a larger
-            //       balance.
-            // OW:   If only one wants balance > 0, give that one the loading time.
-            // OW:   Break ties by loading at the BOT edge first and/or by loading where there is a smaller
-            //       buffer size currently instated.
             if(balanceTopCount > 0 && balanceBottomCount > 0) {
                 if(balanceTopCount > balanceBottomCount) {
                     loadInDataAtTopEdge();
@@ -256,17 +243,11 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                     loadInDataAtBottomEdge();
                 }
             }
-            else if(balanceTopCount > 0) {
-                loadInDataAtTopEdge();
-            }
-            else if(topBufferSize < BalancedBufferSize && firstVisibleIndex >= topBufferSize &&
-                    firstVisibleIndex - topBufferSize > balanceBottomCount &&
-                    firstVisibleIndex - topBufferSize - balanceBottomCount < displayCtx.lastFileDataStartIndex) {
-                balanceTopCount = firstVisibleIndex - topBufferSize - balanceBottomCount;
-                loadInDataAtTopEdge();
-            }
             else if(balanceBottomCount > 0) {
                 loadInDataAtBottomEdge();
+            }
+            else if(balanceTopCount > 0) {
+                loadInDataAtTopEdge();
             }
 
             return Long.valueOf(0);
@@ -274,12 +255,6 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
         }
 
         protected void onPreExecute() {
-
-            // Otherwise, weird behaviors arise (make sure the last balance got things
-            // where they were supposed to be headed):
-            FileChooserRecyclerView mainRV = displayCtx.getMainRecyclerView();
-            FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-            rvLayoutManager.completeLastSmoothScroll();
 
             balanceBottomCount = getActiveCountToBalanceBottom();
             balanceTopCount = getActiveCountToBalanceTop();
@@ -333,7 +308,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                 rvAdapter.notifyItemRangeInserted(updateDataBlock.nextFileNamesList.size() - itemsAppendedCount, itemsAppendedCount);
                 bottomBufferSize += itemsAppendedCount;
                 rvAdapter.notifyDataSetChanged();
-                mainRV.smoothScrollToPosition(prevFirstVisibleIndex);
+                mainRV.scrollToPosition(prevFirstVisibleIndex);
 
             }
             else if(updateDataType.equals(UpdateDataStruct.UpdateDataType.PREPEND_DATA_AT_TOP)) { // Prepend items to top, trim the extra from the bottom:
@@ -359,21 +334,10 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                 rvAdapter.notifyItemRangeInserted(0, itemsAppendedCount);
                 topBufferSize += itemsAppendedCount;
                 rvAdapter.notifyDataSetChanged();
-                mainRV.smoothScrollToPosition(prevFirstVisibleIndex);
+                mainRV.scrollToPosition(prevFirstVisibleIndex);
 
             }
-            else {
-                return;
-            }
-            // We have smooth scrolled. Let it have some brief time to behave itself, otherwise
-            // kick it along down it's merry way:
-            final FileChooserRecyclerView.LayoutManager rvLayoutManager = (FileChooserRecyclerView.LayoutManager) mainRV.getLayoutManager();
-            mainRV.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    rvLayoutManager.completeLastSmoothScroll();
-                }
-            }, 200);
+
         }
 
     }
@@ -448,37 +412,16 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
         BalancedBufferSize = size;
     }
 
-    /*
-     * Note: Since we cannot load files before the zeroth index in the directory, we need to do some
-     *       accounting to make sure that we really are keeping things balanced as planned.
-     *       Similarly, we cannot load files beyond the last indexed file in the current folder.
-     */
-
     public int getActiveCountToBalanceTop() {
         if(getActiveLayoutItemsCount() == 0 || getLayoutVisibleDisplaySize() >= getActiveFolderContentsSize()) {
             return 0;
         }
-        // Handle competing cases that arise when inflating from the bottom first:
-        int balanceChoiceCount = 0;
-        int[] prospectiveBalanceSizes = new int[] { 0, 0 };
-        if(topBufferSize < Math.min(Math.max(0, getActiveLayoutItemsCount() - getLayoutVisibleDisplaySize() - bottomBufferSize), BalancedBufferSize)) {
-            // Handles the initialization case (loading the buffer the first time):
-            prospectiveBalanceSizes[balanceChoiceCount++] =
-                    Math.min(Math.max(0, getActiveLayoutItemsCount() - getLayoutVisibleDisplaySize() - bottomBufferSize), BalancedBufferSize) - topBufferSize;
-        }
         int firstVisibleItemIndex = getLayoutFirstVisibleItemIndex();
-        int remainingFrontSpace = Math.min(getTopBufferPosition(), BalancedBufferSize);
-        if(firstVisibleItemIndex >= getTopBufferPosition() && firstVisibleItemIndex - getTopBufferPosition() < remainingFrontSpace) {
-            prospectiveBalanceSizes[balanceChoiceCount++] = remainingFrontSpace - 1 - firstVisibleItemIndex + getTopBufferPosition();
-        }
-        if(balanceChoiceCount == 0) {
-            return 0;
-        }
-        else if(balanceChoiceCount == 1) {
-            return prospectiveBalanceSizes[0];
+        if(firstVisibleItemIndex < getTopBufferPosition()) {
+            return getTopBufferPosition() - firstVisibleItemIndex;
         }
         else {
-            return Math.max(prospectiveBalanceSizes[0], prospectiveBalanceSizes[1]);
+            return 0;
         }
     }
 
@@ -492,15 +435,18 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
             // If layout not initialized, or fits into single window, do not grow the padding buffer:
             return 0;
         }
-        else if(bottomBufferSize < Math.min(Math.max(0, getActiveFolderContentsSize() - getLayoutVisibleDisplaySize() - topBufferSize), BalancedBufferSize)) {
-            // Handles the initialization case (loading the buffer the first time):
-            return Math.min(Math.max(0, getActiveFolderContentsSize() - getLayoutVisibleDisplaySize() - topBufferSize), BalancedBufferSize) - bottomBufferSize;
+        int maxBottomBufferSize = Math.min(getActiveFolderContentsSize() - getLayoutVisibleDisplaySize(), BalancedBufferSize);
+        if(getBottomBufferPosition() + 1 < maxBottomBufferSize) {
+            return maxBottomBufferSize - 1 - getBottomBufferPosition();
         }
-        int lastVisibleItemIndex = getLayoutLastVisibleItemIndex(); // avoiding a potential race condition when scrolling
-        int itemsInFolderRemaining = Math.max(0, getActiveFolderContentsSize() - getBottomBufferPosition() - 1);
+        // Otherwise, the bottom buffer has accumulated maximal size.
+        // Now adjust when the scroller brings the last visible to less than this size from the last index:
+        int lastVisibleItemIndex = getLayoutLastVisibleItemIndex();
+        int maxAdjustedBottomBufferSize = Math.min(BalancedBufferSize,
+                Math.max(0, getActiveFolderContentsSize() - Math.max(getLayoutVisibleDisplaySize(), lastVisibleItemIndex + 1)));
         if(lastVisibleItemIndex <= getBottomBufferPosition() &&
-                getBottomBufferPosition() - lastVisibleItemIndex < Math.min(itemsInFolderRemaining, BalancedBufferSize)) {
-            return Math.min(itemsInFolderRemaining, BalancedBufferSize) - 1 - getBottomBufferPosition() + lastVisibleItemIndex;
+           getBottomBufferPosition() - lastVisibleItemIndex < maxAdjustedBottomBufferSize) {
+            return maxAdjustedBottomBufferSize - getBottomBufferPosition() + lastVisibleItemIndex;
         }
         else {
             return 0;

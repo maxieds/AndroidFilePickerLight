@@ -76,30 +76,22 @@ public class FileChooserRecyclerView extends RecyclerView {
     }
 
     // We want it to move when flung and be responsive, but keep a constant rate of movement:
-    private static final int FLING_VELOCITY_DAMPENAT = 1750;
-    //private static final int FLING_MOVE_BY = 2;
+    private static final int FLING_VELOCITY_DAMPENAT = 850;
+
 
     @Override
     public boolean fling(int velocityX, int velocityY) {
-        //Log.i(LOGTAG, "FLUNG at velY = " + velocityY);
         if(Math.abs(velocityY) <= FLING_VELOCITY_DAMPENAT) {
             return super.fling(0, velocityY);
         }
         int scaledVelocityY = FLING_VELOCITY_DAMPENAT + (int) ((velocityY - FLING_VELOCITY_DAMPENAT) * Math.exp(-Math.pow(velocityY - FLING_VELOCITY_DAMPENAT, 0.25)));
-        //Log.i(LOGTAG, "RE-FLUNG at velY = " + scaledVelocityY);
         return super.fling(0, scaledVelocityY);
-        /*int firstVisiblePos = ((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition();
-        boolean flingStatus = false;
-        if(firstVisiblePos + FLING_MOVE_BY < getLayoutManager().getChildCount()) {
-            getLayoutManager().smoothScrollToPosition(this, new RecyclerView.State(), firstVisiblePos + FLING_MOVE_BY);
-        }
-        return false;*/
     }
 
-    @Override
+    /*@Override
     public void smoothScrollToPosition(int indexPos) {
         getLayoutManager().smoothScrollToPosition(this, new RecyclerView.State(), indexPos);
-    }
+    }*/
 
     public interface RecyclerViewSlidingContextWindow {
 
@@ -131,9 +123,6 @@ public class FileChooserRecyclerView extends RecyclerView {
             setStackFromEnd(true); // ???
             setSmoothScrollbarEnabled(true);
             localStaticInst = this;
-            intendedNextScrollPos = 0;
-            linearSmoothScroller = null;
-            scrollInvokingRV = null;
         }
 
         @Override
@@ -141,7 +130,7 @@ public class FileChooserRecyclerView extends RecyclerView {
             return true;
         }
 
-        // intent is to speed it up for the prefetch thread smooth scrolling:
+        /*// intent is to speed it up for the prefetch thread smooth scrolling:
         public static final float SCROLLER_MILLISECONDS_PER_INCH = 16.0f; // larger values slow it down, 25.0 ~ default behavior
 
         private int intendedNextScrollPos;
@@ -172,7 +161,7 @@ public class FileChooserRecyclerView extends RecyclerView {
             scrollInvokingRV.stopScroll();
             scrollInvokingRV.scrollToPosition(intendedNextScrollPos);
             return true;
-        }
+        }*/
 
     }
 
