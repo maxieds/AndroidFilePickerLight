@@ -122,7 +122,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
     }
 
     public void actionButtonLaunchSingleFilePickerActivity(View btnView) {
-        FileChooserBuilder fpInst = FileChooserBuilder.getDirectoryChooserInstance(this);
+        FileChooserBuilder fpInst = FileChooserBuilder.getSingleFilePickerInstance(this);
         fpInst.showHidden(true);
         fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS);
         fpInst.launchFilePicker();
