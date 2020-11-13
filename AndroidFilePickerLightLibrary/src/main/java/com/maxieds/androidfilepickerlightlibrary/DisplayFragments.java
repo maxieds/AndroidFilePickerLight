@@ -266,6 +266,7 @@ public class DisplayFragments {
             selectionBox.setTag(displayPosition);
             selectionBox.setOnCheckedChangeListener(new DisplayAdapters.OnSelectListener());
 
+
         }
 
     }

@@ -253,21 +253,25 @@ public class DisplayAdapters {
             if(!isDir && !DisplayFragments.getInstance().allowSelectFiles) {
                 Log.i(LOGTAG, "Blocking FILE item selection I");
                 cbView.setChecked(false);
+                cbView.jumpDrawablesToCurrentState(); // No animations
                 return false;
             }
             else if(isDir && !DisplayFragments.getInstance().allowSelectFolders) {
                 Log.i(LOGTAG, "Blocking DIR item selection II");
                 cbView.setChecked(false);
+                cbView.jumpDrawablesToCurrentState();
                 return false;
             }
             if(!cbView.isEnabled()) {
                 cbView.setChecked(false);
+                cbView.jumpDrawablesToCurrentState();
                 return false;
             }
             if(fileItem.isChecked()) {
                 // Deselect: uncheck GUI widget item and remove the fileItem from the active selections list:
-                fileItem.setChecked(false);
                 cbView.setChecked(false);
+                cbView.jumpDrawablesToCurrentState();
+                fileItem.setChecked(false);
                 cbView.setEnabled(true);
                 DisplayFragments.getInstance().activeSelectionsList.remove(fileItem);
                 DisplayFragments.getInstance().curSelectionCount--;
@@ -280,8 +284,9 @@ public class DisplayAdapters {
                 cbView.setChecked(false);
                 return false;
             }
-            fileItem.setChecked(true);
             cbView.setChecked(true);
+            cbView.jumpDrawablesToCurrentState();
+            fileItem.setChecked(true);
             cbView.setEnabled(true);
             DisplayFragments.getInstance().activeSelectionsList.add(fileItem);
             DisplayFragments.getInstance().curSelectionCount++;
@@ -293,8 +298,9 @@ public class DisplayAdapters {
 
         @Override
         public void onCheckedChanged(CompoundButton btnView, boolean isChecked) {
+            btnView.jumpDrawablesToCurrentState();
             CheckBox cbView = (CheckBox) btnView;
-            DisplayTypes.FileType fileItem = BaseViewHolder.getFileItemForView((View) btnView.getParent());
+            DisplayTypes.FileType fileItem = BaseViewHolder.getFileItemForView((View) btnView.getParent().getParent());
             if(fileItem != null) {
                 performNewFileItemClick(cbView, fileItem);
             }

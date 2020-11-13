@@ -75,4 +75,10 @@
         <item name="android:paddingLeft">10sp</item>
     </style>
 
+    <style name="FileItemSelectionBoxTheme" parent="LibraryDefaultTheme">
+        <item name="colorControlNormal">?__colorPrimaryDark</item>
+        <item name="colorControlActivated">?__colorPrimaryDark</item>
+        <item name="buttonTint">?__colorPrimaryDark</item>
+    </style>
+
 </resources>

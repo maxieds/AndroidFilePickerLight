@@ -29,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -60,7 +61,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
 
     public void showFileChooserResultsDialog(List<String> fileItemsList, String onErrorMsg) {
         AlertDialog.Builder adBuilder = new AlertDialog.Builder(this);
-        boolean resultIsError = onErrorMsg == null;
+        boolean resultIsError = onErrorMsg != null;
         if(resultIsError) {
             adBuilder.setIcon(R.drawable.file_picker_error);
             adBuilder.setTitle("Unfortunately the file picker has failed :(");
@@ -90,22 +91,25 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         adBuilder.create().show();
     }
 
+    private static String rteErrorMsg = null;
+    private static  List<String> selectedFilePaths =  new ArrayList<String>();
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
-            List<String> selectedFilePaths = FileChooserBuilder.handleActivityResult(this, requestCode, resultCode, data);
-            showFileChooserResultsDialog(selectedFilePaths, null);
-        } catch(RuntimeException rte) {
-            String errorExitMsg = null;
-            if(data != null) {
-                errorExitMsg = data.getStringExtra(FileChooserBuilder.FILE_PICKER_EXCEPTION_MESSAGE_KEY);
+            selectedFilePaths = FileChooserBuilder.handleActivityResult(this, requestCode, resultCode, data);
+        } catch (RuntimeException rte) {
+            if (data != null) {
+                rteErrorMsg = rte.getMessage();
             }
-            if(errorExitMsg == null) {
-                errorExitMsg = "Unknown reason for exception.";
+            if (rteErrorMsg == null) {
+                rteErrorMsg = "Unknown reason for exception.";
             }
-            showFileChooserResultsDialog(new ArrayList<String>(), errorExitMsg);
         }
+        showFileChooserResultsDialog(selectedFilePaths, rteErrorMsg);
+        selectedFilePaths = new ArrayList<String>();
+        rteErrorMsg = null;
     }
 
     public void actionButtonLaunchSingleFilePickerActivity(View btnView) {

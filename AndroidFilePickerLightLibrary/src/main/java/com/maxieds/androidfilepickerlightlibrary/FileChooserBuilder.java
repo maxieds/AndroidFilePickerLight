@@ -26,6 +26,7 @@ import android.view.Display;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -406,6 +407,7 @@ public class FileChooserBuilder implements Serializable {
     public static final int ACTIVITY_CODE_SELECT_FILE = 1;
     public static final int ACTIVITY_CODE_SELECT_DIRECTORY_ONLY = 2;
     public static final int ACTIVITY_CODE_SELECT_MULTIPLE_FILES = 3;
+    public static final int ACTIVITY_CODE_BRING_TO_FRONT = 4;
 
     /* Client code should call this method in their main Activity's onActivityResult function
      * to handle the logic there when the activity was created as a file picker instance:
@@ -420,14 +422,13 @@ public class FileChooserBuilder implements Serializable {
             case ACTIVITY_CODE_SELECT_DIRECTORY_ONLY:
             case ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
                 if(resultCode == RESULT_OK) {
-                    FileChooserException.AndroidFilePickerLightException resultOKException = new FileChooserException.CommunicateSelectionDataException();
-                    List<String> selectedDataItems = resultOKException.packageDataItemsFromIntent(data);
+                    List<String> selectedDataItems = Arrays.asList(data.getStringArrayExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY));
                     finishActivityResultHandler(activityInst);
                     return selectedDataItems;
                 }
                 try {
                     String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
-                    finishActivityResultHandler(activityInst); // ???
+                    finishActivityResultHandler(activityInst);
                     throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
                 } catch(NullPointerException npe) {}
                 break;
@@ -437,7 +438,7 @@ public class FileChooserBuilder implements Serializable {
         }
         FileChooserException.AndroidFilePickerLightException resultNotOKException = new FileChooserException.GenericRuntimeErrorException();
         resultNotOKException.packageDataItemsFromIntent(data);
-        finishActivityResultHandler(activityInst); // ???
+        finishActivityResultHandler(activityInst);
         throw resultNotOKException;
     }
 
@@ -448,7 +449,7 @@ public class FileChooserBuilder implements Serializable {
         activityInst.moveTaskToBack(false);
         Intent bringToFrontIntent = new Intent(activityInst, activityInst.getClass());
         bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        FileChooserActivity.getInstance().startActivity(bringToFrontIntent);
+        activityInst.startActivity(bringToFrontIntent);
     }
 
     public StringBuilder readFileContentsAsString() {

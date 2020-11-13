@@ -42,6 +42,7 @@
         >
 
         <CheckBox
+            style="@style/FileItemSelectionBoxTheme"
             android:theme="@style/SelectionCheckBoxStyle"
             android:id="@+id/fileSelectCheckBox"
             android:layout_width="wrap_content"

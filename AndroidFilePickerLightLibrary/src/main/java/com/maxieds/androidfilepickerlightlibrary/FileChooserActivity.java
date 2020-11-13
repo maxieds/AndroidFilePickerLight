@@ -278,6 +278,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         String[] filePathsList = new String[selectedFilesCount];
         for(int fileIndex = 0; fileIndex < selectedFilesCount; fileIndex++) {
             filePathsList[fileIndex] = getDisplayFragmentsInstance().activeSelectionsList.get(fileIndex).getAbsolutePath();
+            Log.i(LOGTAG, "RETURNING SELECTION : " + filePathsList[fileIndex]);
         }
         resultIntent.putStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY, new ArrayList<String>(Arrays.asList(filePathsList)));
         return resultIntent;
@@ -287,7 +288,6 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
         setResult(Activity.RESULT_OK, filesResultIntent);
         finish();
-        getDisplayFragmentsInstance().resetRecyclerViewLayoutContext();
         //System.exit(0); // ??? TODO ???
     }
 
@@ -301,7 +301,6 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         }
         setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
-        getDisplayFragmentsInstance().resetRecyclerViewLayoutContext();
         //ActivityCompat.finishAffinity(this);
         //System.exit(0); // ??? TODO ???
     }
