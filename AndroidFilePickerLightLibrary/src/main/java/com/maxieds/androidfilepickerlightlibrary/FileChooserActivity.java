@@ -184,6 +184,29 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             fileDirsNavButtonsContainer.addView(dirNavBtn);
         }
 
+        /*
+         * Handle setting up the default graphical back button:
+         * It should take the user (loading in the correct directory context) backwards on
+         * folder into which they have traversed. If no folders have been entered, it returns
+         * an empty selection back to the client application.
+         */
+        ImageButton backBtn = findViewById(R.id.mainDirNavGlobalBackBtn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DisplayFragments displayCtx = DisplayFragments.getInstance();
+                if(displayCtx.pathHistoryStack.empty()) {
+                    getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
+                }
+                String displayAscendingPrecurseMsg = String.format(Locale.getDefault(), "Ascending back upwards into DIR \"%s\".",
+                        displayCtx.pathHistoryStack.peek().getCWDBasePath());
+                DisplayUtils.displayToastMessageShort(displayAscendingPrecurseMsg);
+                displayCtx.descendIntoNextDirectory(false);
+            }
+        });
+        LinearLayout dirHistoryNavContainer = (LinearLayout) findViewById(R.id.mainDirPrevPathsNavContainer);
+        DisplayFragments.mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
+
         /* The next level of navigation in a top down order is the action buttons to finish or cancel
          * the user's file selection procedure. These need onClick handlers that are mostly separate
          * and less involved that the corresponding RecyclerView and files listing UI actions.
@@ -214,16 +237,6 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             }
         };
         doneActionBtn.setOnClickListener(doneActivityBtnClickListener);
-
-        /*
-         * Last, there is the global back button and previous directory history display.
-         * Note that unless a completely different path trajectory is selected by the user
-         * (with the last level of directory select nav buttons), we keep a working
-         * stack of the last paths for context. If the back button is pressed and the stack is
-         * empty, this action is handled the same way as a cancel button press by the user.
-         */
-        LinearLayout dirHistoryNavContainer = (LinearLayout) findViewById(R.id.mainDirPrevPathsNavContainer);
-        DisplayFragments.mainFolderNavFragment = DisplayFragments.FolderNavigationFragment.createNewFolderNavFragment(dirHistoryNavContainer);
 
         /* Setup some theme related styling on the main file list container: */
         FileChooserRecyclerView mainLayoutRecyclerView = findViewById(R.id.mainRecyclerView);

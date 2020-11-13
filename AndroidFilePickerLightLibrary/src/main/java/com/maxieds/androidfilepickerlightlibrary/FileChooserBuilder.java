@@ -405,10 +405,10 @@ public class FileChooserBuilder implements Serializable {
         activityContextRef.get().startActivityForResult(launchPickerIntent, activityActionCode);
     }
 
-    public static final int ACTIVITY_CODE_SELECT_FILE = 1;
-    public static final int ACTIVITY_CODE_SELECT_DIRECTORY_ONLY = 2;
-    public static final int ACTIVITY_CODE_SELECT_MULTIPLE_FILES = 3;
-    public static final int ACTIVITY_CODE_BRING_TO_FRONT = 4;
+    private static final int FILE_PICKER_SWIZZLED_BITS_OFFSET = (8080 << 3) + 2;
+    public static final int ACTIVITY_CODE_SELECT_FILE = 1 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
+    public static final int ACTIVITY_CODE_SELECT_DIRECTORY_ONLY = 2 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
+    public static final int ACTIVITY_CODE_SELECT_MULTIPLE_FILES = 3 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
 
     /* Client code should call this method in their main Activity's onActivityResult function
      * to handle the logic there when the activity was created as a file picker instance:

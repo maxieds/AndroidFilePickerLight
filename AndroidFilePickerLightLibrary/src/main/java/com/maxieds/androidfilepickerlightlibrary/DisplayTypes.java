@@ -235,6 +235,26 @@ public class DisplayTypes {
             return probeAtCursoryFolderQueryGetNext();
         }
 
+        public static DirectoryResultContext probePreviousFolder(int howManyBackwards) {
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            if(fpInst == null) {
+                return null;
+            }
+            else {
+                fpInst.setCustomFileFilter(DisplayFragments.getInstance().localFilesListFilter);
+                fpInst.setCustomFolderSort(DisplayFragments.getInstance().localFilesListSortFunc);
+            }
+            if(howManyBackwards <= 0) {
+                return null;
+            }
+            while(--howManyBackwards >= 0) {
+                if(!fpInst.backOneFolder()) {
+                    return null;
+                }
+            }
+            return probeAtCursoryFolderQueryGetNext();
+        }
+
     }
 
     public static class FileType {

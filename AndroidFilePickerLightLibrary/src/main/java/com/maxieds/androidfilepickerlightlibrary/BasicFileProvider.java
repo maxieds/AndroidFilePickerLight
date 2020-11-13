@@ -188,6 +188,18 @@ public class BasicFileProvider extends DocumentsProvider {
         return status;
     }
 
+    public boolean backOneFolder() {
+        if(baseDirPath == null) {
+            return false;
+        }
+        File parentFolder = baseDirPath.getParentFile();
+        if(parentFolder != null) {
+            baseDirPath = parentFolder;
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean onCreate() {
         if(fileProviderStaticInst == null) {

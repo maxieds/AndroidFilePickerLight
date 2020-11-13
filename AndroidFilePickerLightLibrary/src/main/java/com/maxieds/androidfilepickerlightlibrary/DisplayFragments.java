@@ -178,6 +178,7 @@ public class DisplayFragments {
 
             // Completely clear out the previously displayed contents:
             FileChooserRecyclerView mainRV = getMainRecyclerView();
+            mainRV.invalidate();
             DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
             int priorAdapterCount = rvAdapter.getItemCount();
             rvAdapter.reloadDataSets(new ArrayList<String>(), new ArrayList<DisplayTypes.FileType>(), false);
@@ -185,13 +186,13 @@ public class DisplayFragments {
             rvAdapter.notifyDataSetChanged();
             mainRV.removeAllViews();
             mainRV.removeAllViewsInLayout();
-            mainRV.invalidate();
+
+            // ??? TODO: Later, may want to display a loading notice if initializing a new directory is sluggish ???
 
             // Descend into the next directory:
             lastFileDataStartIndex = 0;
-            lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount() - 1;
+            lastFileDataEndIndex = Math.min(Math.max(0, nextFolder.getFolderChildCount() - 1), lastFileDataStartIndex + getViewportMaxFilesCount() - 1);
             setCwdFolderContext(nextFolder);
-            // ??? TODO: Later, may want to display a loading notice if initializing a new directory is sluggish ???
             getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
             displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
             DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
@@ -299,32 +300,14 @@ public class DisplayFragments {
 
     public static class FolderNavigationFragment {
 
-        private static FolderNavigationFragment folderNavFragmentStaticInst = null;
         public static TextView dirsTwoBackText = null;
         public static TextView dirsOneBackText = null;
-        public static ImageButton globalNavBackBtn = null;
-
-        public FolderNavigationFragment() {
-            folderNavFragmentStaticInst = this;
-        }
 
         public static FolderNavigationFragment createNewFolderNavFragment(View navBtnsContainerView) {
             FolderNavigationFragment folderNavFragment = new FolderNavigationFragment();
             dirsTwoBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackTwoPathDisplayText);
             dirsOneBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackOnePathDisplayText);
-            globalNavBackBtn = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavGlobalBackBtn);
             updateFolderHistoryPaths(null, true);
-            Button.OnClickListener backBtnClickListener = new Button.OnClickListener() {
-                @Override
-                public void onClick(View btnView) {
-                     ImageButton navBtn = (ImageButton) btnView;
-                     String baseFolderTypeName = btnView.getTag().toString();
-                     FileChooserBuilder.BaseFolderPathType baseFolderPathType = FileChooserBuilder.BaseFolderPathType.getInstanceByName(baseFolderTypeName);
-                     BasicFileProvider.getInstance().selectBaseDirectoryByType(baseFolderPathType);
-                     getInstance().initiateNewFolderLoad(baseFolderPathType);
-                }
-            };
-            globalNavBackBtn.setOnClickListener(backBtnClickListener);
             return folderNavFragment;
         }
     }
