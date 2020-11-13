@@ -151,20 +151,6 @@
                 android:typeface="serif"
                 />
 
-            <TextView
-                android:id="@+id/mainDirNavBackTwoPathDisplayText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:layout_gravity="left|center_vertical"
-                android:text=""
-                android:textColor="?__colorPrimaryDark"
-                android:textSize="14sp"
-                android:textStyle="normal|bold"
-                android:typeface="serif"
-                android:visibility="gone"
-                />
-
         </LinearLayout>
 
     </LinearLayout>

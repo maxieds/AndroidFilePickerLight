@@ -39,6 +39,10 @@ public class FileChooserException {
 
     /* Custom formatting and packaging/preparation of the returned data expected by the
      * client application (basically a rough serialization to byte buffer type object spec):
+     *
+     * Leaving this in as a spec for later. Maybe it will become more useful as the library
+     * grows and Android 11+ forces users to use newer functionality to access files on the
+     * local disk.
      */
     public interface ExceptionDataFieldFormatter {
 
@@ -110,36 +114,19 @@ public class FileChooserException {
             this.isError = defaultIsError;
         }
 
+        /* Standard-ish Exception class handling and methods: */
         @Override
         public String getMessage() {
             return getErrorMessage();
         }
-
-        /* Standard-ish Exception class handling and methods: */
-        public String getExceptionMessage() { return null; }
-        public String[] getStackTraceAsStringArray() { return null; }
         public String toString() { return getMessage(); }
 
         /* For uses of communicating other information by exception: */
         public boolean isError() { return isError; }
         public int getErrorCode() { return errorCode; }
-        public Intent getAsIntent() { return null; }
+        public Intent packageAsIntent() { return null; }
         public String getCauseAsString() { return this.getClass().getName(); }
-
-        /* Custom error messages and printing methods: */
-        public String getExceptionName() { return this.getClass().getName(); }
-        public String getExceptionBaseDesc() { return null; }
         public String getErrorMessage() { return errorMsg; }
-        public String getErrorMessageFull() { return null; }
-        public String getInvokingSourceFile() { return null; }
-        public int getInvokingLineNumber() { return -1; }
-        public String prettyPrintException(boolean verboseStackTrace) { return null; }
-
-        /* Obtaining file selection data passed by the exceptional instance: */
-        public boolean hasDataItems() { return false; }
-        public int dataTypeItemsCount() { return 0; }
-        public <DataTypeT extends Object> DataTypeT getTypedDataSingle() { return null; }
-        public <DataTypeT extends Object> List<DataTypeT> getTypedDataAsList() { return null; }
 
         private static String resolveFilePathFromObjectType(Object dataItem) {
             if(dataItem instanceof String) {

@@ -286,12 +286,10 @@ public class DisplayFragments {
 
     public static class FolderNavigationFragment {
 
-        public static TextView dirsTwoBackText = null;
         public static TextView dirsOneBackText = null;
 
         public static FolderNavigationFragment createNewFolderNavFragment(View navBtnsContainerView) {
             FolderNavigationFragment folderNavFragment = new FolderNavigationFragment();
-            dirsTwoBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackTwoPathDisplayText);
             dirsOneBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackOnePathDisplayText);
             updateFolderHistoryPaths(null, true);
             return folderNavFragment;
@@ -314,14 +312,12 @@ public class DisplayFragments {
             folderHistoryOneBackPath = nextFolderEntryPointPath;
         }
         DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
-        //DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
     }
 
     public static void backupFolderHistoryPaths() {
         folderHistoryOneBackPath = folderHistoryTwoBackPath;
         folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
         DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
-        //DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
     }
 
     public void cancelAllOperationsInProgress() {
