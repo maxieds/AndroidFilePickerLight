@@ -19,6 +19,7 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -343,7 +344,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
     }
 
     private static final long THREAD_INIT_PAUSE_TIMEOUT = 125; // Milliseconds
-    private static final long THREAD_PAUSE_TIMEOUT = 500; //250; // Milliseconds
+    private static final long THREAD_PAUSE_TIMEOUT = 550; // Milliseconds
 
     @Override
     public void run() {

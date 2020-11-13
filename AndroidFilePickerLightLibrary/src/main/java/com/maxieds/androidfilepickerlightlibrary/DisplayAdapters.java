@@ -120,6 +120,9 @@ public class DisplayAdapters {
 
         @Override
         public long getItemId(int posIndex) {
+            if(posIndex < fileListData.size()) {
+                return fileListData.get(posIndex).hashCode();
+            }
             return posIndex;
         }
 

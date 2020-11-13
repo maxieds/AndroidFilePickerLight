@@ -99,7 +99,6 @@ public class DisplayFragments {
     }
 
     public boolean resetViewportMaxFilesCount(View parentViewContainer) {
-        Log.i(LOGTAG, "resetViewportMaxFilesCount");
         if(!viewportCapacityMesaured) {
             int viewportDisplayHeight = parentViewContainer.getMeasuredHeight();
             if(fileItemDisplayHeight == 0 || viewportDisplayHeight == 0) {
@@ -108,6 +107,9 @@ public class DisplayFragments {
             setViewportMaxFilesCount((int) Math.floor((double) viewportDisplayHeight / fileItemDisplayHeight));
             Log.i(LOGTAG, String.format("DELAYED RESPONSE: VP Height = %d, FItemDisp Height = %d   ====>  %d",
                     viewportDisplayHeight, fileItemDisplayHeight, getViewportMaxFilesCount()));
+            getMainRecyclerView().setItemViewCacheSize(2 * getViewportMaxFilesCount());
+            getMainRecyclerView().setDrawingCacheEnabled(true);
+            getMainRecyclerView().setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
             viewportCapacityMesaured = true;
         }
         return true;
@@ -277,7 +279,6 @@ public class DisplayFragments {
             }
             selectionBox.setTag(displayPosition);
             selectionBox.setOnCheckedChangeListener(new DisplayAdapters.OnSelectListener());
-
 
         }
 

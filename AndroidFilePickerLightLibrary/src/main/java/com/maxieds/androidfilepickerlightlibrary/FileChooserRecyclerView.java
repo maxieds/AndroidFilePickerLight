@@ -36,6 +36,7 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import java.util.Locale;
 
@@ -60,8 +61,7 @@ public class FileChooserRecyclerView extends RecyclerView {
 
     public void setupRecyclerViewLayout() {
 
-        setHasFixedSize(false);
-        //setItemViewCacheSize(0);
+        setHasFixedSize(true);
         setNestedScrollingEnabled(false);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -72,12 +72,14 @@ public class FileChooserRecyclerView extends RecyclerView {
         setLayoutManager((FileChooserRecyclerView.LayoutManager) rvLayoutManager);
         addItemDecoration(new FileChooserRecyclerView.CustomDividerItemDecoration(R.drawable.rview_file_item_divider));
         //addOnItemTouchListener(...);
+        //((SimpleItemAnimator) getItemAnimator()).setSupportsChangeAnimations(false);
+        getItemAnimator().setChangeDuration(0);
 
     }
 
-    // We want it to move when flung and be responsive, but keep a constant rate of movement:
-    private static final int FLING_VELOCITY_DAMPENAT = 850;
-
+    // We want it to move when flung and be responsive, but keep an approximately
+    // constant rate of movement through the items:
+    private static final int FLING_VELOCITY_DAMPENAT = 500;
 
     @Override
     public boolean fling(int velocityX, int velocityY) {
@@ -87,11 +89,6 @@ public class FileChooserRecyclerView extends RecyclerView {
         int scaledVelocityY = FLING_VELOCITY_DAMPENAT + (int) ((velocityY - FLING_VELOCITY_DAMPENAT) * Math.exp(-Math.pow(velocityY - FLING_VELOCITY_DAMPENAT, 0.25)));
         return super.fling(0, scaledVelocityY);
     }
-
-    /*@Override
-    public void smoothScrollToPosition(int indexPos) {
-        getLayoutManager().smoothScrollToPosition(this, new RecyclerView.State(), indexPos);
-    }*/
 
     public interface RecyclerViewSlidingContextWindow {
 
@@ -120,7 +117,7 @@ public class FileChooserRecyclerView extends RecyclerView {
             setOrientation(LinearLayoutManager.VERTICAL);
             setAutoMeasureEnabled(true);
             setReverseLayout(false);
-            setStackFromEnd(true); // ???
+            setStackFromEnd(true);
             setSmoothScrollbarEnabled(true);
             localStaticInst = this;
         }
@@ -130,13 +127,8 @@ public class FileChooserRecyclerView extends RecyclerView {
             return true;
         }
 
-        /*// intent is to speed it up for the prefetch thread smooth scrolling:
+        /*
         public static final float SCROLLER_MILLISECONDS_PER_INCH = 16.0f; // larger values slow it down, 25.0 ~ default behavior
-
-        private int intendedNextScrollPos;
-        private LinearSmoothScroller linearSmoothScroller;
-        private RecyclerView scrollInvokingRV;
-
         @Override
         public void smoothScrollToPosition(RecyclerView recyclerView, State state, int position) {
             scrollInvokingRV = recyclerView;
@@ -149,19 +141,7 @@ public class FileChooserRecyclerView extends RecyclerView {
             linearSmoothScroller.setTargetPosition(position);
             startSmoothScroll(linearSmoothScroller);
         }
-
-        public boolean completeLastSmoothScroll() {
-            if(linearSmoothScroller == null || intendedNextScrollPos < 0 ||
-                    intendedNextScrollPos >= getItemCount() || scrollInvokingRV == null) {
-                return false;
-            }
-            else if(!linearSmoothScroller.isRunning()) {
-                return false;
-            }
-            scrollInvokingRV.stopScroll();
-            scrollInvokingRV.scrollToPosition(intendedNextScrollPos);
-            return true;
-        }*/
+        */
 
     }
 
