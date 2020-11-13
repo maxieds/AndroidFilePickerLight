@@ -10,6 +10,17 @@
 
 <img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" />
 
+#### A polite request from the developer
+
+In the event that this library and the documentation of new Android features this code provides is useful, please 
+:star::star::star::star::star: my application. I have taken my free time on this project to 
+*Hack for freedom with free software (TM, so to speak, as I like to say it)* by providing users and 
+fellow Android developers alike with a quality code base. 
+It will make me just *so happy* all over if you all that appreciate this source code contribution as much as I have writing it 
+can help me reach out to my first **100-star** repository on GitHub.
+
+[![HitCount](http://hits.dwyl.com/maxieds/AndroidFileChooserLight.svg)](http://hits.dwyl.com/maxieds/AndroidFileChooserLight)
+
 ## About the library 
 
 A file and directory chooser widget for Android that focuses on presenting an easy to configure lightweight UI.
