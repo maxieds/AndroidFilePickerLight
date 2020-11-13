@@ -44,9 +44,7 @@ Key features in the library include the following:
   
 ### Screenshots of the library in action (Default theme)
 
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /><img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" /><img src="" width="250" />
-
-<img src="" width="250" /><img src="" width="250" /><img src="" width="250" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
 
 ## Including the library in an Android application
 
@@ -121,6 +119,9 @@ that the application set the option
      <!-- Complete the internals of the application tag (activities, etc.) below -->
 </application>
 ```
+Note that unlike some samples to get other Android libraries up and running, there is no need to define references 
+to the custom ``FileProvider`` implemented by the library. It is sufficient to just use the standardized wrappers 
+to launch a new ``FileChooserActivity`` instance and use the file picker functionality bundled within that interface.
 
 ## Sample client Java source code
 
@@ -154,10 +155,25 @@ the results:
 
 This is a quick method to select a file and/or directory picked by the user:
 ```java
-public void actionButtonLaunchSingleFilePickerActivity(View btnView) {
+    public void actionButtonLaunchSingleFilePickerActivity(View btnView) {
         FileChooserBuilder fpInst = FileChooserBuilder.getDirectoryChooserInstance(this);
         fpInst.showHidden(true);
+        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        fpInst.launchFilePicker();
+    }
+    public void actionButtonLaunchSingleFilePickerActivity(View btnView) {
+        FileChooserBuilder fpInst = FileChooserBuilder.getSingleFilePickerInstance(this);
+        fpInst.showHidden(true);
         fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS);
+        fpInst.launchFilePicker();
+    }
+    public void actionButtonLaunchOmnivorousMultiPickerActivity(View btnView) {
+        FileChooserBuilder fpInst = new FileChooserBuilder(this);
+        fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE);
+        fpInst.setSelectMultiple(5);
+        fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
+        fpInst.showHidden(true);
+        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS);
         fpInst.launchFilePicker();
     }
 ```
@@ -173,73 +189,6 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
 
 ### Extending file types for filtering and sorting purposes in the picker UI
 
-
-
-### Configuring the client theme and UI look-and-feel properties
-
-#### Basic example (quickstart guide to using the file picker library)
-
-
-
-
-
-#### Full example (detailed usage of the current custom theme/UI display options)
-
-Note that with the exception of a few predefined themes that are included as 
-default resources within the library packaging, all UI display related 
-resources passed to customize the look-and-feel of the file picker display 
-need to be resolved explicitly by the calling client activity. 
-This means, in general, if the client passes a resource identifier (integer type) 
-as the value for one of these configuration items, there is going to be an error 
-where the library does not know where to find the resource. 
-Some examples of converting the resources in the application ``/res/*`` directory 
-from ID names to a format the library can use are suggested in the next code 
-snippets:
-```java
-/* Assumptions about the activity (not the only, option, just for clarity): */
-public class MyMainActivity extends AppCompatActivity { /* ... */ }
-MyMainActivity myRunningActivityInst = MyMainActivity.getInstance();
-
-/* Pass a new icon Drawable to replace the default setting: */
-Drawable newFolderIcon = myRunningActivityInst.getResources().getDrawable(R.id.custom_folder_icon_24x24, myRunningActivityInst.getTheme());
-
-/* Select a new custom color and get its hex-coded value: */
-int newBackgroundColor = myRunningActivityInst.getResources().getColor(R.color.custom_picker_bgcolor, myRunningActivityInst.getTheme());
-
-/* Set a new text value from a string resource: */
-String newChoosetTitleText = myRunningActivityInst.getString(R.string.custom_chooser_title_msg);
-```
-Now that we have the scheme for passing resources to the library to skin/color/custom theme its UI down, 
-here is the full listing and type specs for what attributes can actually be changed and reset on-the-fly:
-```java
-/* TODO: Need to add this documentation ... */
-```
-
-### Misc other useful utilities and customizations bundled with the main library
-
-### Displaying a visual linear bar style progress bar for slow directory loads (TODO)
-
-This functionality may be useful at some point for those willing to extend this code with 
-custom external file providers, e.g., to read and recurse into directories on Dropbox or GitHub. 
-I have a simple visual Toast-like display that can be updated and/or canceled in real time to 
-let the user know that the directory is loading and that the client application is just "thinking" 
-(as opposed to freezing with a runtime error). The stock progress bar looks something like the following screenshot: 
-
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
-
-To invoke this progress bar display in realtime, consider calling the following code examples:
-```java
-DisplayUtils.DisplayProgressBar(String waitingOnProcessLabel, int curPos, int totalPos);
-DisplayUtils.EnableProgressBarDisplay(true);
-// ... Then whenever the long process completes, kill the progress bar update callbacks with: ...
-DisplayUtils.EnableProgressBarDisplay(true);
-```
-In principle, the status bar is useful when the underlying operation takes longer than, say 8-10 seconds to complete. 
-This code is modified from a status timer to keep the user informed while scanning for a long duration read of 
-NFC tags on Android (see [the MFCToolLibrary](https://github.com/maxieds/MifareClassicToolLibrary) and 
-its demo application). The core of the progress bar is 
-shown by periodically posting Toast messages with a custom layout ``View``. Please post a new issue message 
-if anyone using this library in their own application finds this useful, or amusing too.
 
 #### Overriding the default file and directory sorting (TODO)
 
@@ -301,3 +250,71 @@ follows:
 
     }
 ```
+
+
+
+
+### Configuring the client theme and UI look-and-feel properties
+
+This part of the library, while a primary motivator for writing it and a key feature it aims to have, 
+is still under active development. I will add in documentation showing how to customize the file 
+picker themes (color schemes, icons, and other properties) as they become ready to use.
+
+#### Basic example (quickstart guide to using the file picker library)
+
+#### Full example (detailed usage of the current custom theme/UI display options)
+
+Note that with the exception of a few predefined themes that are included as 
+default resources within the library packaging, all UI display related 
+resources passed to customize the look-and-feel of the file picker display 
+need to be resolved explicitly by the calling client activity. 
+This means, in general, if the client passes a resource identifier (integer type) 
+as the value for one of these configuration items, there is going to be an error 
+where the library does not know where to find the resource. 
+Some examples of converting the resources in the application ``/res/*`` directory 
+from ID names to a format the library can use are suggested in the next code 
+snippets:
+```java
+/* Assumptions about the activity (not the only, option, just for clarity): */
+public class MyMainActivity extends AppCompatActivity { /* ... */ }
+MyMainActivity myRunningActivityInst = MyMainActivity.getInstance();
+
+/* Pass a new icon Drawable to replace the default setting: */
+Drawable newFolderIcon = myRunningActivityInst.getResources().getDrawable(R.id.custom_folder_icon_24x24, myRunningActivityInst.getTheme());
+
+/* Select a new custom color and get its hex-coded value: */
+int newBackgroundColor = myRunningActivityInst.getResources().getColor(R.color.custom_picker_bgcolor, myRunningActivityInst.getTheme());
+
+/* Set a new text value from a string resource: */
+String newChoosetTitleText = myRunningActivityInst.getString(R.string.custom_chooser_title_msg);
+```
+Now that we have the scheme for passing resources to the library to skin/color/custom theme its UI down, 
+here is the full listing and type specs for what attributes can actually be changed and reset on-the-fly:
+```java
+/* TODO: Need to add this documentation ... */
+```
+
+### Misc other useful utilities and customizations bundled with the main library
+
+### Displaying a visual linear bar style progress bar for slow directory loads (TODO)
+
+This functionality may be useful at some point for those willing to extend this code with 
+custom external file providers, e.g., to read and recurse into directories on Dropbox or GitHub. 
+I have a simple visual Toast-like display that can be updated and/or canceled in real time to 
+let the user know that the directory is loading and that the client application is just "thinking" 
+(as opposed to freezing with a runtime error).
+
+To invoke this progress bar display in realtime, consider calling the following code examples:
+```java
+DisplayUtils.DisplayProgressBar(String waitingOnProcessLabel, int curPos, int totalPos);
+DisplayUtils.EnableProgressBarDisplay(true);
+// ... Then whenever the long process completes, kill the progress bar update callbacks with: ...
+DisplayUtils.EnableProgressBarDisplay(true);
+```
+In principle, the status bar is useful when the underlying operation takes longer than, say 8-10 seconds to complete. 
+This code is modified from a status timer to keep the user informed while scanning for a long duration read of 
+NFC tags on Android (see [the MFCToolLibrary](https://github.com/maxieds/MifareClassicToolLibrary) and 
+its demo application). The core of the progress bar is 
+shown by periodically posting Toast messages with a custom layout ``View``. Please post a new issue message 
+if anyone using this library in their own application finds this useful, or amusing too.
+
