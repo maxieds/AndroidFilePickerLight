@@ -46,7 +46,7 @@ Key features in the library include the following:
 
 <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
 
-## Including the library in an Android application
+## Including the library for use in a client Android application
 
 There are a couple of quickstart items covered in the sections below to handle before this
 library can be included in the client Android application:
@@ -189,70 +189,62 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
 
 ### Extending file types for filtering and sorting purposes in the picker UI
 
+Many other good file chooser libraries for Android implement extendable ways for users to filter, 
+select and sort the files that are presented to the user. We choose to offer the same extendable 
+functionality here while staying tightly coupled with more Java language standard constructs. 
 
-#### Overriding the default file and directory sorting (TODO)
-
-An example of how to do this is already seen by glancing through the sources. 
-In particular, we define an extendable base class as follows: 
+The following is an example of how to create a custom file filter for use with this library. 
+The full interface specification is found in the source file 
+[FileFilter.java](https://github.com/maxieds/AndroidFileChooserLight/blob/master/AndroidFilePickerLightLibrary/src/main/java/com/maxieds/androidfilepickerlightlibrary/FileFilter.java#L35):
 ```java
-        public static class FileItemsSortFunc implements Comparator<File> {
-            public File[] sortFileItemsList(File[] folderContentsList) {
-                Arrays.sort(folderContentsList, this);
-                return folderContentsList;
-            }
-            @Override
-            public int compare(File f1, File f2) {
-                // default is standard lexicographical ordering (override the compare functor base classes for customized sorting):
-                return f1.getAbsolutePath().compareTo(f2.getAbsolutePath());
-            }
+    public static class FileFilterByRegex extends FileFilterBase {
+        private Pattern patternSpec;
+        public FileFilterByRegex(String regexPatternSpec, boolean inclExcl) {
+            patternSpec = Pattern.compile(regexPatternSpec);
+            setIncludeExcludeMatchesOption(inclExcl);
         }
-```
-Subclasses that override the method above are free to sort the file 
-contents in the order that they are best displayed in the client application. 
-Some examples would be to override the default of placing directories at the top of the 
-files list, to perform a case-insensitive lexicographical sort (like happens on many Linux), 
-or otherwise to prioritize the file rankings where the most importantly valued presentations 
-are shown first. 
-
-Note that in the source the custom objects to filter (match, then include/exclude) the full 
-directory listings, and then sort those files that remain are applied together. See, for example, 
-the next code:
-```java
-        public static class FileFilterByRegex extends FileFilterBase {
-            private Pattern patternSpec;
-            public FileFilterByRegex(String regexPatternSpec, boolean inclExcl) {
-                patternSpec = Pattern.compile(regexPatternSpec);
-                setIncludeExcludeMatchesOption(inclExcl);
+        public boolean fileMatchesFilter(String fileAbsName) {
+            if(patternSpec.matcher(fileAbsName).matches()) {
+                return includeExcludeMatches == INCLUDE_FILES_IN_FILTER_PATTERN;
             }
-            public boolean fileMatchesFilter(String fileAbsName) {
-                if(patternSpec.matcher(fileAbsName).matches()) {
-                    return includeExcludeMatches == INCLUDE_FILES_IN_FILTER_PATTERN;
-                }
-                return includeExcludeMatches == EXCLUDE_FILES_IN_FILTER_PATTERN;
-            }
+            return includeExcludeMatches == EXCLUDE_FILES_IN_FILTER_PATTERN;
         }
-```
-
-#### Extending the inclusion/exclusion mechanism of files by type
-
-The specification (by Java interface and a few utility derived instances) are found in the 
-library source file ``FileFilter.java``. The bulk of the interface is reproduced as 
-follows:
-```java
-    public interface FileFilterInterface {
-
-        static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FilePickerBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
-        static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FilePickerBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
-
-        void    setIncludeExcludeMatchesOption(boolean includeExcludeParam);
-        boolean includeFileInSearchResults(FileTypes.FileType fileItem);
-        boolean fileMatchesFilter(FileTypes.FileType fileItem);
-
     }
 ```
+The main interface in the base class for the example above extends the stock Java ``FilenameFilter``
+interface. There is a difference in what our derived classes must implement. Namely, subject to the 
+next defines, the code can decide whether to include or exclude the file matches based on whether the 
+filename filter matches the user specified pattern: 
+```java
+static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
+static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
+```
+Similarly, an overloaded sorting class that can be extended is sampled below:
+```java
+    public static class FileItemsSortFunc implements Comparator<File> {
+        public File[] sortFileItemsList(File[] folderContentsList) {
+            Arrays.sort(folderContentsList, this);
+            return folderContentsList;
+        }
+        @Override
+        public int compare(File f1, File f2) {
+            // default is standard lexicographical ordering (override the compare functor base classes for customized sorting):
+            return f1.getAbsolutePath().compareTo(f2.getAbsolutePath());
+        }
+    }
+```
+Here is an example of how to utilize these customized classes with the library's core 
+``FileChooserBuilder`` class instances:
+```java
+FileChooserBuilder fcConfig = new FileChooserBuilder();
+fcConfig.setFilesListSortCompareFunction(FileFilter.FileItemsSortFunc);
+// TODO
 
-
-
+// Some defaults for convenience:
+fcConfig.filterByDefaultFileTypes(List<DefaultFileTypes> fileTypesList, boolean includeExcludeInList);
+fcConfig.filterByMimeTypes(List<String> fileTypesList, boolean includeExcludeInList);
+fcConfig.filterByRegex(String fileFilterPattern, boolean includeExcludeInList);
+```
 
 ### Configuring the client theme and UI look-and-feel properties
 
