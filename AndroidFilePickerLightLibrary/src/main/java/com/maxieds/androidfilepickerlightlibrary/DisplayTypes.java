@@ -19,27 +19,17 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.database.MatrixCursor;
 import android.graphics.drawable.Drawable;
-import android.icu.util.LocaleData;
-import android.icu.util.Measure;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Stack;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class DisplayTypes {
 
@@ -71,8 +61,6 @@ public class DisplayTypes {
             }
             Log.i(LOGTAG, String.format(Locale.getDefault(), "Initializing new folder at path: \"%s\" ... ", activeCWDAbsPath));
         }
-
-        public MatrixCursor getInitialMatrixCursor() { return initMatrixCursorListing; }
 
         public List<FileType> getWorkingDirectoryContents() { return directoryContentsList; }
 
@@ -175,11 +163,6 @@ public class DisplayTypes {
                 computeDirectoryContents(posIndex, posIndex);
                 FileType selectedFileItem = directoryContentsList.get(0);
                 return probeAtCursoryFolderQuery(selectedFileItem.getBaseName());
-                //String nextActiveDocId = selectedFileItem.getFileProviderDocumentId();
-                //MatrixCursor nextDirCursor = (MatrixCursor) fpInst.queryChildDocuments(nextActiveDocId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION, "");
-                //clearDirectoryContentsList();
-                //DirectoryResultContext nextFolderCtx = new DirectoryResultContext(nextDirCursor, selectedFileItem.getFileProviderDocumentId(), selectedFileItem.getAbsolutePath());
-                //return nextFolderCtx;
             } catch(Exception ioe) {
                 ioe.printStackTrace();
                 DisplayFragments.getInstance().pathHistoryStack.pop();

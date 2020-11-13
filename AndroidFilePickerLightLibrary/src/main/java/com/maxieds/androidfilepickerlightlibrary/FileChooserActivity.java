@@ -163,19 +163,13 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 public void onClick(View btnView) {
                     getDisplayFragmentsInstance().cancelAllOperationsInProgress();
                     getDisplayFragmentsInstance().pathHistoryStack.clear(); // reset the directory traversal history
-                    FileChooserBuilder.BaseFolderPathType navBtnInitFolder = (FileChooserBuilder.BaseFolderPathType) btnView.getTag();
-                    getDisplayFragmentsInstance().initiateNewFolderLoad(navBtnInitFolder);
-                    Button navBtn = (Button) btnView;
-                    navBtn.setEnabled(false);
-                    navBtn.setElevation(-1.0f);
-                    // Re-enable all of the other stock directory nav buttons:
-                    for(int btnIdx = 0; btnIdx < fileDirsNavButtonsContainer.getChildCount(); btnIdx++) {
-                        Button nextNavBtn = (Button) fileDirsNavButtonsContainer.getChildAt(btnIdx);
-                        if(!navBtn.equals(nextNavBtn)) {
-                            nextNavBtn.setEnabled(true);
-                            nextNavBtn.setElevation(0.0f);
-                        }
-                    }
+                    String navBtnInitFolderName = (String) btnView.getTag();
+                    Log.i(LOGTAG, "Next DIR TYPE NAME : " + navBtnInitFolderName);
+                    FileChooserBuilder.BaseFolderPathType navBtnInitFolderType =
+                            FileChooserBuilder.BaseFolderPathType.NAV_FOLDER_NAME_TO_INST_MAP.get(navBtnInitFolderName);
+                    getDisplayFragmentsInstance().initiateNewFolderLoad(navBtnInitFolderType);
+                    String displayIntoNextMsg = String.format(Locale.getDefault(), "Into NAV DIR \"%s\".", navBtnInitFolderName);
+                    DisplayUtils.displayToastMessageShort(displayIntoNextMsg);
                 }
             };
             dirNavBtn.setOnClickListener(stockDirNavBtnClickHandler);
@@ -197,6 +191,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 DisplayFragments displayCtx = DisplayFragments.getInstance();
                 if(displayCtx.pathHistoryStack.empty()) {
                     getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
+                    return;
                 }
                 String displayAscendingPrecurseMsg = String.format(Locale.getDefault(), "Ascending back upwards into DIR \"%s\".",
                         displayCtx.pathHistoryStack.peek().getCWDBasePath());

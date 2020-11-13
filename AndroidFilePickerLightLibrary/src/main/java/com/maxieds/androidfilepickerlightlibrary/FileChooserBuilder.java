@@ -101,7 +101,7 @@ public class FileChooserBuilder implements Serializable {
         public static final Map<Integer, Integer> NAV_FOLDER_ICON_RESIDS_MAP = new HashMap<>();
         static {
             for (DefaultNavFoldersType navType : values()) {
-                NAV_FOLDER_NAME_LOOKUP_MAP.put(navType.toString(), navType);
+                NAV_FOLDER_NAME_LOOKUP_MAP.put(navType.name(), navType);
                 NAV_FOLDER_DESC_MAP.put(navType, navType.getFolderLabel());
                 NAV_FOLDER_PATHS_MAP.put(navType, navType.getBaseFolderPathType());
                 NAV_FOLDER_ICON_RESIDS_MAP.put(navType.ordinal(), navType.getFolderIconResId());

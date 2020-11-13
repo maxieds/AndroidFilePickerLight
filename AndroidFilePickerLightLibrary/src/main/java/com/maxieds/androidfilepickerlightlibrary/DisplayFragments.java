@@ -20,18 +20,16 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Stack;
 
 public class DisplayFragments {
@@ -115,24 +113,6 @@ public class DisplayFragments {
         return true;
     }
 
-    private static final String EMPTY_FOLDER_HISTORY_PATH = "<NONE>";
-    private static String folderHistoryOneBackPath = EMPTY_FOLDER_HISTORY_PATH;
-    private static String folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
-
-    public static void updateFolderHistoryPaths(String nextFolderEntryPointPath, boolean initNewFileTree) {
-        if(nextFolderEntryPointPath == null || nextFolderEntryPointPath.equals("")) {
-            nextFolderEntryPointPath = EMPTY_FOLDER_HISTORY_PATH;
-        }
-        if(initNewFileTree) {
-            folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
-            folderHistoryOneBackPath = nextFolderEntryPointPath;
-        }
-        else {
-            folderHistoryTwoBackPath = folderHistoryOneBackPath;
-            folderHistoryOneBackPath = nextFolderEntryPointPath;
-        }
-    }
-
     public void initializeRecyclerViewLayout(FileChooserRecyclerView rview) {
         if(!recyclerViewAdapterInit) {
             rview.setupRecyclerViewLayout();
@@ -163,6 +143,19 @@ public class DisplayFragments {
         }
     }
 
+    public void clearExistingRecyclerViewLayout() {
+        // Completely clear out the previously displayed contents:
+        FileChooserRecyclerView mainRV = getMainRecyclerView();
+        mainRV.invalidate();
+        DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
+        int priorAdapterCount = rvAdapter.getItemCount();
+        rvAdapter.reloadDataSets(new ArrayList<String>(), new ArrayList<DisplayTypes.FileType>(), false);
+        rvAdapter.notifyItemRangeRemoved(0, priorAdapterCount);
+        rvAdapter.notifyDataSetChanged();
+        mainRV.removeAllViews();
+        mainRV.removeAllViewsInLayout();
+    }
+
     public void descendIntoNextDirectory(boolean initNewFileTree) {
 
         if(pathHistoryStack.empty()) {
@@ -175,17 +168,10 @@ public class DisplayFragments {
 
             // Stop the prefetch thread for the current directory:
             FileChooserActivity.getInstance().stopPrefetchFileUpdatesThread();
-
-            // Completely clear out the previously displayed contents:
-            FileChooserRecyclerView mainRV = getMainRecyclerView();
-            mainRV.invalidate();
-            DisplayAdapters.FileListAdapter rvAdapter = (DisplayAdapters.FileListAdapter) mainRV.getAdapter();
-            int priorAdapterCount = rvAdapter.getItemCount();
-            rvAdapter.reloadDataSets(new ArrayList<String>(), new ArrayList<DisplayTypes.FileType>(), false);
-            rvAdapter.notifyItemRangeRemoved(0, priorAdapterCount);
-            rvAdapter.notifyDataSetChanged();
-            mainRV.removeAllViews();
-            mainRV.removeAllViewsInLayout();
+            clearExistingRecyclerViewLayout();
+            updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(nextFolder.getCWDBasePath()), initNewFileTree);
+            DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
+            DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
 
             // ??? TODO: Later, may want to display a loading notice if initializing a new directory is sluggish ???
 
@@ -195,8 +181,6 @@ public class DisplayFragments {
             setCwdFolderContext(nextFolder);
             getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
             displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
-            DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
-            DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
 
             // Restart the prefetch thread for the current directory:
             FileChooserActivity.getInstance().startPrefetchFileUpdatesThread();
@@ -213,15 +197,16 @@ public class DisplayFragments {
      * RecyclerView pattern making compendia on a whole new dataset):
      */
     public void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
+        clearExistingRecyclerViewLayout();
         FileChooserActivity.getInstance().setTopLevelBaseFolder(initBaseFolder);
         DisplayTypes.DirectoryResultContext cwdFolderContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
         setCwdFolderContext(cwdFolderContext);
         pathHistoryStack.clear();
-        pathHistoryStack.push(cwdFolderContext);
         lastFileDataStartIndex = 0;
-        lastFileDataEndIndex = lastFileDataStartIndex + getViewportMaxFilesCount() - 1;
+        lastFileDataEndIndex = Math.min(Math.max(0, cwdFolderContext.getFolderChildCount() - 1), lastFileDataStartIndex + getViewportMaxFilesCount() - 1);
         getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
         displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
+        updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(getCwdFolderContext().getCWDBasePath()), true);
         DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
         DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
     }
@@ -257,9 +242,9 @@ public class DisplayFragments {
         displayNextDirectoryFilesList(workingDirContentsList, true);
     }
 
-    public static class FileListItemFragment {
+    public static class FileItemFragment {
 
-        private static String LOGTAG = FileListItemFragment.class.getSimpleName();
+        private static String LOGTAG = FileItemFragment.class.getSimpleName();
 
         public static void resetLayout(View layoutContainer, DisplayTypes.FileType fileItem, int displayPosition) {
 
@@ -296,6 +281,10 @@ public class DisplayFragments {
 
     }
 
+    private static final String EMPTY_FOLDER_HISTORY_PATH = "➤ ---- ";
+    private static String folderHistoryOneBackPath = EMPTY_FOLDER_HISTORY_PATH;
+    private static String folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
+
     public static FolderNavigationFragment mainFolderNavFragment = null;
 
     public static class FolderNavigationFragment {
@@ -309,6 +298,20 @@ public class DisplayFragments {
             dirsOneBackText = FileChooserActivity.getInstance().findViewById(R.id.mainDirNavBackOnePathDisplayText);
             updateFolderHistoryPaths(null, true);
             return folderNavFragment;
+        }
+    }
+
+    public static void updateFolderHistoryPaths(String nextFolderEntryPointPath, boolean initNewFileTree) {
+        if(nextFolderEntryPointPath == null || nextFolderEntryPointPath.equals("")) {
+            nextFolderEntryPointPath = EMPTY_FOLDER_HISTORY_PATH;
+        }
+        if(initNewFileTree) {
+            folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
+            folderHistoryOneBackPath = String.format(Locale.getDefault(), "➤ %s", nextFolderEntryPointPath);
+        }
+        else {
+            folderHistoryTwoBackPath = folderHistoryOneBackPath;
+            folderHistoryOneBackPath = String.format(Locale.getDefault(), "➤ %s", nextFolderEntryPointPath);
         }
     }
 
