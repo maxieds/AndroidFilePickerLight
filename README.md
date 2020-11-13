@@ -42,7 +42,7 @@ Key features in the library include the following:
   ease of handling. Many of these exceptions are just wrappers around data returned by a newly 
   spawned file picker activity and do not necessarily indicate errors in the file selection process.
   
-### Screenshots of the library in action (TODO)
+### Screenshots of the library in action (Default theme)
 
 <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /><img src="" width="250" /><img src="" width="250" />
 
@@ -125,12 +125,41 @@ that the application set the option
 ## Sample client Java source code
 
 The next examples document basic, advanced, and custom uses of the library in client code. 
+The file chooser instance is launched via a traditional ``startActivityForResult`` call 
+from within the client caller's code. The following is a suggestion as to how to handle 
+the results:
+```java
+@Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Handle activity codes:
+        // FileChooserBuilder.ACTIVITY_CODE_SELECT_FILE || 
+        // FileChooserBuilder.ACTIVITY_CODE_SELECT_DIRECTORY_ONLY || 
+        // ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            selectedFilePaths = FileChooserBuilder.handleActivityResult(this, requestCode, resultCode, data);
+        } catch (RuntimeException rte) {
+            if (data != null) {
+                rteErrorMsg = rte.getMessage();
+            }
+            if (rteErrorMsg == null) {
+                rteErrorMsg = "Unknown reason for exception.";
+            }
+        }
+        showFileChooserResultsDialog(selectedFilePaths, rteErrorMsg);
+    }
+```
 
 ### Basic usage: Returning a file path selected by the user
 
 This is a quick method to select a file and/or directory picked by the user:
 ```java
-/* TODO */
+public void actionButtonLaunchSingleFilePickerActivity(View btnView) {
+        FileChooserBuilder fpInst = FileChooserBuilder.getDirectoryChooserInstance(this);
+        fpInst.showHidden(true);
+        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS);
+        fpInst.launchFilePicker();
+    }
 ```
 
 ### Detailed list of non-display type options
@@ -144,31 +173,6 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
 
 ### Extending file types for filtering and sorting purposes in the picker UI
 
-### Handling runtime exceptions and extending the runtime exception class (for custom error handling)
-
-#### List of default exception sub-types
-
-```java
-/* Basic interface methods to implement for subclasses: */
-public interface AndroidFilePickerLightException extends RuntimeException  {}
-
-/* Some predefined options for exceptions that can be thrown by the chooser selection activity: */
-public class GenericRuntimeErrorException extends AndroidFilePickerLightException { /* ... */ }
-public class FileIOException extends AndroidFilePickerLightException { /* ... */ }
-public class PermissionsErrorException extends AndroidFilePickerLightException { /* ... */ }
-public class AbortedByTimeoutException extends AndroidFilePickerLightException { /* ... */ }
-public class AbortedByUserActionException extends AndroidFilePickerLightException { /* ... */ }
-public class CommunicateSelectionDataException extends AndroidFilePickerLightException { /* ... */ }
-public class CommunicateNoDataException extends AndroidFilePickerLightException { /* ... */ }
-public class InvalidInitialPathException extends AndroidFilePickerLightException { /* ... */ }
-public class InvalidThemeResourceException extends AndroidFilePickerLightException { /* ... */ }
-```
-
-#### Checking whether the returned file path is valid
-
-#### Determine whether an idle timeout occurred to close the picker
-
-#### Query whether items in the list of paths are directories versus files
 
 
 ### Configuring the client theme and UI look-and-feel properties
