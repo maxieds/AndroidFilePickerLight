@@ -1,3 +1,9 @@
+## TODO: A working tabulation of items that still need to get fixed for the next release of the library (TBD)
+
+* The gradient factory new instance / static generate methods are not returning the 
+  correctly formatted Drawable instances. This is lower priority, but still needs to get tracked down. 
+* Themes customized completely by users.
+
 ## Documentation and approach to handling files internally within the picker library
 
 ### Links to relevant Android API documentation
@@ -33,7 +39,7 @@ when selecting only directory based paths. This library also deals with the time
 new storage and access permissions that are popping up as Android devices being to migrate to 
 SDK >= 11 (codename *Android* **Q**).
 
-## TODO and feature request for future bursts of coder energy
+## Feature request for future bursts of coder energy
 
 * The ``BasicFileProvider`` class has built-in functionality to query the top of the most recent 
   documents list. Perhaps this action would make a good naviagation folder alongside the 
