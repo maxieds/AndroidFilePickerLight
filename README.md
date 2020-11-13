@@ -5,10 +5,9 @@
 
 <img src="https://jitpack.io/v/maxieds/AndroidFilePickerLight.svg" /><img src="https://img.shields.io/badge/NOTE%3A-Project%20is%20a%20work%20in%20progress-orange" /><img src="https://img.shields.io/badge/API%2029%2B-Tested%20on%20Android%2010-yellowgreen" /><img src="https://badges.frapsoft.com/os/gpl/gpl.svg?v=103" /> 
 
-
 <img src="https://forthebadge.com/images/badges/made-with-java.svg" /><img src="https://forthebadge.com/images/badges/powered-by-coffee.svg" /><img src="https://forthebadge.com/images/badges/built-for-android.svg" />
 
-<img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/ReadmeEmojiBadges/HackerCatEmoji-v1.png" /><img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" /><img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/ReadmeEmojiBadges/tRUTH.png" />
 
 #### A polite request from the developer
 
@@ -18,8 +17,6 @@ In the event that this library and the documentation of new Android features thi
 fellow Android developers alike with a quality code base. 
 It will make me just *so happy* all over if you all that appreciate this source code contribution as much as I have writing it 
 can help me reach out to my first **100-star** repository on GitHub.
-
-[![HitCount](http://hits.dwyl.com/maxieds/AndroidFileChooserLight.svg)](http://hits.dwyl.com/maxieds/AndroidFileChooserLight)
 
 ## About the library 
 
@@ -65,7 +62,7 @@ library can be included in the client Android application:
   in the application *build.gradle* configuration.
 * Update the project *AndroidManifest.xml* file to extend the documents provider, 
   request required permissions, and setup some helpful legacy file handling options for devices 
-  targeting Android platforms with SDK < 11.
+  targeting Android platforms with SDK < Android OS 11.
   
 Examples of using the library to pick files and directories from client Java code is also 
 included in the detailed documentation in the next section.
@@ -134,7 +131,7 @@ Note that unlike some samples to get other Android libraries up and running, the
 to the custom ``FileProvider`` implemented by the library. It is sufficient to just use the standardized wrappers 
 to launch a new ``FileChooserActivity`` instance and use the file picker functionality bundled within that interface.
 
-## Sample client Java source code
+## Sample client source code in Java
 
 The next examples document basic, advanced, and custom uses of the library in client code. 
 The file chooser instance is launched via a traditional ``startActivityForResult`` call 
@@ -160,6 +157,13 @@ the results:
         }
         showFileChooserResultsDialog(selectedFilePaths, rteErrorMsg);
     }
+```
+The following are the unique ``Intent`` keys that are associated with the returned data (if available):
+```java
+    public static final String FILE_PICKER_INTENT_DATA_TYPE_KEY = "FilePickerIntentKey.SelectedIntentDataType";
+    public static final String FILE_PICKER_INTENT_DATA_PAYLOAD_KEY = "FilePickerIntentKey.SelectedIntentDataPayloadList";
+    public static final String FILE_PICKER_EXCEPTION_MESSAGE_KEY = "FilePickerIntentKey.UnexpectedExitMessage";
+    public static final String FILE_PICKER_EXCEPTION_CAUSE_KEY = "FilePickerIntentKey.ExceptionCauseDescKey";
 ```
 
 ### Basic usage: Returning a file path selected by the user
@@ -195,7 +199,51 @@ The next options are available to configure the non-display type (e.g., properti
 file chooser that do not depend on how it looks) properties of the library. 
 These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
 ```java
-/* TODO */
+    FileChooserBuilder fcBuilderConfig = new FileChooserBuilder.getDirectoryChooserInstance(FileChooserActivity.getInstance())
+        .allowSelectFileItems()
+        .allowSelectFolderItems()
+        .setDisplayUIConfig(CustomThemeBuilder uiCfg) // Reserved for future use (see docs below)
+        .setActionCode(int activityResultCode)
+        .setNavigationFoldersList(List<DefaultNavFoldersType> navFoldersList)
+        .showHidden(boolean enable)
+        .setSelectMultiple(int maxFileInsts)
+        .setSelectionMode(SelectionModeType modeType)
+        .setPickerInitialPath(BaseFolderPathType storageAccessBase)
+        .setActivityIdleTimeout(long timeoutMillis)
+        .setExternalFilesProvider(ContentProvider extFileProvider); // Reserved for future use
+```
+The relevant ``enum`` types that can be passed as arguments to these methods include the following:
+```java
+    public enum SelectionModeType {
+        SELECT_FILE,
+        SELECT_MULTIPLE_FILES,
+        SELECT_DIRECTORY_ONLY,
+        SELECT_OMNIVORE
+    }
+    public enum BaseFolderPathType {
+        BASE_PATH_TYPE_FILES_DIR,
+        BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS,
+        BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES,
+        BASE_PATH_TYPE_EXTERNAL_FILES_MUSIC,
+        BASE_PATH_TYPE_EXTERNAL_FILES_DOCUMENTS,
+        BASE_PATH_TYPE_EXTERNAL_FILES_DCIM,
+        BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES,
+        BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS,
+        BASE_PATH_TYPE_USER_DATA_DIR,
+        BASE_PATH_TYPE_MEDIA_STORE,
+        BASE_PATH_SECONDARY_STORAGE,
+        BASE_PATH_DEFAULT,
+        BASE_PATH_EXTERNAL_PROVIDER;
+    }
+    public enum DefaultNavFoldersType {
+        FOLDER_ROOT_STORAGE("Root", R.attr.namedFolderSDCardIcon, BaseFolderPathType.BASE_PATH_DEFAULT),
+        FOLDER_PICTURES("Pictures", R.attr.namedFolderPicsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES),
+        FOLDER_CAMERA("Camera", R.attr.namedFolderCameraIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_PICTURES),
+        FOLDER_SCREENSHOTS("Screenshots", R.attr.namedFolderScreenshotsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS),
+        FOLDER_DOWNLOADS("Downloads", R.attr.namedFolderDownloadsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS),
+        FOLDER_USER_HOME("Home", R.attr.namedFolderUserHomeIcon, BaseFolderPathType.BASE_PATH_TYPE_USER_DATA_DIR),
+        FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DCIM);
+    }
 ```
 
 ### Extending file types for filtering and sorting purposes in the picker UI
@@ -249,7 +297,6 @@ Here is an example of how to utilize these customized classes with the library's
 ```java
 FileChooserBuilder fcConfig = new FileChooserBuilder();
 fcConfig.setFilesListSortCompareFunction(FileFilter.FileItemsSortFunc);
-// TODO
 
 // Some defaults for convenience:
 fcConfig.filterByDefaultFileTypes(List<DefaultFileTypes> fileTypesList, boolean includeExcludeInList);
@@ -263,7 +310,7 @@ This part of the library, while a primary motivator for writing it and a key fea
 is still under active development. I will add in documentation showing how to customize the file 
 picker themes (color schemes, icons, and other properties) as they become ready to use.
 
-#### Basic example (quickstart guide to using the file picker library)
+#### Basic example (quickstart guide to using the file picker library styling options)
 
 #### Full example (detailed usage of the current custom theme/UI display options)
 
@@ -299,25 +346,28 @@ here is the full listing and type specs for what attributes can actually be chan
 
 ### Misc other useful utilities and customizations bundled with the main library
 
-### Displaying a visual linear bar style progress bar for slow directory loads (TODO)
+#### Displaying a visual linear bar style progress bar for slow directory loads
 
 This functionality may be useful at some point for those willing to extend this code with 
 custom external file providers, e.g., to read and recurse into directories on Dropbox or GitHub. 
 I have a simple visual Toast-like display that can be updated and/or canceled in real time to 
 let the user know that the directory is loading and that the client application is just "thinking" 
-(as opposed to freezing with a runtime error).
+(as opposed to freezing with an inexplicable runtime error).
 
-To invoke this progress bar display in realtime, consider calling the following code examples:
+To invoke this progress bar display in realtime, consider calling the following 
+[code examples](https://github.com/maxieds/AndroidFileChooserLight/blob/master/AndroidFilePickerLightLibrary/src/main/java/com/maxieds/androidfilepickerlightlibrary/DisplayUtils.java#L159):
 ```java
-DisplayUtils.DisplayProgressBar(String waitingOnProcessLabel, int curPos, int totalPos);
+DisplayUtils.DisplayProgressBar(Activity activityInstInput, String thingsName, int curPos, int totalPos);
 DisplayUtils.EnableProgressBarDisplay(true);
 // ... Then whenever the long process completes, kill the progress bar update callbacks with: ...
-DisplayUtils.EnableProgressBarDisplay(true);
+DisplayUtils.EnableProgressBarDisplay(false);
 ```
 In principle, the status bar is useful when the underlying operation takes longer than, say 8-10 seconds to complete. 
 This code is modified from a status timer to keep the user informed while scanning for a long duration read of 
 NFC tags on Android (see [the MFCToolLibrary](https://github.com/maxieds/MifareClassicToolLibrary) and 
 its demo application). The core of the progress bar is 
-shown by periodically posting Toast messages with a custom layout ``View``. Please post a new issue message 
-if anyone using this library in their own application finds this useful, or amusing too.
+shown by periodically posting Toast messages with a custom layout ``View``. 
+**Please do post a new issue message 
+if anyone using this library in their own application finds this useful, or amusing too 
+(input and feedback from other humans is good, in general).**
 
