@@ -311,16 +311,6 @@ public class FileChooserBuilder implements Serializable {
         return this;
     }
 
-    public FileChooserBuilder enforceSandboxTopLevelDirectory(BaseFolderPathType storageAccessBase,
-                                                              boolean excludeOtherOutsideNav) {
-        throw new FileChooserException.NotImplementedException();
-    }
-
-    public FileChooserBuilder setDefaultExceptionType(FileChooserException.AndroidFilePickerLightException exInst) {
-        defaultExceptionType = exInst;
-        return this;
-    }
-
     public FileChooserBuilder setActivityIdleTimeout(long timeoutMillis) {
         idleTimeoutMillis = timeoutMillis;
         return this;
@@ -342,10 +332,6 @@ public class FileChooserBuilder implements Serializable {
     public FileChooserBuilder filterByRegex(String fileFilterPattern, boolean includeExcludeInList) {
         localFileFilter = new FileFilter.FileFilterByRegex(fileFilterPattern, includeExcludeInList);
         return this;
-    }
-
-    public FileChooserBuilder setDataItemsFormatter() {
-        throw new FileChooserException.NotImplementedException();
     }
 
     public FileChooserBuilder setFilesListSortCompareFunction(FileFilter.FileItemsSortFunc customSortFunc) {
