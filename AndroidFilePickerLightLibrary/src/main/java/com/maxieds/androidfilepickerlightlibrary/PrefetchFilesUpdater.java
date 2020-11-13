@@ -30,7 +30,7 @@ import java.util.Locale;
  * The logic in this class should be the reason the scolling action
  * in the RecyclerView used to display the files listings graphically works well.
  * The idea and problem is the following: In a large directory of image screenshots
- * (several GB worth, and spread across ~100 entries), it is infeasible to load all of the
+ * (several GB worth, and spread across ~4x100 entries), it is infeasible to load all of the
  * files to list into the UI layout views at once. The standard solution for this on
  * Android is approximated by the use of a RecyclerView. The semi non-standard usage of this
  * functionality requires fast, fling-based scrolling through the large file list.
@@ -270,13 +270,6 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
                     getActiveLayoutItemsCount(), getActiveFolderContentsSize()));
 
             displayCtx = DisplayFragments.getInstance();
-
-            // In the meantime, display a quick positional status Toast message to the user since
-            // scrollbars do not indicate the number of files left to view very well:
-            //DisplayUtils.displayFolderScrollContents(
-            //        displayCtx.lastFileDataStartIndex + 1,
-            //        displayCtx.getCwdFolderContext().getFolderChildCount()
-            //);
 
         }
 

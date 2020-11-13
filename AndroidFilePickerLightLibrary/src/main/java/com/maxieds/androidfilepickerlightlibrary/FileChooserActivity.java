@@ -189,14 +189,17 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             @Override
             public void onClick(View view) {
                 DisplayFragments displayCtx = DisplayFragments.getInstance();
-                if(displayCtx.pathHistoryStack.empty()) {
+                if(displayCtx.pathHistoryStack.empty() || displayCtx.getCwdFolderContext().isTopLevelFolder()) {
                     getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
                     return;
                 }
                 String displayAscendingPrecurseMsg = String.format(Locale.getDefault(), "Ascending back upwards into DIR \"%s\".",
                         displayCtx.pathHistoryStack.peek().getCWDBasePath());
                 DisplayUtils.displayToastMessageShort(displayAscendingPrecurseMsg);
-                displayCtx.descendIntoNextDirectory(false);
+                DisplayTypes.DirectoryResultContext priorFolder = DisplayTypes.DirectoryResultContext.probePreviousFolder(1);
+                DisplayFragments.getInstance().pathHistoryStack.push(priorFolder);
+                DisplayFragments.getInstance().descendIntoNextDirectory(displayCtx.pathHistoryStack.pop().isTopLevelFolder());
+                DisplayFragments.backupFolderHistoryPaths();
             }
         });
         LinearLayout dirHistoryNavContainer = (LinearLayout) findViewById(R.id.mainDirPrevPathsNavContainer);

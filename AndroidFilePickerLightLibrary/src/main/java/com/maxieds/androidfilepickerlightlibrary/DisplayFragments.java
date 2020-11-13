@@ -98,6 +98,7 @@ public class DisplayFragments {
 
     public boolean resetViewportMaxFilesCount(View parentViewContainer) {
         if(!viewportCapacityMesaured) {
+
             int viewportDisplayHeight = parentViewContainer.getMeasuredHeight();
             if(fileItemDisplayHeight == 0 || viewportDisplayHeight == 0) {
                 return false;
@@ -105,10 +106,11 @@ public class DisplayFragments {
             setViewportMaxFilesCount((int) Math.floor((double) viewportDisplayHeight / fileItemDisplayHeight));
             Log.i(LOGTAG, String.format("DELAYED RESPONSE: VP Height = %d, FItemDisp Height = %d   ====>  %d",
                     viewportDisplayHeight, fileItemDisplayHeight, getViewportMaxFilesCount()));
-            getMainRecyclerView().setItemViewCacheSize(2 * getViewportMaxFilesCount());
+            getMainRecyclerView().setItemViewCacheSize(getViewportMaxFilesCount());
             getMainRecyclerView().setDrawingCacheEnabled(true);
             getMainRecyclerView().setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
             viewportCapacityMesaured = true;
+
         }
         return true;
     }
@@ -170,10 +172,6 @@ public class DisplayFragments {
             FileChooserActivity.getInstance().stopPrefetchFileUpdatesThread();
             clearExistingRecyclerViewLayout();
             updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(nextFolder.getCWDBasePath()), initNewFileTree);
-            DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
-            DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
-
-            // ??? TODO: Later, may want to display a loading notice if initializing a new directory is sluggish ???
 
             // Descend into the next directory:
             lastFileDataStartIndex = 0;
@@ -200,6 +198,7 @@ public class DisplayFragments {
         clearExistingRecyclerViewLayout();
         FileChooserActivity.getInstance().setTopLevelBaseFolder(initBaseFolder);
         DisplayTypes.DirectoryResultContext cwdFolderContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
+        cwdFolderContext.setTopLevelFolder(true); // cannot go up higher in the filesystem from here
         setCwdFolderContext(cwdFolderContext);
         pathHistoryStack.clear();
         lastFileDataStartIndex = 0;
@@ -207,8 +206,6 @@ public class DisplayFragments {
         getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
         displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
         updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(getCwdFolderContext().getCWDBasePath()), true);
-        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
-        DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
     }
 
     public void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList, boolean notifyAdapter) {
@@ -281,7 +278,7 @@ public class DisplayFragments {
 
     }
 
-    private static final String EMPTY_FOLDER_HISTORY_PATH = "➤ ---- ";
+    private static final String EMPTY_FOLDER_HISTORY_PATH = "";
     private static String folderHistoryOneBackPath = EMPTY_FOLDER_HISTORY_PATH;
     private static String folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
 
@@ -305,14 +302,26 @@ public class DisplayFragments {
         if(nextFolderEntryPointPath == null || nextFolderEntryPointPath.equals("")) {
             nextFolderEntryPointPath = EMPTY_FOLDER_HISTORY_PATH;
         }
+        else {
+            nextFolderEntryPointPath = String.format(Locale.getDefault(), "➤  %s", nextFolderEntryPointPath);
+        }
         if(initNewFileTree) {
             folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
-            folderHistoryOneBackPath = String.format(Locale.getDefault(), "➤ %s", nextFolderEntryPointPath);
+            folderHistoryOneBackPath = nextFolderEntryPointPath;
         }
         else {
             folderHistoryTwoBackPath = folderHistoryOneBackPath;
-            folderHistoryOneBackPath = String.format(Locale.getDefault(), "➤ %s", nextFolderEntryPointPath);
+            folderHistoryOneBackPath = nextFolderEntryPointPath;
         }
+        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
+        //DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
+    }
+
+    public static void backupFolderHistoryPaths() {
+        folderHistoryOneBackPath = folderHistoryTwoBackPath;
+        folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
+        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
+        //DisplayFragments.FolderNavigationFragment.dirsTwoBackText.setText(folderHistoryTwoBackPath);
     }
 
     public void cancelAllOperationsInProgress() {

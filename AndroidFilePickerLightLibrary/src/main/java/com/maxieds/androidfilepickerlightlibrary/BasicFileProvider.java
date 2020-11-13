@@ -143,7 +143,7 @@ public class BasicFileProvider extends DocumentsProvider {
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS:
                 baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-                setLegacyBaseFolderByName("Downloads");
+                setLegacyBaseFolderByName("Download");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES:
                 baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_MOVIES);

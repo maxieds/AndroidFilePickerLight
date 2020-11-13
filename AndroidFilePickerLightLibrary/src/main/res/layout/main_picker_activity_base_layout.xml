@@ -144,9 +144,9 @@
                 android:gravity="left|center_vertical"
                 android:layout_gravity="left|center_vertical"
                 android:paddingBottom="2dp"
-                android:text="---"
+                android:text=""
                 android:textColor="?__colorPrimaryDark"
-                android:textSize="12sp"
+                android:textSize="15sp"
                 android:textStyle="normal|bold"
                 android:typeface="serif"
                 />
@@ -157,11 +157,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="left|center_vertical"
                 android:layout_gravity="left|center_vertical"
-                android:text="---"
+                android:text=""
                 android:textColor="?__colorPrimaryDark"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textStyle="normal|bold"
                 android:typeface="serif"
+                android:visibility="gone"
                 />
 
         </LinearLayout>
@@ -183,7 +184,7 @@
         android:layout_gravity="center_horizontal|top"
         android:gravity="center_horizontal|top"
         android:background="?__colorPrimary"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:clickable="true"
         >
 

@@ -30,7 +30,7 @@
         <external-cache-path name="external_cache" path="." />
 
         <external-files name="/storage/self/primary" path="."/>
-        <external-files name="Downloads" path="Download/" />
+        <external-files name="Download" path="Download/" />
         <external-files name="Movies" path="./Movies/" />
         <external-files name="Music" path="./Music" />
         <external-files name="Pictures" path="./Pictures/" />
@@ -39,7 +39,7 @@
         <external-files name="Camera" path="./DCIM/Camera/" />
 
         <external-files-path name="/storage/self/primary" path="."/>
-        <external-files-path name="Downloads" path="Download/" />
+        <external-files-path name="Download" path="Download/" />
         <external-files-path name="Movies" path="Movies/" />
         <external-files-path name="Music" path="Music" />
         <external-files-path name="Pictures" path="Pictures/" />

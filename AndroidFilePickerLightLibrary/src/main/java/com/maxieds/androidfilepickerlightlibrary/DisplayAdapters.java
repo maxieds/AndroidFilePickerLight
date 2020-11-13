@@ -206,26 +206,11 @@ public class DisplayAdapters {
                 }
                 int fileItemPosIndex = getPositionForView(v);
                 DisplayTypes.DirectoryResultContext workingFolder;
-                if(DisplayFragments.getInstance().pathHistoryStack.empty()) {
-                    workingFolder = null;
-                }
-                else {
-                    workingFolder = DisplayFragments.getInstance().pathHistoryStack.peek();
-                }
                 nextFolderParent.clearDirectoryContentsList();
                 DisplayFragments.getInstance().pathHistoryStack.push(nextFolderParent);
-                if(workingFolder == null) {
-                    DisplayTypes.DirectoryResultContext nextFolder = nextFolderParent.loadNextFolderAtIndex(fileItemPosIndex, true);
-                    DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
-                    Log.i(LOGTAG, "CASE I: next foldr cwd = " + nextFolder.getCWDBasePath());
-                    DisplayFragments.getInstance().descendIntoNextDirectory(true);
-                }
-                else {
-                    DisplayTypes.DirectoryResultContext nextFolder = nextFolderParent.loadNextFolderAtIndex(fileItemPosIndex, false);
-                    DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
-                    Log.i(LOGTAG, "CASE II: next foldr cwd = " + nextFolder.getCWDBasePath());
-                    DisplayFragments.getInstance().descendIntoNextDirectory(false);
-                }
+                DisplayTypes.DirectoryResultContext nextFolder = nextFolderParent.loadNextFolderAtIndex(fileItemPosIndex, true);
+                DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
+                DisplayFragments.getInstance().descendIntoNextDirectory(false);
                 String displayRecurseMsg = String.format(Locale.getDefault(), "Descending recursively into DIR \"%s\".", fileItem.getBaseName());
                 DisplayUtils.displayToastMessageShort(displayRecurseMsg);
                 return true;

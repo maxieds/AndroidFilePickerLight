@@ -44,6 +44,7 @@ public class DisplayTypes {
         private String parentDocId;
         private String activeCWDAbsPath;
         private int folderMaxChildCount;
+        private boolean isTopLevelFolder;
 
         public DirectoryResultContext(MatrixCursor mcResult, String parentFolderDocId, String parentFolderAbsPath) {
             directoryContentsList = new ArrayList<FileType>();
@@ -59,6 +60,7 @@ public class DisplayTypes {
                 nfe.printStackTrace();
                 folderMaxChildCount = 0;
             }
+            isTopLevelFolder = false;
             Log.i(LOGTAG, String.format(Locale.getDefault(), "Initializing new folder at path: \"%s\" ... ", activeCWDAbsPath));
         }
 
@@ -67,6 +69,9 @@ public class DisplayTypes {
         public void setNextDirectoryContents(List<FileType> nextFolderFiles) { directoryContentsList = nextFolderFiles; }
 
         public int getFolderChildCount() { return folderMaxChildCount; }
+
+        public boolean isTopLevelFolder() { return isTopLevelFolder; }
+        public void setTopLevelFolder(boolean topLevel) { isTopLevelFolder = topLevel; }
 
         public String getCWDBasePath() {
             return FileUtils.getFileBaseNameFromPath(activeCWDAbsPath);
