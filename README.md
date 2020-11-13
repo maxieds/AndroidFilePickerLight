@@ -1,4 +1,4 @@
-# Android File Picker Light Library
+# Android File Chooser Light Library
 
 <!--<img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/LibraryProfileIconPlayStore.png" width="750" height="350" />-->
 <!--<hr /><hr />-->
