@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.ContentProvider;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.provider.DocumentsProvider;
 import android.view.Display;
 
 import java.io.Serializable;
@@ -217,8 +218,9 @@ public class FileChooserBuilder implements Serializable {
     private int maxSelectedFiles;
     private BaseFolderPathType initFolderBasePathType;
     private SelectionModeType pathSelectMode;
-    private ContentProvider externalFilesProvider;
+    private DocumentsProvider externalFilesProvider;
     private long idleTimeoutMillis;
+    private String startPathAbsolute, startPathRelative;
     private FileFilter.FileFilterBase localFileFilter;
     private FileFilter.FileItemsSortFunc customSortFunc;
 
@@ -246,6 +248,7 @@ public class FileChooserBuilder implements Serializable {
         pathSelectMode = SelectionModeType.SELECT_OMNIVORE;
         externalFilesProvider = null;
         idleTimeoutMillis = DEFAULT_TIMEOUT;
+        startPathAbsolute = startPathRelative = null;
         localFileFilter = null;
         recyclerViewStartBufferSize = DisplayFragments.DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
         recyclerViewNotVisibleBufferSize = PrefetchFilesUpdater.DEFAULT_BALANCED_BUFFER_SIZE;
@@ -276,6 +279,18 @@ public class FileChooserBuilder implements Serializable {
     public boolean allowSelectFolderItems() {
         return pathSelectMode.ordinal() == SelectionModeType.SELECT_DIRECTORY_ONLY.ordinal() ||
                 pathSelectMode.ordinal() != SelectionModeType.SELECT_FILE_ONLY.ordinal();
+    }
+
+    public FileChooserBuilder setInitialPathAbsolute(String startPathAbs) {
+        startPathRelative = null;
+        startPathAbsolute = startPathAbs;
+        return this;
+    }
+
+    public FileChooserBuilder setInitialPathRelative(String startPathRelOffset) {
+        startPathAbsolute = null;
+        startPathRelative = startPathRelOffset;
+        return this;
     }
 
     public FileChooserBuilder setNavigationLongForm(boolean enableLongForm) {
@@ -341,8 +356,13 @@ public class FileChooserBuilder implements Serializable {
         return this;
     }
 
-    public FileChooserBuilder setPickerInitialPath(BaseFolderPathType storageAccessBase) {
-        initFolderBasePathType = storageAccessBase;
+    public FileChooserBuilder setInitialPath(BaseFolderPathType storageAccessBase, String relOffsetPath) {
+        initFolderBasePathType = BaseFolderPathType.getInstanceByType(storageAccessBase);
+        return setInitialPathRelative(relOffsetPath);
+    }
+
+    public FileChooserBuilder setInitialPath(BaseFolderPathType storageAccessBase) {
+        initFolderBasePathType = BaseFolderPathType.getInstanceByType(storageAccessBase);
         return this;
     }
 
@@ -374,11 +394,17 @@ public class FileChooserBuilder implements Serializable {
         return this;
     }
 
-    public FileChooserBuilder setExternalFilesProvider(ContentProvider extFileProvider) {
-        throw new FileChooserException.NotImplementedException();
+    public FileChooserBuilder setExternalFilesProvider(DocumentsProvider extFileProvider) {
+        //throw new FileChooserException.NotImplementedException();
+        externalFilesProvider = extFileProvider;
+        return this;
     }
 
     public boolean getShowNavigationLongForm() { return navPathBtnsLongForm; }
+
+    public String getInitialPathAbsolute() { return startPathAbsolute; }
+
+    public String getInitialPathRelative() { return startPathRelative; }
 
     public long getIdleTimeout() {
         return idleTimeoutMillis;
@@ -392,7 +418,7 @@ public class FileChooserBuilder implements Serializable {
         return initFolderBasePathType;
     }
 
-    public boolean showHidden() {
+    public boolean getShowHidden() {
         return showHidden;
     }
 
@@ -426,6 +452,10 @@ public class FileChooserBuilder implements Serializable {
 
     public int getRecyclerViewLayoutFlingDampenThreshold() {
         return recyclerViewLayoutFlingDampenThreshold;
+    }
+
+    public DocumentsProvider getExternalFilesProvider() {
+        return externalFilesProvider;
     }
 
     public long getRecyclerViewPrefetchThreadUpdateDelay() {

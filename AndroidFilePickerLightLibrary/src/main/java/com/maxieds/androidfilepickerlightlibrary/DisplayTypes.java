@@ -270,6 +270,18 @@ public class DisplayTypes {
             return probeAtCursoryFolderQueryGetNext();
         }
 
+        public static DirectoryResultContext probeAtCursoryFolderQuery() {
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            if(fpInst == null) {
+                return null;
+            }
+            else {
+                fpInst.setCustomFileFilter(DisplayFragments.getInstance().localFilesListFilter);
+                fpInst.setCustomFolderSort(DisplayFragments.getInstance().localFilesListSortFunc);
+            }
+            return probeAtCursoryFolderQueryGetNext();
+        }
+
         public static DirectoryResultContext probePreviousFolder(int howManyBackwards) {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             if(fpInst == null) {

@@ -49,7 +49,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         runningActivityInst = this;
         setContentView(R.layout.activity_android_file_picker_light_example);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("    Android File Picker Light");
+        toolbar.setTitle("    Android File Picker Light Demo");
         toolbar.setTitleTextColor(getColor(R.color.colorToolbarFGText));
         toolbar.setLogo(R.drawable.toolbar_icon48);
         toolbar.setBackgroundColor(getColor(R.color.colorAccent));
@@ -118,14 +118,14 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
     public void actionButtonLaunchSingleFolderPickerActivity(View btnView) {
         FileChooserBuilder fpInst = FileChooserBuilder.getDirectoryChooserInstance(this);
         fpInst.showHidden(true);
-        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        fpInst.setInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
         fpInst.launchFilePicker();
     }
 
     public void actionButtonLaunchSingleFilePickerActivity(View btnView) {
         FileChooserBuilder fpInst = FileChooserBuilder.getSingleFilePickerInstance(this);
         fpInst.showHidden(true);
-        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS);
+        fpInst.setInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS);
         fpInst.launchFilePicker();
     }
 
@@ -135,7 +135,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         fpInst.setSelectMultiple(5);
         fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
         fpInst.showHidden(true);
-        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        fpInst.setInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
         fpInst.launchFilePicker();
     }
 
@@ -147,7 +147,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
         fpInst.setNavigationLongForm(false);
         fpInst.showHidden(true);
-        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        fpInst.setInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
 
         CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder(this)
                 .setPickerTitleText(R.string.picker_title_text)
@@ -185,7 +185,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
         fpInst.setNavigationLongForm(true);
         fpInst.showHidden(true);
-        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        fpInst.setInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
 
         CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder(this)
                 .setPickerTitleText(R.string.picker_title_text)

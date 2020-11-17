@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -343,6 +344,13 @@ public class DisplayUtils {
                 ((TextView) toastProgressView.findViewById(R.id.progressBarText)).setText(statusBarMsg);
                 GradientDrawable bgGradient = GradientDrawableBuilder.GetStockGradientFromBaseColor(progressBarTintColor);
                 toastProgressView.setBackgroundDrawable(bgGradient);
+                toastProgressView.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View view, MotionEvent motionEvent) {
+                        EnableProgressBarDisplay(false); // dismiss the toast when it is touched
+                        return false;
+                    }
+                });
                 progressBarToast.setView(toastProgressView);
                 if(!toastsDismissed) {
                     progressBarDisplayHandler.postDelayed(progressBarDisplayRunnable, STATUS_TOAST_DISPLAY_REFRESH_TIME);
@@ -355,6 +363,9 @@ public class DisplayUtils {
     public static void EnableProgressBarDisplay(boolean enableRedisplay) {
         toastsDismissed = !enableRedisplay;
         if(toastsDismissed) {
+            if(progressBarToast != null) {
+                progressBarToast.cancel();
+            }
             progressBarDisplayHandler.removeCallbacks(progressBarDisplayRunnable);
         }
     }

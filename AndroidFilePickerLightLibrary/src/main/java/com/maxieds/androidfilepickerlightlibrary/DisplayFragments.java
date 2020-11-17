@@ -210,10 +210,8 @@ public class DisplayFragments {
      * from scratch (reinitializing objects, starting the initial root query, and launching the
      * RecyclerView pattern making compendia on a whole new dataset):
      */
-    public void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
+    private void initiateNewFolderLoadBase(DisplayTypes.DirectoryResultContext cwdFolderContext) {
         clearExistingRecyclerViewLayout();
-        FileChooserActivity.getInstance().setTopLevelBaseFolder(initBaseFolder);
-        DisplayTypes.DirectoryResultContext cwdFolderContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
         cwdFolderContext.setTopLevelFolder(true); // cannot go up higher in the filesystem from here
         setCwdFolderContext(cwdFolderContext);
         pathHistoryStack.clear();
@@ -222,6 +220,44 @@ public class DisplayFragments {
         getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
         displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
         updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(getCwdFolderContext().getCWDBasePath()), true);
+    }
+
+    public void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder, String relativePathOffset) {
+        FileChooserActivity.getInstance().setTopLevelBaseFolder(initBaseFolder);
+        BasicFileProvider fpInst = BasicFileProvider.getInstance();
+        DisplayTypes.DirectoryResultContext cwdFolderContext = null;
+        if(relativePathOffset != null) {
+            fpInst.selectBaseDirectoryByType(initBaseFolder);
+            cwdFolderContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(relativePathOffset);
+            if(cwdFolderContext == null) {
+                String invPath = fpInst.getCWD() + FileUtils.FILE_PATH_SEPARATOR + relativePathOffset;
+                throw new FileChooserException.InvalidInitialPathException(invPath);
+            }
+        }
+        else {
+            cwdFolderContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery(initBaseFolder);
+            if(cwdFolderContext == null) {
+                String invPath = fpInst.getCWD();
+                throw new FileChooserException.InvalidInitialPathException(invPath);
+            }
+        }
+        initiateNewFolderLoadBase(cwdFolderContext);
+    }
+
+    public void initiateNewFolderLoad(FileChooserBuilder.BaseFolderPathType initBaseFolder) {
+        initiateNewFolderLoad(initBaseFolder, null);
+    }
+
+    public void initiateNewFolderLoad(String absStartPath) {
+        FileChooserBuilder.BaseFolderPathType initBaseFolder = FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT;
+        FileChooserActivity.getInstance().setTopLevelBaseFolder(initBaseFolder);
+        BasicFileProvider fpInst = BasicFileProvider.getInstance();
+        fpInst.resetBaseDirectory();
+        if(!fpInst.enterNextSubfolder(absStartPath)) {
+            throw new FileChooserException.InvalidInitialPathException(absStartPath);
+        }
+        DisplayTypes.DirectoryResultContext cwdFolderContext = DisplayTypes.DirectoryResultContext.probeAtCursoryFolderQuery();
+        initiateNewFolderLoadBase(cwdFolderContext);
     }
 
     public void displayNextDirectoryFilesList(List<DisplayTypes.FileType> workingDirContentsList, boolean notifyAdapter) {

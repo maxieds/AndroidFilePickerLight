@@ -301,6 +301,12 @@ public class FileChooserException {
                     true, DEFAULT_DATA_ITEMS_TYPE, null);
         }
 
+        public InvalidInitialPathException(String causalWhyMsg) {
+            configureExceptionParams(UNIQUE_ERROR_CODE,
+                    String.format(Locale.getDefault(), "Invalid path: %s", causalWhyMsg),
+                    true, DEFAULT_DATA_ITEMS_TYPE, null);
+        }
+
     }
 
     public static class InvalidThemeResourceException extends AndroidFilePickerLightException {

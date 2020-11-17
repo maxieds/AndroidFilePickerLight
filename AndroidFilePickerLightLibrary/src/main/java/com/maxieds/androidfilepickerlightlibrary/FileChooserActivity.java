@@ -107,20 +107,24 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     @Override
     public void onCreate(Bundle lastSettingsBundle) {
 
-        Log.i(LOGTAG, "Activity onCreate");
         super.onCreate(lastSettingsBundle);
         setUnhandledExceptionHandler();
         staticRunningInst = this;
         displayFragmentsInst = new DisplayFragments();
         displayFragmentsInst.resetRecyclerViewLayoutContext();
+        BasicFileProvider.resetBasicFileProviderDefaults();
         cwdFolderCtx = null;
+
+        FileChooserBuilder fpConfig = FileChooserBuilder.getInstance();
+        if(fpConfig.getExternalFilesProvider() != null) {
+            BasicFileProvider.setExternalDocumentsProvider(fpConfig.getExternalFilesProvider());
+        }
 
         PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
         PermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
         setTheme(R.style.LibraryDefaultTheme);
         setContentView(R.layout.main_picker_activity_base_layout);
-        FileChooserBuilder fpConfig = FileChooserBuilder.getInstance();
         configureInitialMainLayout(fpConfig);
 
         // Keep the app from crashing when the screen rotates:
@@ -299,10 +303,17 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         };
         doneActionBtn.setOnClickListener(doneActivityBtnClickListener);
 
-        /* Setup some theme related styling on the main file list container: */
+        /* Setup some theme related styling on the main file list container, and then
+         * load the initial path to start the file chooser:
+         */
         FileChooserRecyclerView mainLayoutRecyclerView = findViewById(R.id.mainRecyclerView);
         getDisplayFragmentsInstance().initializeRecyclerViewLayout(mainLayoutRecyclerView, fpConfig);
-        getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
+        if(fpConfig.getInitialPathAbsolute() != null) {
+            getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialPathAbsolute());
+        }
+        else {
+            getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialBaseFolder(), fpConfig.getInitialPathRelative());
+        }
 
     }
 

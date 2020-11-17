@@ -73,7 +73,7 @@ dependencies {
     // FOR the most recent build:
     implementation 'com.github.maxieds:AndroidFilePickerLight:master-SNAPSHOT'
     // -- OR: for the latest release:
-    implementation 'com.github.maxieds:AndroidFilePickerLight:release-v4'
+    implementation 'com.github.maxieds:AndroidFilePickerLight:release-v5'
 }
 allprojects {
     repositories {
@@ -188,11 +188,14 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
         .setNavigationFoldersList(List<DefaultNavFoldersType> navFoldersList)
         .setNavigationLongForm(true)
         .showHidden(boolean enable)
+        .setInitialPathAbsolute(String startPathAbs)
+        .setInitialPathRelative(String startPathRelOffset) /* Relative to the base folder path selected */
+        .setInitialPath(BaseFolderPathType storageAccessBase)
+        .setInitialPath(BaseFolderPathType storageAccessBase, String startPathRelOffset)
         .setSelectMultiple(int maxFileInsts)
         .setSelectionMode(SelectionModeType modeType)
-        .setPickerInitialPath(BaseFolderPathType storageAccessBase)
         .setActivityIdleTimeout(long timeoutMillis)
-        .setExternalFilesProvider(ContentProvider extFileProvider); // Reserved for future use
+        .setExternalFilesProvider(DocumentsProvider extFileProvider);
 ```
 The relevant ``enum`` types that can be passed as arguments to these methods include the following:
 ```java

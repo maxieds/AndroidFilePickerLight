@@ -36,9 +36,13 @@ import androidx.core.content.FileProvider;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -62,7 +66,18 @@ public class BasicFileProvider extends DocumentsProvider {
     private static final int MAX_ALLOWED_LAST_MODIFIED_FILES = 5;
 
     private static BasicFileProvider fileProviderStaticInst = null;
+    private static DocumentsProvider extDocsProviderStaticInst = null;
     public static  BasicFileProvider getInstance() { return fileProviderStaticInst; }
+    public static void setExternalDocumentsProvider(DocumentsProvider extDocsProvider) { extDocsProviderStaticInst = extDocsProviderStaticInst; }
+
+    public static void resetBasicFileProviderDefaults() {
+        extDocsProviderStaticInst = null;
+        if(fileProviderStaticInst != null) {
+            fileProviderStaticInst.baseDirPath = null;
+        }
+        activeStartFilesIndex = 0;
+        activeFilesListLength = DisplayFragments.DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
+    }
 
     private static int activeStartFilesIndex = 0;
     private static int activeFilesListLength = DisplayFragments.DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
@@ -185,8 +200,18 @@ public class BasicFileProvider extends DocumentsProvider {
         return baseDirPath.getAbsolutePath();
     }
 
+    public void resetBaseDirectory() {
+        baseDirPath = null;
+    }
+
     public boolean enterNextSubfolder(String subfolderPath) {
-        File nextSubfolder = new File(baseDirPath, subfolderPath);
+        File nextSubfolder = null;
+        if(baseDirPath != null) {
+            nextSubfolder = new File(baseDirPath, subfolderPath);
+        }
+        else {
+            nextSubfolder = new File(subfolderPath);
+        }
         boolean status = nextSubfolder.exists() && nextSubfolder.isDirectory();
         if(status) {
             baseDirPath = nextSubfolder;
@@ -258,6 +283,10 @@ public class BasicFileProvider extends DocumentsProvider {
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {
 
+        if(extDocsProviderStaticInst != null) {
+            return extDocsProviderStaticInst.queryRoots(projection);
+        }
+
         final MatrixCursor mcResult = new MatrixCursor(resolveRootProjection(projection));
         final MatrixCursor.RowBuilder row = mcResult.newRow();
 
@@ -282,6 +311,10 @@ public class BasicFileProvider extends DocumentsProvider {
 
     @Override
     public Cursor queryRecentDocuments(String rootId, String[] projection) throws FileNotFoundException {
+
+        if(extDocsProviderStaticInst != null) {
+            return extDocsProviderStaticInst.queryRecentDocuments(rootId, projection);
+        }
 
         // Create a cursor with the requested projection, or the default projection.
         final MatrixCursor mcResult = new MatrixCursor(resolveDocumentProjection(projection));
@@ -328,6 +361,10 @@ public class BasicFileProvider extends DocumentsProvider {
     @Override
     public Cursor querySearchDocuments(String rootId, String query, String[] projection) throws FileNotFoundException {
 
+        if(extDocsProviderStaticInst != null) {
+            return extDocsProviderStaticInst.querySearchDocuments(rootId, query, projection);
+        }
+
         // Create a cursor with the requested projection, or the default projection.
         final MatrixCursor mcResult = new MatrixCursor(resolveDocumentProjection(projection));
         final File parent = getFileForDocId(rootId);
@@ -359,24 +396,41 @@ public class BasicFileProvider extends DocumentsProvider {
     @Override
     public AssetFileDescriptor openDocumentThumbnail(String documentId, Point sizeHint,
                                                      CancellationSignal signal) throws FileNotFoundException {
+
+        if(extDocsProviderStaticInst != null) {
+            return extDocsProviderStaticInst.openDocumentThumbnail(documentId, sizeHint, signal);
+        }
+
         final File file = getFileForDocId(documentId);
         final ParcelFileDescriptor pfd =
                 ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
         return new AssetFileDescriptor(pfd, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
+
     }
 
     @Override
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
+
+        if(extDocsProviderStaticInst != null) {
+            return extDocsProviderStaticInst.queryDocument(documentId, projection);
+        }
+
         // Create a cursor with the requested projection, or the default projection.
         final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
         includeFile(result, documentId, null);
         return result;
+
     }
 
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection,
                                       String sortOrder) throws FileNotFoundException {
-        MatrixCursor mcResult = new MatrixCursor(resolveDocumentProjection(projection)); // ??? TODO: was previously marked as final ???
+
+        if(extDocsProviderStaticInst != null) {
+            return extDocsProviderStaticInst.queryChildDocuments(parentDocumentId, projection, sortOrder);
+        }
+
+        MatrixCursor mcResult = new MatrixCursor(resolveDocumentProjection(projection));
         if(updateDocsQueryFilesList || docsQueryFilesList == null) {
             final File parent = getFileForDocId(parentDocumentId);
             if(customFileFilter != null) {
@@ -409,6 +463,7 @@ public class BasicFileProvider extends DocumentsProvider {
             includeFile(mcResult, null, file);
         }
         return mcResult;
+
     }
 
     public int getFolderChildCount(String folderDocId) throws FileNotFoundException {
@@ -431,6 +486,10 @@ public class BasicFileProvider extends DocumentsProvider {
     public ParcelFileDescriptor openDocument(final String documentId, final String mode,
                                              CancellationSignal signal) throws FileNotFoundException {
 
+        if(extDocsProviderStaticInst != null) {
+            return extDocsProviderStaticInst.openDocument(documentId, mode, signal);
+        }
+
         final File file = getFileForDocId(documentId);
         final int accessMode = ParcelFileDescriptor.parseMode(mode);
 
@@ -450,22 +509,36 @@ public class BasicFileProvider extends DocumentsProvider {
         } else {
             return ParcelFileDescriptor.open(file, accessMode);
         }
+
     }
 
     @Override
     public void deleteDocument(String documentId) throws FileNotFoundException {
+
+        if(extDocsProviderStaticInst != null) {
+            extDocsProviderStaticInst.deleteDocument(documentId);
+            return;
+        }
+
         File file = getFileForDocId(documentId);
         if (file.delete()) {
             Log.i(LOGTAG, "Deleted file with id " + documentId);
         } else {
             throw new FileNotFoundException("Failed to delete document with id " + documentId);
         }
+
     }
 
     @Override
     public String getDocumentType(String documentId) throws FileNotFoundException {
+
+        if(extDocsProviderStaticInst != null) {
+            return extDocsProviderStaticInst.getDocumentType(documentId);
+        }
+
         File file = getFileForDocId(documentId);
         return getTypeForFile(file);
+
     }
 
     private static String[] resolveRootProjection(String[] projection) {
@@ -674,7 +747,6 @@ public class BasicFileProvider extends DocumentsProvider {
                     String.format(Locale.getDefault(), "%s", curWorkingFile.isHidden() ? "true" : "false")
             };
         } catch(IOException ioe) {
-            //ioe.printStackTrace();
             try {
                 String[] mcColumnNames = mcResult.getColumnNames();
                 return new String[] {
@@ -692,14 +764,63 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
-    /* TODO: Later functionality for the local BasicFileProvider: */
-    public StringBuilder readFileContentsAsString() {
-        return null;
+    private static final int BYTE_BUFFER_SIZE = 128;
+
+    public StringBuilder readFileContentsAsString(final String documentId) {
+        try {
+            ParcelFileDescriptor docDesc = openDocument(documentId, "r+", null);
+            FileDescriptor fd = docDesc.getFileDescriptor();
+            FileInputStream inputStream = new FileInputStream(fd);
+            StringBuilder sbuilder = new StringBuilder();
+            byte[] byteBuf = new byte[BYTE_BUFFER_SIZE];
+            int bytesRead = inputStream.read(byteBuf, 0, BYTE_BUFFER_SIZE);
+            while(bytesRead > 0) {
+                byte[] bytesReadBuf = Arrays.copyOf(byteBuf, bytesRead);
+                sbuilder.append(new String(bytesReadBuf));
+                bytesRead = inputStream.read(byteBuf, 0, BYTE_BUFFER_SIZE);
+            }
+            inputStream.close();
+            docDesc.close();
+            return sbuilder;
+        } catch(FileNotFoundException fnfe) {
+            fnfe.printStackTrace();
+            return null;
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+        }
     }
 
-    /* TODO: Later functionality for the local BasicFileProvider: */
-    public byte[] readFileContentsAsBytesArray() {
-        return null;
+    public byte[] readFileContentsAsBytesArray(final String documentId) {
+        try {
+            ParcelFileDescriptor docDesc = openDocument(documentId, "r+", null);
+            FileDescriptor fd = docDesc.getFileDescriptor();
+            FileInputStream inputStream = new FileInputStream(fd);
+            int actualSize = 0, bufCapacity = BYTE_BUFFER_SIZE;
+            byte[] returnBuf = new byte[BYTE_BUFFER_SIZE], byteBuf = new byte[BYTE_BUFFER_SIZE];
+            int bytesRead = inputStream.read(byteBuf, 0, BYTE_BUFFER_SIZE);
+            while(bytesRead > 0) {
+                byte[] bytesReadBuf = Arrays.copyOf(byteBuf, bytesRead);
+                System.arraycopy(returnBuf, actualSize, bytesReadBuf, 0, bytesRead);
+                actualSize += bytesRead;
+                if(actualSize >= bufCapacity) {
+                    bufCapacity *= 2;
+                    byte[] nextReturnBuf = new byte[bufCapacity];
+                    System.arraycopy(nextReturnBuf, 0, returnBuf, 0, actualSize);
+                    returnBuf = nextReturnBuf;
+                }
+                bytesRead = inputStream.read(byteBuf, 0, BYTE_BUFFER_SIZE);
+            }
+            inputStream.close();
+            docDesc.close();
+            return Arrays.copyOf(returnBuf, actualSize);
+        } catch(FileNotFoundException fnfe) {
+            fnfe.printStackTrace();
+            return null;
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+        }
     }
 
 }
