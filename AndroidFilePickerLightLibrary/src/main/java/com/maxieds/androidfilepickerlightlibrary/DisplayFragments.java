@@ -39,13 +39,6 @@ public class DisplayFragments {
     private static DisplayFragments localStaticInst = new DisplayFragments();
     private FileChooserRecyclerView recyclerView = null;
 
-    private Drawable folderIconInst;
-    private Drawable fileIconInst;
-    private Drawable hiddenFileIconInst;
-
-    public FileFilter.FileFilterBase localFilesListFilter;
-    public FileFilter.FileItemsSortFunc localFilesListSortFunc;
-
     public DisplayFragments() {
         folderIconInst = DisplayUtils.getDrawableFromResource(R.drawable.folder_icon32);
         fileIconInst = DisplayUtils.getDrawableFromResource(R.drawable.generic_file_icon32);
@@ -53,6 +46,27 @@ public class DisplayFragments {
         localFilesListFilter = null;
         localFilesListSortFunc = null;
     }
+
+    public FileFilter.FileFilterBase localFilesListFilter;
+    public FileFilter.FileItemsSortFunc localFilesListSortFunc;
+
+    private Drawable folderIconInst;
+    private Drawable fileIconInst;
+    private Drawable hiddenFileIconInst;
+    private CustomThemeBuilder.FileItemLayoutStylizer fileItemLayoutStylizer;
+
+    public boolean setFileItemLayoutStylizer(CustomThemeBuilder.FileItemLayoutStylizer layoutStylizer, boolean freeOtherSpace) {
+        if(layoutStylizer == null) {
+            return false;
+        }
+        fileItemLayoutStylizer = layoutStylizer;
+        if(freeOtherSpace) {
+            folderIconInst = fileIconInst = hiddenFileIconInst = null;
+        }
+        return true;
+    }
+
+    public CustomThemeBuilder.FileItemLayoutStylizer getFileItemLayoutStylizer() { return fileItemLayoutStylizer; }
 
     public static FileChooserRecyclerView getMainRecyclerView() {
         return getInstance().recyclerView;
@@ -98,7 +112,6 @@ public class DisplayFragments {
 
     public boolean resetViewportMaxFilesCount(View parentViewContainer) {
         if(!viewportCapacityMesaured) {
-
             int viewportDisplayHeight = parentViewContainer.getMeasuredHeight();
             if(fileItemDisplayHeight == 0 || viewportDisplayHeight == 0) {
                 return false;
@@ -110,13 +123,14 @@ public class DisplayFragments {
             getMainRecyclerView().setDrawingCacheEnabled(true);
             getMainRecyclerView().setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
             viewportCapacityMesaured = true;
-
         }
         return true;
     }
 
-    public void initializeRecyclerViewLayout(FileChooserRecyclerView rview) {
+    public void initializeRecyclerViewLayout(FileChooserRecyclerView rview, FileChooserBuilder fpConfig) {
         if(!recyclerViewAdapterInit) {
+            viewportMaxFileItemsCount = fpConfig.getRecyclerViewStartBufferSize();
+            FileChooserRecyclerView.setFlingVelocityDampenAtThreshold(fpConfig.getRecyclerViewLayoutFlingDampenThreshold());
             rview.setupRecyclerViewLayout();
             setRecyclerView(rview);
             fileItemBasePathsList = new ArrayList<String>();
@@ -133,9 +147,9 @@ public class DisplayFragments {
         activeSelectionsList.clear();
         activeFileItemsDataList.clear();
         fileItemBasePathsList.clear();
-        lastFileDataStartIndex = 0;
-        lastFileDataEndIndex = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT - 1;
         viewportMaxFileItemsCount = DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
+        lastFileDataStartIndex = 0;
+        lastFileDataEndIndex = viewportMaxFileItemsCount - 1;
         recyclerViewAdapterInit = false;
         viewportCapacityMesaured = false;
         pathHistoryStack = new Stack<DisplayTypes.DirectoryResultContext>();
@@ -245,18 +259,23 @@ public class DisplayFragments {
 
         public static void resetLayout(View layoutContainer, DisplayTypes.FileType fileItem, int displayPosition) {
 
-            ImageView fileTypeIcon = layoutContainer.findViewById(R.id.fileTypeIcon);
-            if(!fileItem.isDirectory()) {
-                if(!fileItem.isHidden()) {
-                    fileTypeIcon.setImageDrawable(getInstance().fileIconInst);
-                }
-                else {
-                    fileTypeIcon.setImageDrawable(getInstance().hiddenFileIconInst);
+            CustomThemeBuilder.FileItemLayoutStylizer fileItemLayoutStylizer = DisplayFragments.getInstance().getFileItemLayoutStylizer();
+            if(fileItemLayoutStylizer == null) {
+                ImageView fileTypeIcon = layoutContainer.findViewById(R.id.fileTypeIcon);
+                if (!fileItem.isDirectory()) {
+                    if (!fileItem.isHidden()) {
+                        fileTypeIcon.setImageDrawable(getInstance().fileIconInst);
+                    } else {
+                        fileTypeIcon.setImageDrawable(getInstance().hiddenFileIconInst);
+                    }
+                } else {
+                    fileTypeIcon.setImageDrawable(getInstance().folderIconInst);
                 }
             }
             else {
-                fileTypeIcon.setImageDrawable(getInstance().folderIconInst);
+                fileItemLayoutStylizer.applyStyleToLayout(layoutContainer, fileItem);
             }
+
             TextView fileSizeText = layoutContainer.findViewById(R.id.fileEntrySizeText);
             fileSizeText.setText(fileItem.getFileSizeString());
             TextView filePermsSummary = layoutContainer.findViewById(R.id.fileEntryPermsSummaryText);

@@ -141,9 +141,9 @@ the results:
 @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Handle activity codes:
-        // FileChooserBuilder.ACTIVITY_CODE_SELECT_FILE || 
+        // FileChooserBuilder.ACTIVITY_CODE_SELECT_FILE_ONLY ||
         // FileChooserBuilder.ACTIVITY_CODE_SELECT_DIRECTORY_ONLY || 
-        // ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
+        // FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
         super.onActivityResult(requestCode, resultCode, data);
         try {
             selectedFilePaths = FileChooserBuilder.handleActivityResult(this, requestCode, resultCode, data);
@@ -202,7 +202,7 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
     FileChooserBuilder fcBuilderConfig = new FileChooserBuilder.getDirectoryChooserInstance(FileChooserActivity.getInstance())
         .allowSelectFileItems()
         .allowSelectFolderItems()
-        .setDisplayUIConfig(CustomThemeBuilder uiCfg) // Reserved for future use (see docs below)
+        .setCustomThemeStylizerConfig(CustomThemeBuilder uiCfg) // See docs below
         .setActionCode(int activityResultCode)
         .setNavigationFoldersList(List<DefaultNavFoldersType> navFoldersList)
         .showHidden(boolean enable)
@@ -215,7 +215,7 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
 The relevant ``enum`` types that can be passed as arguments to these methods include the following:
 ```java
     public enum SelectionModeType {
-        SELECT_FILE,
+        SELECT_FILE_ONLY,
         SELECT_MULTIPLE_FILES,
         SELECT_DIRECTORY_ONLY,
         SELECT_OMNIVORE
@@ -244,6 +244,23 @@ The relevant ``enum`` types that can be passed as arguments to these methods inc
         FOLDER_USER_HOME("Home", R.attr.namedFolderUserHomeIcon, BaseFolderPathType.BASE_PATH_TYPE_USER_DATA_DIR),
         FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DCIM);
     }
+```
+Some other non-display type configuration options that can be set include the following:
+```java
+FileChooserBuilder fcBuilderConfig = new FileChooserBuilder.getDirectoryChooserInstance(FileChooserActivity.getInstance())
+     /* How many default file items to store in the RecyclerView when it initially loads? */
+     .setRecyclerViewStartBufferSize(50)
+     /* The size of the non-visible, offscreen items buffer at the top and bottom of the display?
+      * Increasing this can improve scroll speed, but may also introduce delays in prefetching these items
+      * if there is not much scrolling going on from the user.
+      */
+     .setRecyclerViewNotVisibleBufferSizes(35)
+     /* Set the default fling velocity after which we dampen to improve animation speeds: */
+     .setRecyclerViewLayoutFlingDampenThreshold(500)
+     /* Speed up, or slow down the interval at which we prefetch file items to pre-buffer the
+      * offscreen RecyclerView loading for fast scrolling (in milliseconds):
+      */
+     .setRecyclerViewPrefetchThreadUpdateDelay(550L)
 ```
 
 ### Extending file types for filtering and sorting purposes in the picker UI
@@ -306,42 +323,70 @@ fcConfig.filterByRegex(String fileFilterPattern, boolean includeExcludeInList);
 
 ### Configuring the client theme and UI look-and-feel properties
 
-This part of the library, while a primary motivator for writing it and a key feature it aims to have, 
-is still under active development. I will add in documentation showing how to customize the file 
-picker themes (color schemes, icons, and other properties) as they become ready to use.
+Now that we have the scheme for passing resources to the library to skin/color/custom theme its UI down,
+the next bits are to discuss the full listing and type specs for what attributes can actually be
+changed and reset on-the-fly. Unfortunately, current Android mechanisms for
+[styling and theming](https://developer.android.com/guide/topics/ui/look-and-feel/themes)
+UI elements are limited in so much as they are confined to a single resources context.
+Among other issues, users would find that trying to merge themes with an application and a library will
+result in incompatible ``AndroidManifest.xml`` files. It also means that we cannot (yet) construct an instance
+of a ``Theme`` type class that can be invoked to stylize the layouts of an activity context external to that within
+which we are currently confined.
+The way to get around this technicality of a void specification is not sophisticated.
+It is however handled by the user that canuse a ``CustomThemeBuilder``
+instance to spec out how they want their custom style for this chooser library to look and feel
 
-#### Basic example (quickstart guide to using the file picker library styling options)
+**NOTE:** To keep the library instance launched running smoothly, tightly, and without unavoidable bloat,
+*please* compress all icon ``Drawable`` references from their native image file format to the lossless
+(but nevertheless, highly compressed)
+[*WEBP* format (linked instructions for conversions using Android Studio)](https://developer.android.com/studio/write/convert-webp).
+
+Helper and conveninece methods, such as those to obtain a color, resource, or ``Drawable``
+object from an attribute resource reference (e.g., ``R.attr.myColorNameRef``) are found as static methods at the top of
+[DisplayUtils.java](https://github.com/maxieds/AndroidFileChooserLight/blob/master/AndroidFilePickerLightLibrary/src/main/java/com/maxieds/androidfilepickerlightlibrary/DisplayUtils.java).
 
 #### Full example (detailed usage of the current custom theme/UI display options)
 
-Note that with the exception of a few predefined themes that are included as 
-default resources within the library packaging, all UI display related 
-resources passed to customize the look-and-feel of the file picker display 
-need to be resolved explicitly by the calling client activity. 
-This means, in general, if the client passes a resource identifier (integer type) 
-as the value for one of these configuration items, there is going to be an error 
-where the library does not know where to find the resource. 
-Some examples of converting the resources in the application ``/res/*`` directory 
-from ID names to a format the library can use are suggested in the next code 
-snippets:
 ```java
-/* Assumptions about the activity (not the only, option, just for clarity): */
-public class MyMainActivity extends AppCompatActivity { /* ... */ }
-MyMainActivity myRunningActivityInst = MyMainActivity.getInstance();
+CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder((Activity) myActivityInst)
+     .setPickerTitleText(R.string.title_text)
+     .setNavBarPrefixText(R.string.navbar_prefix_text)
+     .setDoneActionButtonText(R.string.done_action_text)
+     .setCancelActionButtonText(R.string.cancel_action_text)
+     .setGlobalBackButtonIcon(R.drawable.my_global_back_btn_icon_32x32)
+     .setDoneActionButtonIcon(R.drawable.my_done_checkmark_icon_24x24)
+     .setCancelActionButtonIcon(R.drawable.my_cancel_xmark_icon_24x24)
+     .generateThemeColors(R.color.themeColorBase)
+     .setActivityToolbarIcon(R.drawable.my_toolbar_logo_icon_48x48)
+     .setNavigationByPathButtonIcon(R.drawable.my_icon_32x32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_ROOT_STORAGE)
+     .setNavigationByPathButtonIcon(R.drawable.my_icon_32x32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_PICTURES)
+     .setNavigationByPathButtonIcon(R.drawable.my_icon_32x32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_CAMERA)
+     .setNavigationByPathButtonIcon(R.drawable.my_icon_32x32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_SCREENSHOTS)
+     .setNavigationByPathButtonIcon(R.drawable.my_icon_32x32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_DOWNLOADS)
+     .setNavigationByPathButtonIcon(R.drawable.my_icon_32x32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_USER_HOME)
+     .setNavigationByPathButtonIcon(R.drawable.my_icon_32x32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_MEDIA_VIDEO)
+     .setDefaultFileIcon(R.drawable.my_file_icon_16x16)
+     .setDefaultHiddenFileIcon(R.drawable.my_hidden_file_icon_16x16)
+     .setDefaultFolderIcon(R.drawable.my_folder_icon_16x16);
 
-/* Pass a new icon Drawable to replace the default setting: */
-Drawable newFolderIcon = myRunningActivityInst.getResources().getDrawable(R.id.custom_folder_icon_24x24, myRunningActivityInst.getTheme());
-
-/* Select a new custom color and get its hex-coded value: */
-int newBackgroundColor = myRunningActivityInst.getResources().getColor(R.color.custom_picker_bgcolor, myRunningActivityInst.getTheme());
-
-/* Set a new text value from a string resource: */
-String newChoosetTitleText = myRunningActivityInst.getString(R.string.custom_chooser_title_msg);
+FileChooserBuilder fcbConfig = new FileChooserBuilder();
+fcbConfig.setCustomThemeStylizerConfig(customThemeBuilder);
 ```
-Now that we have the scheme for passing resources to the library to skin/color/custom theme its UI down, 
-here is the full listing and type specs for what attributes can actually be changed and reset on-the-fly:
+Alternately, the exact colors for the theme can be specified explicitly using:
 ```java
-/* TODO: Need to add this documentation ... */
+public static final int COLOR_PRIMARY = 0;
+public static final int COLOR_PRIMARY_DARK = 1;
+public static final int COLOR_PRIMARY_VERY_DARK = 2;
+public static final int COLOR_ACCENT = 3;
+public static final int COLOR_ACCENT_MEDIUM = 4;
+public static final int COLOR_ACCENT_LIGHT = 5;
+public static final int COLOR_TOOLBAR_BG = 6;
+public static final int COLOR_TOOLBAR_FG = 7;
+public static final int COLOR_TOOLBAR_NAV = 8;
+public static final int COLOR_TOOLBAR_DIVIDER = 9;
+
+CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder((Activity) myActivityInst)
+     .setThemeColors(@ColorRes int[] colorsList);
 ```
 
 ### Misc other useful utilities and customizations bundled with the main library
@@ -367,7 +412,46 @@ This code is modified from a status timer to keep the user informed while scanni
 NFC tags on Android (see [the MFCToolLibrary](https://github.com/maxieds/MifareClassicToolLibrary) and 
 its demo application). The core of the progress bar is 
 shown by periodically posting Toast messages with a custom layout ``View``. 
-**Please do post a new issue message 
-if anyone using this library in their own application finds this useful, or amusing too 
-(input and feedback from other humans is good, in general).**
+
+#### A custom (mostly all config options inclusive) GradientDrawable builder class (TODO)
+
+The specifications (mostly collected as compendia from Android reference manuals) are reproduced as follows:
+```java
+    public enum GradientMethodSpec {
+        GRADIENT_METHOD_SWEEP,
+        GRADIENT_METHOD_LINEAR,
+        GRADIENT_METHOD_RADIAL,
+        GRADIENT_METHOD_RECTANGLE,
+        GRADIENT_METHOD_RING_LIKE
+    };
+    public enum GradientTypeSpec {
+        GRADIENT_FILL_TYPE_BL_TR,
+        GRADIENT_FILL_TYPE_BOTTOM_TOP,
+        GRADIENT_FILL_TYPE_BR_TL,
+        GRADIENT_FILL_TYPE_LEFT_RIGHT,
+        GRADIENT_FILL_TYPE_RIGHT_LEFT,
+        GRADIENT_FILL_TYPE_TL_BR,
+        GRADIENT_FILL_TYPE_TOP_BOTTOM,
+        GRADIENT_FILL_TYPE_TR_BL,
+    };
+    public enum BorderStyleSpec {
+        BORDER_STYLE_SOLID,
+        BORDER_STYLE_DASHED,
+        BORDER_STYLE_DASHED_LONG,
+        BORDER_STYLE_DASHED_SHORT,
+        BORDER_STYLE_NONE,
+    };
+    public enum NamedGradientColorThemes {
+        NAMED_COLOR_SCHEME_TURQUOISE,
+        NAMED_COLOR_SCHEME_YELLOW_TO_BLUE,
+        NAMED_COLOR_SCHEME_GREEN_YELLOW_GREEN,
+        NAMED_COLOR_SCHEME_METAL_STREAK_BILINEAR,
+        NAMED_COLOR_SCHEME_SILVER_BALLS,
+        NAMED_COLOR_SCHEME_EVENING_SKYLINE,
+        NAMED_COLOR_SCHEME_RAINBOW_STREAK,
+        NAMED_COLOR_SCHEME_STEEL_BLUE,
+        NAMED_COLOR_SCHEME_FIRE_BRIMSTONE,
+    };
+```
+
 

@@ -33,7 +33,7 @@
 
     <string name="filePickerTitleText">Select files by path</string>
     <string name="filePickerNavBarText">Navigate: </string>
-    <string name="filePickerDoneButtonText">Done</string>
-    <string name="filePickerCancelButtonText">Cancel</string>
+    <string name="filePickerDoneActionButtonText">Done</string>
+    <string name="filePickerCancelActionButtonText">Cancel</string>
 
 </resources>

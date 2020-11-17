@@ -71,15 +71,18 @@ public class FileChooserRecyclerView extends RecyclerView {
         FileChooserRecyclerView.LayoutManager rvLayoutManager = new FileChooserRecyclerView.LayoutManager(getContext());
         setLayoutManager((FileChooserRecyclerView.LayoutManager) rvLayoutManager);
         addItemDecoration(new FileChooserRecyclerView.CustomDividerItemDecoration(R.drawable.rview_file_item_divider));
-        //addOnItemTouchListener(...);
-        //((SimpleItemAnimator) getItemAnimator()).setSupportsChangeAnimations(false);
         getItemAnimator().setChangeDuration(0);
 
     }
 
     // We want it to move when flung and be responsive, but keep an approximately
     // constant rate of movement through the items:
-    private static final int FLING_VELOCITY_DAMPENAT = 500;
+    public static final int DEFAULT_FLING_VELOCITY_DAMPENAT = 500;
+
+    private static int FLING_VELOCITY_DAMPENAT = DEFAULT_FLING_VELOCITY_DAMPENAT;
+    public static void setFlingVelocityDampenAtThreshold(int nextThreshold) {
+        FLING_VELOCITY_DAMPENAT = nextThreshold;
+    }
 
     @Override
     public boolean fling(int velocityX, int velocityY) {
@@ -93,6 +96,7 @@ public class FileChooserRecyclerView extends RecyclerView {
     public interface RecyclerViewSlidingContextWindow {
 
         void setWeightBufferSize(int size);
+        int getWeightBufferSize();
 
         int getActiveCountToBalanceTop();
         int getTopBufferPosition();

@@ -22,8 +22,8 @@
     <style name="LibraryDefaultTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="filePickerTitleText">@string/filePickerTitleText</item>
         <item name="filePickerNavBarText">@string/filePickerNavBarText</item>
-        <item name="filePickerDoneButtonText">@string/filePickerDoneButtonText</item>
-        <item name="filePickerCancelButtonText">@string/filePickerCancelButtonText</item>
+        <item name="filePickerDoneButtonText">@string/filePickerDoneActionButtonText</item>
+        <item name="filePickerCancelButtonText">@string/filePickerCancelActionButtonText</item>
         <item name="namedFolderSDCardIcon">@drawable/named_folder_sdcard_icon32</item>
         <item name="defaultFileIcon">@drawable/text_file_icon32</item>
         <item name="defaultHiddenFileIcon">@drawable/hidden_file_icon32</item>

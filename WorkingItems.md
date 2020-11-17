@@ -2,7 +2,8 @@
 
 * The gradient factory new instance / static generate methods are not returning the 
   correctly formatted Drawable instances. This is lower priority, but still needs to get tracked down. 
-* Themes customized completely by users.
+* Ability for users to create / specify icon types for custom file types (see ``FileChooserBuilder.DefaultFileTypes`` enum).
+* Recent documents default path?
 
 ## Documentation and approach to handling files internally within the picker library
 

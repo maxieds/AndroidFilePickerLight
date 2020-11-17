@@ -191,6 +191,22 @@ public class FileChooserException {
 
     }
 
+    public static class InvalidIndexException extends AndroidFilePickerLightException {
+
+        private static int UNIQUE_ERROR_CODE = claimNextUniqueErrorCode();
+
+        protected static AndroidFilePickerLightException getNewInstance() {
+            return new InvalidIndexException();
+        }
+
+        public InvalidIndexException() {
+            configureExceptionParams(UNIQUE_ERROR_CODE,
+                    "Index out of expected range",
+                    true, DEFAULT_DATA_ITEMS_TYPE, null);
+        }
+
+    }
+
     public static class PermissionsErrorException extends AndroidFilePickerLightException {
 
         private static int UNIQUE_ERROR_CODE = claimNextUniqueErrorCode();

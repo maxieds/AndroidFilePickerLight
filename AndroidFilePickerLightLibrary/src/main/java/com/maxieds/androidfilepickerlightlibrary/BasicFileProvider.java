@@ -686,4 +686,14 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
+    /* TODO: Later functionality for the local BasicFileProvider: */
+    public StringBuilder readFileContentsAsString() {
+        return null;
+    }
+
+    /* TODO: Later functionality for the local BasicFileProvider: */
+    public byte[] readFileContentsAsBytesArray() {
+        return null;
+    }
+
 }

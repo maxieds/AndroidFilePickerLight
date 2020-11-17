@@ -18,6 +18,7 @@
 package com.maxieds.androidfilepickerlightlibrary;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -32,6 +33,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
 
 import java.util.Locale;
 
@@ -39,62 +42,185 @@ public class DisplayUtils {
 
     private static String LOGTAG = DisplayUtils.class.getSimpleName();
 
-    private static Activity defaultActivityContextRef = FileChooserActivity.getInstance();
-    public static void setDefaultActivityContext(Activity activityContextRef) {
-        defaultActivityContextRef = activityContextRef;
+    public static int getColorVariantFromTheme(Activity activityRef, int attrID) throws FileChooserException.InvalidActivityContextException {
+        if(activityRef == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
+        }
+        return activityRef.getTheme().obtainStyledAttributes(new int[] { attrID }).getColor(0, attrID);
     }
 
-    @ColorInt
-    public static int getColorVariantFromTheme(int attrID) {
-        if(defaultActivityContextRef == null) {
-            setDefaultActivityContext(FileChooserActivity.getInstance());
+    public static int getColorVariantFromTheme(int attrID) throws FileChooserException.InvalidActivityContextException {
+        return getColorVariantFromTheme(FileChooserActivity.getInstance(), attrID);
+    }
+
+    public static int getColorFromResource(Activity activityRef, int colorRefID) throws FileChooserException.InvalidActivityContextException {
+        if(activityRef == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
         }
-        return defaultActivityContextRef.getTheme().obtainStyledAttributes(new int[] { attrID }).getColor(0, attrID);
+        return activityRef.getResources().getColor(colorRefID, activityRef.getTheme());
     }
 
     public static int getColorFromResource(int colorRefID) throws FileChooserException.InvalidActivityContextException {
-        if(defaultActivityContextRef == null) {
-            setDefaultActivityContext(FileChooserActivity.getInstance());
+        return getColorFromResource(FileChooserActivity.getInstance(), colorRefID);
+    }
+
+    public static Drawable getDrawableFromResource(Activity activityRef, int drawableRefID) throws FileChooserException.InvalidActivityContextException {
+        if(activityRef == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
         }
-        return defaultActivityContextRef.getResources().getColor(colorRefID, defaultActivityContextRef.getTheme());
+        return activityRef.getResources().getDrawable(drawableRefID, activityRef.getTheme());
     }
 
     public static Drawable getDrawableFromResource(int drawableRefID) throws FileChooserException.InvalidActivityContextException {
-        if(defaultActivityContextRef == null) {
-            setDefaultActivityContext(FileChooserActivity.getInstance());
+        return getDrawableFromResource(FileChooserActivity.getInstance(), drawableRefID);
+    }
+
+    public static String getStringFromResource(Activity activityRef, int strRefID) throws FileChooserException.InvalidActivityContextException {
+        if(activityRef == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
         }
-        return defaultActivityContextRef.getResources().getDrawable(drawableRefID, defaultActivityContextRef.getTheme());
+        return activityRef.getString(strRefID);
     }
 
     public static String getStringFromResource(int strRefID) throws FileChooserException.InvalidActivityContextException {
-        if(defaultActivityContextRef == null) {
-            setDefaultActivityContext(FileChooserActivity.getInstance());
-        }
-        return defaultActivityContextRef.getString(strRefID);
+        return getStringFromResource(FileChooserActivity.getInstance(), strRefID);
     }
 
-    public static int resolveColorFromAttribute(int attrID) {
-        if(defaultActivityContextRef == null) {
-            setDefaultActivityContext(FileChooserActivity.getInstance());
-        }
-        if(defaultActivityContextRef == null) {
+    public static String resolveStringFromAttribute(Activity activityRef, int attrID) throws FileChooserException.InvalidActivityContextException {
+        if(activityRef == null) {
             throw new FileChooserException.InvalidThemeResourceException();
         }
         TypedValue typedValueAttr = new TypedValue();
-        defaultActivityContextRef.getTheme().resolveAttribute(attrID, typedValueAttr, true);
+        activityRef.getTheme().resolveAttribute(attrID, typedValueAttr, true);
+        return activityRef.getString(typedValueAttr.resourceId);
+    }
+
+    public static String resolveStringFromAttribute(int attrID) throws FileChooserException.InvalidActivityContextException {
+        return resolveStringFromAttribute(FileChooserActivity.getInstance(), attrID);
+    }
+
+    public static String resolveStringFromResId(Activity activityCtxRef, @StringRes int resId) {
+        try {
+            return DisplayUtils.getStringFromResource(activityCtxRef, resId);
+        } catch(Exception ex) {
+            try {
+                return DisplayUtils.resolveStringFromAttribute(activityCtxRef, resId);
+            } catch(Exception ex2) {
+                return null;
+            }
+        }
+    }
+
+    public static String resolveStringFromResId(@StringRes int resId) {
+        return resolveStringFromResId(FileChooserActivity.getInstance(), resId);
+    }
+
+    public static int resolveColorFromAttribute(Activity activityRef, int attrID) throws FileChooserException.InvalidActivityContextException {
+        if(activityRef == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
+        }
+        TypedValue typedValueAttr = new TypedValue();
+        activityRef.getTheme().resolveAttribute(attrID, typedValueAttr, true);
         return typedValueAttr.data;
     }
 
-    public static Drawable resolveDrawableFromAttribute(int attrID) {
-        if(defaultActivityContextRef == null) {
-            setDefaultActivityContext(FileChooserActivity.getInstance());
+    public static int resolveColorFromAttribute(int attrID) throws FileChooserException.InvalidActivityContextException {
+        return resolveColorFromAttribute(FileChooserActivity.getInstance(), attrID);
+    }
+
+    public static int resolveColorFromResId(Activity activityRef, int resID) throws FileChooserException.InvalidActivityContextException {
+        if(activityRef == null) {
+            throw new FileChooserException.InvalidThemeResourceException();
         }
-        if(defaultActivityContextRef == null) {
+        try {
+            return getColorVariantFromTheme(activityRef, resID);
+        } catch(Exception ex) {
+            try {
+                return getColorFromResource(activityRef, resID);
+            } catch(Exception ex2) {
+                try {
+                    return resolveColorFromAttribute(activityRef, resID);
+                }
+                catch(Exception ex3) {
+                    return resID;
+                }
+            }
+        }
+    }
+
+    public static int resolveColorFromResId(int resID) throws FileChooserException.InvalidActivityContextException {
+        return resolveColorFromResId(FileChooserActivity.getInstance(), resID);
+    }
+
+
+
+    public static Drawable resolveDrawableFromAttribute(Activity activityRef, int attrID) throws FileChooserException.InvalidActivityContextException {
+        if(activityRef == null) {
             throw new FileChooserException.InvalidThemeResourceException();
         }
         TypedValue typedValueAttr = new TypedValue();
-        defaultActivityContextRef.getTheme().resolveAttribute(attrID, typedValueAttr, true);
-        return defaultActivityContextRef.getDrawable(typedValueAttr.resourceId);
+        activityRef.getTheme().resolveAttribute(attrID, typedValueAttr, true);
+        return activityRef.getDrawable(typedValueAttr.resourceId);
+    }
+
+    public static Drawable resolveDrawableFromAttribute(int attrID) throws FileChooserException.InvalidActivityContextException {
+        return resolveDrawableFromAttribute(FileChooserActivity.getInstance(), attrID);
+    }
+
+    public static Drawable resolveDrawableFromResId(Activity activityCtxRef, @DrawableRes int resId) {
+        try {
+            return DisplayUtils.getDrawableFromResource(activityCtxRef, resId);
+        } catch(Exception ex) {
+            try {
+                return DisplayUtils.resolveDrawableFromAttribute(activityCtxRef, resId);
+            } catch(Exception ex2) {
+                return null;
+            }
+        }
+    }
+
+    public static Drawable resolveDrawableFromResId(@DrawableRes int resId) {
+        return resolveDrawableFromResId(FileChooserActivity.getInstance(), resId);
+    }
+
+    public static int lightenColor(int color, float percentToLighten) {
+        if(percentToLighten < 0.0f || percentToLighten > 1.0f) {
+            return color;
+        }
+        float[] hsvColorComps = new float[3];
+        Color.colorToHSV(color, hsvColorComps);
+        hsvColorComps[2] = 1.0f - percentToLighten * (1.0f - hsvColorComps[2]);
+        return Color.HSVToColor(hsvColorComps);
+    }
+
+    public static int darkenColor(int color, float percentToDarken) {
+        if(percentToDarken < 0.0f || percentToDarken > 1.0f) {
+            return color;
+        }
+        float[] hsvColorComps = new float[3];
+        Color.colorToHSV(color, hsvColorComps);
+        hsvColorComps[2] = percentToDarken * hsvColorComps[2];
+        return Color.HSVToColor(hsvColorComps);
+    }
+
+    public static boolean checkIconDimensions(Drawable iconInput, int dimsHeight, int dimsWidth) {
+        if(iconInput == null) {
+            return false;
+        }
+        return (iconInput.getIntrinsicHeight() == dimsHeight) && (iconInput.getIntrinsicWidth() == dimsWidth);
+    }
+
+    public static boolean checkIconDimensions(Drawable iconInput, int dimsHW) {
+        return checkIconDimensions(iconInput, dimsHW, dimsHW);
+    }
+
+    public static <T extends Object> T firstNonNull(T firstObj, T secondObj) {
+        if(firstObj != null) {
+            return firstObj;
+        }
+        else {
+            return secondObj;
+        }
     }
 
     private static void displayToastMessage(Activity activityInst, String toastMsg, int msgDuration) {
@@ -326,7 +452,7 @@ public class DisplayUtils {
             gradientDrawObj.setStroke(borderWidth, borderColor, 25, 10);
         else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_DASHED_SHORT)
             gradientDrawObj.setStroke(borderWidth, borderColor, 4, 10);
-        //gradientDrawObj.setUseLevel(true);
+        gradientDrawObj.setUseLevel(true);
         return gradientDrawObj;
     }
 
@@ -335,7 +461,7 @@ public class DisplayUtils {
                                                              NamedGradientColorThemes namedColorTheme) {
         GradientMethodSpec gmethodSpec;
         GradientTypeSpec gfillTypeSpec;
-        float angleSpec = 0.5f;
+        float angleSpec = 45.0f; // Must be a multiple of 45.0f
         int[] colorList;
         switch(namedColorTheme) {
             case NAMED_COLOR_SCHEME_TURQUOISE:
@@ -412,7 +538,7 @@ public class DisplayUtils {
                 };
                 break;
             case NAMED_COLOR_SCHEME_FIRE_BRIMSTONE:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_RADIAL;
+                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
                 gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
                 angleSpec = 45.0f;
                 colorList = new int[] {

@@ -118,13 +118,15 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
     private int bottomBufferSize;
     private boolean isInit;
 
+    public static final int DEFAULT_BALANCED_BUFFER_SIZE = 35;
+
     public PrefetchFilesUpdater() {
 
         // Set a sane default with some scroll buffer space:
         // My testing Android phone comfortably fits 12-15 layout items.
         // Let's buffer in 35 by default to not have to restruct the scroller
         // and default fling velocities too much:
-        BalancedBufferSize = 35;
+        BalancedBufferSize = DEFAULT_BALANCED_BUFFER_SIZE;
         topBufferSize = bottomBufferSize = 0;
         isInit = false;
 
@@ -336,8 +338,16 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
 
     }
 
-    private static final long THREAD_INIT_PAUSE_TIMEOUT = 125; // Milliseconds
-    private static final long THREAD_PAUSE_TIMEOUT = 550; // Milliseconds
+    private static final long THREAD_INIT_PAUSE_TIMEOUT = 125L; // Milliseconds
+    public static final long DEFAULT_THREAD_PAUSE_TIMEOUT = 550L; // Milliseconds
+
+    private static long THREAD_PAUSE_TIMEOUT = DEFAULT_THREAD_PAUSE_TIMEOUT;
+    public void setUpdateDelayTimeout(long nextDelay) {
+        THREAD_PAUSE_TIMEOUT = nextDelay;
+    }
+    public long getUpdateDelayTimeout() {
+        return THREAD_PAUSE_TIMEOUT;
+    }
 
     @Override
     public void run() {
@@ -404,6 +414,10 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
             return;
         }
         BalancedBufferSize = size;
+    }
+
+    public int getWeightBufferSize() {
+        return BalancedBufferSize;
     }
 
     public int getActiveCountToBalanceTop() {

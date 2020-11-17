@@ -121,21 +121,7 @@
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/launcher_button4"
         android:text="GO!"
-        android:onClick="actionButtonLaunchMultiPickerActivity" />
-
-    <TextView
-        style="@style/AppTheme.TextLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=" ‣ Launch a multi-file chooser (custom sort):" />
-
-    <Button
-        style="@style/AppTheme.StockButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/launcher_button5"
-        android:text="GO!"
-        android:onClick="actionButtonLaunchOmnivorousMultiPickerActivityWithCustomSort" />
+        android:onClick="actionButtonLaunchMultiPickerActivityNewTheme" />
 
     <TextView
         style="@style/AppTheme.TextLabel"

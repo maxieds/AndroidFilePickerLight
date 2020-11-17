@@ -46,60 +46,50 @@
         />
 
     <View
+        android:id="@+id/mainLayoutToolbarFirstShortDivider"
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:background="?colorToolbarDivider" />
 
     <LinearLayout
+        android:id="@+id/mainFileNavBtnsContainer"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="0dp"
-        android:layout_marginLeft="0dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
         android:padding="0dp"
-        android:layout_gravity="right|center_vertical"
-        android:gravity="right|center_vertical"
+        android:paddingLeft="6dp"
+        android:paddingRight="15dp"
+        android:layout_gravity="left|center_vertical"
+        android:gravity="left|center_vertical"
+        android:orientation="horizontal"
         android:background="?colorToolbarNav"
-        android:orientation="vertical"
         android:clickable="true"
         >
 
-        <LinearLayout
-            android:id="@+id/mainFileNavBtnsContainer"
-            android:layout_width="fill_parent"
+        <TextView
+            android:id="@+id/mainFileNavBtnsDirectiveText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:layout_marginBottom="1dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
-            android:paddingLeft="6dp"
-            android:paddingRight="15dp"
-            android:layout_gravity="left|center_vertical"
             android:gravity="left|center_vertical"
-            android:orientation="horizontal"
-            android:clickable="true"
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:layout_gravity="left|center_vertical"
-                android:layout_margin="0dp"
-                android:paddingLeft="0dp"
-                android:paddingRight="6dp"
-                android:text="@string/filePickerNavBarText"
-                android:textColor="?__colorPrimaryDark"
-                android:textSize="17sp"
-                android:textAllCaps="true"
-                android:textStyle="normal|bold"
-                android:typeface="serif"
-                />
-
-        </LinearLayout>
+            android:layout_gravity="left|center_vertical"
+            android:layout_margin="0dp"
+            android:paddingLeft="0dp"
+            android:paddingRight="6dp"
+            android:text="@string/filePickerNavBarText"
+            android:textColor="?__colorPrimaryDark"
+            android:textSize="17sp"
+            android:textAllCaps="true"
+            android:textStyle="normal|bold"
+            android:typeface="serif"
+            />
 
     </LinearLayout>
 
     <View
+        android:id="@+id/mainLayoutShortDivider2"
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:background="?colorToolbarDivider" />
@@ -156,6 +146,7 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/mainLayoutShortDivider3"
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:background="?colorToolbarDivider" />
@@ -179,7 +170,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="0dp"
-            android:background="?__colorPrimary"
             android:gravity="center_horizontal|top"
             android:layout_gravity="center_horizontal|top"
             android:orientation="vertical"
@@ -197,11 +187,13 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/mainLayoutShortDivider4"
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:background="?colorToolbarDivider" />
 
     <LinearLayout
+        android:id="@+id/bottomActionButtonsNavLayoutContainer"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="0dp"
@@ -226,7 +218,7 @@
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
             android:textColor="?__colorAccentMedium"
-            android:text="Cancel"
+            android:text="@string/filePickerCancelActionButtonText"
             android:textAllCaps="true"
             android:textSize="14sp"
             android:textStyle="normal|bold"
@@ -251,7 +243,7 @@
             android:gravity="right|center_vertical"
             android:layout_gravity="right|center_vertical"
             android:textColor="?__colorAccentMedium"
-            android:text="Done"
+            android:text="@string/filePickerDoneActionButtonText"
             android:textAllCaps="true"
             android:textSize="14sp"
             android:textStyle="normal|bold"

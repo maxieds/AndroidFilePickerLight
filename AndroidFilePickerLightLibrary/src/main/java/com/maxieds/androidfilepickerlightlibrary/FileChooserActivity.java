@@ -20,6 +20,7 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -62,13 +63,29 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public void setTopLevelBaseFolder(FileChooserBuilder.BaseFolderPathType tlFolder) { topLevelBaseFolder = tlFolder; }
 
     private PrefetchFilesUpdater prefetchFilesUpdaterInst;
+
     public void startPrefetchFileUpdatesThread() {
         if(prefetchFilesUpdaterInst.isAlive()) {
             prefetchFilesUpdaterInst.interrupt();
         }
+        int lastBalancedBufferSize = prefetchFilesUpdaterInst.getWeightBufferSize();
+        long lastUpdateDelayMillis = prefetchFilesUpdaterInst.getUpdateDelayTimeout();
         prefetchFilesUpdaterInst = new PrefetchFilesUpdater();
+        prefetchFilesUpdaterInst.setWeightBufferSize(lastBalancedBufferSize);
+        prefetchFilesUpdaterInst.setUpdateDelayTimeout(lastUpdateDelayMillis);
         prefetchFilesUpdaterInst.start();
     }
+
+    public void startPrefetchFileUpdatesThread(int balancedBufferSize, long updateDelayMillis) {
+        if(prefetchFilesUpdaterInst.isAlive()) {
+            prefetchFilesUpdaterInst.interrupt();
+        }
+        prefetchFilesUpdaterInst = new PrefetchFilesUpdater();
+        prefetchFilesUpdaterInst.setWeightBufferSize(balancedBufferSize);
+        prefetchFilesUpdaterInst.setUpdateDelayTimeout(updateDelayMillis);
+        prefetchFilesUpdaterInst.start();
+    }
+
     public void stopPrefetchFileUpdatesThread() { prefetchFilesUpdaterInst.interrupt(); }
 
     /**
@@ -118,7 +135,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         topLevelBaseFolder = fpConfig.getInitialBaseFolder();
         prefetchFilesUpdaterInst = new PrefetchFilesUpdater();
-        startPrefetchFileUpdatesThread();
+        startPrefetchFileUpdatesThread(
+                fpConfig.getRecyclerViewNotVisibleBufferSize(),
+                fpConfig.getRecyclerViewPrefetchThreadUpdateDelay()
+        );
 
         long idleTimeout = fpConfig.getIdleTimeout();
         if(idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {
@@ -136,19 +156,31 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     private void configureInitialMainLayout(FileChooserBuilder fpConfig) {
 
+        CustomThemeBuilder.FileChooserActivityMainLayoutStylizer mainLayoutStylizer = null;
+        if(fpConfig.getCustomThemeStylizerConfig() != null) {
+            mainLayoutStylizer = fpConfig.getCustomThemeStylizerConfig().createActivityMainLayoutStylizer();
+            mainLayoutStylizer.styleMainActivityLayout(findViewById(R.id.fileChooserActivityMainLayoutParentContainer));
+            getDisplayFragmentsInstance().setFileItemLayoutStylizer(fpConfig.getCustomThemeStylizerConfig().createFileItemLayoutStylizer(), true);
+        }
+
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
-        actionBar.setTitle(String.format(Locale.getDefault(), "    %s (v%s)", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
-        actionBar.setSubtitle(String.format(Locale.getDefault(), "    ⇤%s⇥", getString(R.string.filePickerTitleText)));
-        actionBar.setTitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
-        actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
+        if(mainLayoutStylizer == null) {
+            actionBar.setTitle(String.format(Locale.getDefault(), "    %s (v%s)", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
+            actionBar.setSubtitle(String.format(Locale.getDefault(), "    ⇤%s⇥", getString(R.string.filePickerTitleText)));
+            actionBar.setTitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
+            actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
+            actionBar.setLogo(getDrawable(R.drawable.file_chooser_default_toolbar_icon48));
+            getWindow().setTitleColor(DisplayUtils.getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
+            getWindow().setStatusBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorPrimaryDark));
+            getWindow().setNavigationBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorPrimaryDark));
+        }
+        else {
+            mainLayoutStylizer.styleMainActivityWindow(getWindow());
+        }
         actionBar.setTitleMargin(10, 3, 5, 3);
         actionBar.setPadding(5, 8, 5, 6);
         actionBar.setElevation(1.25f);
-        actionBar.setLogo(getDrawable(R.drawable.file_chooser_default_toolbar_icon48));
-        getWindow().setTitleColor(DisplayUtils.getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
-        getWindow().setStatusBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorPrimaryDark));
-        getWindow().setNavigationBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorPrimaryDark));
 
         /* Initialize the next level of nav for the default folder paths selection buttons: */
         List<FileChooserBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
@@ -173,8 +205,13 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 }
             };
             dirNavBtn.setOnClickListener(stockDirNavBtnClickHandler);
-            dirNavBtn.setBackgroundColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorToolbarNav));
-            dirNavBtn.setImageDrawable(DisplayUtils.resolveDrawableFromAttribute(defaultDirNavFolders.get(folderIdx).getFolderIconResId()));
+            if(mainLayoutStylizer == null) {
+                dirNavBtn.setBackgroundColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorToolbarNav));
+                dirNavBtn.setImageDrawable(DisplayUtils.resolveDrawableFromAttribute(defaultDirNavFolders.get(folderIdx).getFolderIconResId()));
+            }
+            else {
+                mainLayoutStylizer.styleDefaultPathNavigationButton(dirNavBtn, baseFolderType);
+            }
             fileDirsNavButtonsContainer.addView(dirNavBtn);
         }
 
@@ -238,7 +275,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
         /* Setup some theme related styling on the main file list container: */
         FileChooserRecyclerView mainLayoutRecyclerView = findViewById(R.id.mainRecyclerView);
-        getDisplayFragmentsInstance().initializeRecyclerViewLayout(mainLayoutRecyclerView);
+        getDisplayFragmentsInstance().initializeRecyclerViewLayout(mainLayoutRecyclerView, fpConfig);
         getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
     }
@@ -246,17 +283,11 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     @Override
     public void onPause() {
         super.onPause();
-        //if(prefetchFilesUpdaterInst.isAlive()) {
-        //    stopPrefetchFileUpdatesThread();
-        //}
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        //if(prefetchFilesUpdaterInst.isInterrupted()) {
-        //    startPrefetchFileUpdatesThread();
-        //}
     }
 
     @Override

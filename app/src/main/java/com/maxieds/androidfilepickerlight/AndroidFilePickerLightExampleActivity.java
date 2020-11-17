@@ -138,9 +138,16 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         fpInst.launchFilePicker();
     }
 
-    public void actionButtonLaunchMultiPickerActivity(View btnView) {}
-
-    public void actionButtonLaunchOmnivorousMultiPickerActivityWithCustomSort(View btnView) {}
+    public void actionButtonLaunchMultiPickerActivityNewTheme(View btnView) {
+        FileChooserBuilder fpInst = new FileChooserBuilder(this);
+        fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE);
+        fpInst.setSelectMultiple(5);
+        fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
+        fpInst.showHidden(true);
+        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+        // TODO: Set the theme ...
+        fpInst.launchFilePicker();
+    }
 
     private static int progressBarDemoCount = 0;
     private static final int progressBarDemoDelta = 50;

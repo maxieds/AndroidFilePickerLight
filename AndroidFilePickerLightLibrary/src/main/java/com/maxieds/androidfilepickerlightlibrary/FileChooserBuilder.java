@@ -66,8 +66,8 @@ public class FileChooserBuilder implements Serializable {
                 new String[] { "application/octet-stream", "text/*" }),
         APK_FILE_TYPE(R.drawable.apk_file_icon32, "APK",
                 new String[] { "apk", "aab" }, new String[] { "application/vnd.android.package-archive" }),
-        CUSTOM_FILE_TYPE(R.drawable.unknown_file_icon32, "Custom", new String[] {}, new String[] { "*/*" }),
-        UNKNOWN_FILE_TYPE(R.drawable.unknown_file_icon32, "Unknown", new String[] {}, new String[] { "*/*" });
+        UNKNOWN_FILE_TYPE(R.drawable.unknown_file_icon32, "Unknown", new String[] {}, new String[] { "*/*" }),
+        CUSTOM_FILE_TYPE(R.drawable.unknown_file_icon32, "Custom", new String[] {}, new String[] { "*/*" }),;
 
         private int iconResId;
         private String typeShortDesc;
@@ -81,8 +81,6 @@ public class FileChooserBuilder implements Serializable {
             supportedMimeTypes = mimeTypesParam;
         }
 
-        /* TODO: Add accessor methods and ability to construct a FileFilter comparator for the type ... */
-
     }
 
     public enum DefaultNavFoldersType {
@@ -95,15 +93,19 @@ public class FileChooserBuilder implements Serializable {
         FOLDER_USER_HOME("Home", R.attr.namedFolderUserHomeIcon, BaseFolderPathType.BASE_PATH_TYPE_USER_DATA_DIR),
         FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DCIM);
 
+        public static final Map<Integer, DefaultNavFoldersType> NAV_FOLDER_INDEX_LOOKUP_MAP = new HashMap<>();
         public static final Map<String, DefaultNavFoldersType> NAV_FOLDER_NAME_LOOKUP_MAP = new HashMap<>();
         public static final Map<DefaultNavFoldersType, String> NAV_FOLDER_DESC_MAP = new HashMap<>();
         public static final Map<DefaultNavFoldersType, BaseFolderPathType> NAV_FOLDER_PATHS_MAP = new HashMap<>();
+        public static final Map<BaseFolderPathType, DefaultNavFoldersType> NAV_FOLDER_PATHS_REVMAP = new HashMap<>();
         public static final Map<Integer, Integer> NAV_FOLDER_ICON_RESIDS_MAP = new HashMap<>();
         static {
             for (DefaultNavFoldersType navType : values()) {
+                NAV_FOLDER_INDEX_LOOKUP_MAP.put(navType.ordinal(), navType);
                 NAV_FOLDER_NAME_LOOKUP_MAP.put(navType.name(), navType);
                 NAV_FOLDER_DESC_MAP.put(navType, navType.getFolderLabel());
                 NAV_FOLDER_PATHS_MAP.put(navType, navType.getBaseFolderPathType());
+                NAV_FOLDER_PATHS_REVMAP.put(navType.getBaseFolderPathType(), navType);
                 NAV_FOLDER_ICON_RESIDS_MAP.put(navType.ordinal(), navType.getFolderIconResId());
             }
         }
@@ -193,38 +195,34 @@ public class FileChooserBuilder implements Serializable {
     }
 
     public enum SelectionModeType {
-        SELECT_FILE,
+        SELECT_FILE_ONLY,
         SELECT_MULTIPLE_FILES,
         SELECT_DIRECTORY_ONLY,
         SELECT_OMNIVORE
-    }
-
-    public int getFileSelectionModeMask(SelectionModeType selectMode) {
-        return 1 << selectMode.ordinal();
     }
 
     private static FileChooserBuilder localActivityBuildeStaticInst;
     public static FileChooserBuilder getInstance() { return localActivityBuildeStaticInst; }
 
     private WeakReference<Activity> activityContextRef;
-    public Activity getClientActivityReference() {
-        return activityContextRef.get();
-    }
-
     private FileChooserException.AndroidFilePickerLightException defaultExceptionType;
     private CustomThemeBuilder displayUIConfig;
     private int activityActionCode;
     private List<DefaultNavFoldersType> defaultNavFoldersList;
     private boolean showHidden;
     private int maxSelectedFiles;
-    private int localThemeResId;
     private BaseFolderPathType initFolderBasePathType;
-    private String initFolderSubDirName;
     private SelectionModeType pathSelectMode;
     private ContentProvider externalFilesProvider;
     private long idleTimeoutMillis;
     private FileFilter.FileFilterBase localFileFilter;
     private FileFilter.FileItemsSortFunc customSortFunc;
+
+    // Non-display type configuration:
+    private int recyclerViewStartBufferSize;
+    private int recyclerViewNotVisibleBufferSize;
+    private int recyclerViewLayoutFlingDampenThreshold;
+    private long prefetchThreadUpdateDelay;
 
     public static final long NO_ABORT_TIMEOUT = -1;
     public static final long DEFAULT_TIMEOUT = 250 * 1000;
@@ -235,16 +233,19 @@ public class FileChooserBuilder implements Serializable {
         activityContextRef = new WeakReference<Activity>(activityContextInst);
         defaultExceptionType = FileChooserException.CommunicateSelectionDataException.getNewInstance();
         displayUIConfig = null;
-        activityActionCode = ACTIVITY_CODE_SELECT_FILE;
+        activityActionCode = ACTIVITY_CODE_SELECT_FILE_ONLY;
         defaultNavFoldersList = getDefaultNavFoldersList();
         showHidden = false;
         maxSelectedFiles = DEFAULT_MAX_SELECTED_FILES;
-        localThemeResId = R.style.LibraryDefaultTheme;
         initFolderBasePathType = BaseFolderPathType.getInstanceByType(BaseFolderPathType.BASE_PATH_TYPE_FILES_DIR);
         pathSelectMode = SelectionModeType.SELECT_OMNIVORE;
         externalFilesProvider = null;
         idleTimeoutMillis = DEFAULT_TIMEOUT;
         localFileFilter = null;
+        recyclerViewStartBufferSize = DisplayFragments.DEFAULT_VIEWPORT_FILE_ITEMS_COUNT;
+        recyclerViewNotVisibleBufferSize = PrefetchFilesUpdater.DEFAULT_BALANCED_BUFFER_SIZE;
+        recyclerViewLayoutFlingDampenThreshold = FileChooserRecyclerView.DEFAULT_FLING_VELOCITY_DAMPENAT;
+        prefetchThreadUpdateDelay = PrefetchFilesUpdater.DEFAULT_THREAD_PAUSE_TIMEOUT;
     }
 
     public static FileChooserBuilder getSingleFilePickerInstance(Activity activityContextInst) {
@@ -257,9 +258,9 @@ public class FileChooserBuilder implements Serializable {
 
     public static FileChooserBuilder getDirectoryChooserInstance(Activity activityContextInst) {
         FileChooserBuilder pickerBuilderInst = new FileChooserBuilder(activityContextInst);
-        pickerBuilderInst.setSelectionMode(SelectionModeType.SELECT_FILE);
+        pickerBuilderInst.setSelectionMode(SelectionModeType.SELECT_FILE_ONLY);
         pickerBuilderInst.maxSelectedFiles = 1;
-        pickerBuilderInst.setActionCode(ACTIVITY_CODE_SELECT_FILE);
+        pickerBuilderInst.setActionCode(ACTIVITY_CODE_SELECT_FILE_ONLY);
         return pickerBuilderInst;
     }
 
@@ -269,10 +270,38 @@ public class FileChooserBuilder implements Serializable {
 
     public boolean allowSelectFolderItems() {
         return pathSelectMode.ordinal() == SelectionModeType.SELECT_DIRECTORY_ONLY.ordinal() ||
-                pathSelectMode.ordinal() != SelectionModeType.SELECT_FILE.ordinal();
+                pathSelectMode.ordinal() != SelectionModeType.SELECT_FILE_ONLY.ordinal();
     }
 
-    public FileChooserBuilder setDisplayUIConfig(CustomThemeBuilder uiCfg) {
+    public FileChooserBuilder setRecyclerViewStartBufferSize(int newBufSize) {
+        if(newBufSize > 0) {
+            recyclerViewStartBufferSize = newBufSize;
+        }
+        return this;
+    }
+
+    public FileChooserBuilder setRecyclerViewNotVisibleBufferSizes(int newBufSize) {
+        if(newBufSize > 0) {
+            recyclerViewNotVisibleBufferSize = newBufSize;
+        }
+        return this;
+    }
+
+    public FileChooserBuilder setRecyclerViewLayoutFlingDampenThreshold(int newThreshold) {
+        if(newThreshold > 0) {
+            recyclerViewLayoutFlingDampenThreshold = newThreshold;
+        }
+        return this;
+    }
+
+    public FileChooserBuilder setRecyclerViewPrefetchThreadUpdateDelay(long newUpdateThreadDelayMillis) {
+        if(newUpdateThreadDelayMillis >= 0) {
+            prefetchThreadUpdateDelay = newUpdateThreadDelayMillis;
+        }
+        return this;
+    }
+
+    public FileChooserBuilder setCustomThemeStylizerConfig(CustomThemeBuilder uiCfg) {
         displayUIConfig = uiCfg;
         return this;
     }
@@ -290,10 +319,6 @@ public class FileChooserBuilder implements Serializable {
     public FileChooserBuilder showHidden(boolean enable) {
         showHidden = enable;
         return this;
-    }
-
-    public FileChooserBuilder setBaseTheme(int localThemeResId) {
-        throw new FileChooserException.NotImplementedException();
     }
 
     public FileChooserBuilder setSelectMultiple(int maxFileInsts) {
@@ -347,7 +372,7 @@ public class FileChooserBuilder implements Serializable {
         return idleTimeoutMillis;
     }
 
-    public CustomThemeBuilder getCustomThemeConfig() {
+    public CustomThemeBuilder getCustomThemeStylizerConfig() {
         return displayUIConfig;
     }
 
@@ -379,6 +404,22 @@ public class FileChooserBuilder implements Serializable {
         return customSortFunc;
     }
 
+    public int getRecyclerViewStartBufferSize() {
+        return recyclerViewStartBufferSize;
+    }
+
+    public int getRecyclerViewNotVisibleBufferSize() {
+        return recyclerViewNotVisibleBufferSize;
+    }
+
+    public int getRecyclerViewLayoutFlingDampenThreshold() {
+        return recyclerViewLayoutFlingDampenThreshold;
+    }
+
+    public long getRecyclerViewPrefetchThreadUpdateDelay() {
+        return prefetchThreadUpdateDelay;
+    }
+
     public static final String FILE_PICKER_INTENT_DATA_TYPE_KEY = "FilePickerIntentKey.SelectedIntentDataType";
     public static final String FILE_PICKER_INTENT_DATA_PAYLOAD_KEY = "FilePickerIntentKey.SelectedIntentDataPayloadList";
     public static final String FILE_PICKER_EXCEPTION_MESSAGE_KEY = "FilePickerIntentKey.UnexpectedExitMessage";
@@ -392,7 +433,7 @@ public class FileChooserBuilder implements Serializable {
     }
 
     private static final int FILE_PICKER_SWIZZLED_BITS_OFFSET = (8080 << 3) + 2;
-    public static final int ACTIVITY_CODE_SELECT_FILE = 1 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
+    public static final int ACTIVITY_CODE_SELECT_FILE_ONLY = 1 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
     public static final int ACTIVITY_CODE_SELECT_DIRECTORY_ONLY = 2 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
     public static final int ACTIVITY_CODE_SELECT_MULTIPLE_FILES = 3 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
 
@@ -405,7 +446,7 @@ public class FileChooserBuilder implements Serializable {
             throw new FileChooserException.CommunicateNoDataException();
         }
         switch(requestCode) {
-            case ACTIVITY_CODE_SELECT_FILE:
+            case ACTIVITY_CODE_SELECT_FILE_ONLY:
             case ACTIVITY_CODE_SELECT_DIRECTORY_ONLY:
             case ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
                 if(resultCode == RESULT_OK) {
@@ -445,14 +486,6 @@ public class FileChooserBuilder implements Serializable {
         bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         activityInst.startActivity(bringToFrontIntent);
         //ActivityCompat.finishAffinity(this);
-    }
-
-    public StringBuilder readFileContentsAsString() {
-        return null;
-    }
-
-    public byte[] readFileContentsAsBytesArray() {
-        return null;
     }
 
 }
