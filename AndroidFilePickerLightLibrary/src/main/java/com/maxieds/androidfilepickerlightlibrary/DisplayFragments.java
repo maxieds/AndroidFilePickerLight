@@ -309,17 +309,16 @@ public class DisplayFragments {
                 } else {
                     fileTypeIcon.setImageDrawable(getInstance().folderIconInst);
                 }
+                TextView fileSizeText = layoutContainer.findViewById(R.id.fileEntrySizeText);
+                fileSizeText.setText(fileItem.getFileSizeString());
+                TextView filePermsSummary = layoutContainer.findViewById(R.id.fileEntryPermsSummaryText);
+                filePermsSummary.setText(fileItem.getChmodStylePermissions());
+                TextView fileBaseNameDisplayText = layoutContainer.findViewById(R.id.fileEntryBaseName);
+                fileBaseNameDisplayText.setText(fileItem.getBaseName());
             }
             else {
                 fileItemLayoutStylizer.applyStyleToLayout(layoutContainer, fileItem);
             }
-
-            TextView fileSizeText = layoutContainer.findViewById(R.id.fileEntrySizeText);
-            fileSizeText.setText(fileItem.getFileSizeString());
-            TextView filePermsSummary = layoutContainer.findViewById(R.id.fileEntryPermsSummaryText);
-            filePermsSummary.setText(fileItem.getChmodStylePermissions());
-            TextView fileBaseNameDisplayText = layoutContainer.findViewById(R.id.fileEntryBaseName);
-            fileBaseNameDisplayText.setText(fileItem.getBaseName());
 
             boolean displaySelectionBox = (fileItem.isDirectory() && getInstance().allowSelectFolders) ||
                     (!fileItem.isDirectory() && getInstance().allowSelectFiles);

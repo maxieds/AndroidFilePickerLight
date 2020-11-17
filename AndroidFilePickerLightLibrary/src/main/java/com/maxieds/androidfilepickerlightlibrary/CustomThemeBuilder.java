@@ -20,9 +20,11 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -63,7 +65,26 @@ public class CustomThemeBuilder {
         toolbarIconResId = NULL_RESOURCE_ID;
         useToolbarGradients = false;
         navBtnIconResIdMap = new HashMap<FileChooserBuilder.DefaultNavFoldersType, Integer>();
+        actionButtonTextSize = 14;
+        actionButtonTypeface = Typeface.SERIF;
+        actionButtonTextAllCaps = true;
+        actionButtonTextStyle = Typeface.BOLD;
+        navBtnPrefixTextSize = 17;
+        navBtnPrefixTextAllCaps = true;
+        navBtnPrefixTypeface = Typeface.SERIF;
+        navBtnPrefixTextStyle = Typeface.BOLD;
+        navBtnLongDisplayTextSize = 8;
+        navBtnLongDisplayTextAllCaps = false;
+        navBtnLongDisplayTypeface = Typeface.SERIF;
+        navBtnLongDisplayTextStyle = Typeface.BOLD_ITALIC;
         fileIconResId = fileHiddenIconResId = folderIconResId = NULL_RESOURCE_ID;
+        showFileItemMetaPropsVisible = true;
+        fileItemMetaPropsTextSize = 8;
+        fileItemMetaPropsTextStyle = Typeface.BOLD;
+        fileItemPermsDisplayStyle = FileItemPermissionsDisplayStyle.PERMISSIONS_DISPLAY_OCTAL_STYLE;
+        fileItemNameTextSize = 10;
+        fileItemNameTypeface = Typeface.SERIF;
+        fileItemNameTextStyle = Typeface.NORMAL;
     }
 
     private int pickerTitleTextResId;
@@ -253,6 +274,81 @@ public class CustomThemeBuilder {
         return 32; // pixels
     }
 
+    private int actionButtonTextSize;
+    private Typeface actionButtonTypeface;
+    private boolean actionButtonTextAllCaps;
+    private int actionButtonTextStyle;
+
+    public CustomThemeBuilder setActionButtonTextSize(int textSize) {
+        actionButtonTextSize = textSize;
+        return this;
+    }
+
+    public CustomThemeBuilder setActionButtonTypeface(Typeface textTypeFace) {
+        actionButtonTypeface = textTypeFace;
+        return this;
+    }
+
+    public CustomThemeBuilder setActionButtonTextAllCaps(boolean allCaps) {
+        actionButtonTextAllCaps = allCaps;
+        return this;
+    }
+
+    public CustomThemeBuilder setActionButtonTextStyle(int textStyle) {
+        actionButtonTextStyle = textStyle;
+        return this;
+    }
+
+    private int navBtnPrefixTextSize;
+    private boolean navBtnPrefixTextAllCaps;
+    private Typeface navBtnPrefixTypeface;
+    private int navBtnPrefixTextStyle;
+
+    public CustomThemeBuilder setNavButtonPrefixTextSize(int textSize) {
+        navBtnPrefixTextSize = textSize;
+        return this;
+    }
+
+    public CustomThemeBuilder setNavButtonPrefixTextAllCaps(boolean allCaps) {
+        navBtnPrefixTextAllCaps = allCaps;
+        return this;
+    }
+
+    public CustomThemeBuilder setNavButtonPrefixTypeface(Typeface textTypeFace) {
+        navBtnPrefixTypeface = textTypeFace;
+        return this;
+    }
+
+    public CustomThemeBuilder setNavButtonPrefixTextStyle(int textStyle) {
+        navBtnPrefixTextStyle = textStyle;
+        return this;
+    }
+
+    private int navBtnLongDisplayTextSize;
+    private boolean navBtnLongDisplayTextAllCaps;
+    private Typeface navBtnLongDisplayTypeface;
+    private int navBtnLongDisplayTextStyle;
+
+    public CustomThemeBuilder setNavButtonLongDisplayTextSize(int textSize) {
+        navBtnLongDisplayTextSize = textSize;
+        return this;
+    }
+
+    public CustomThemeBuilder setNavButtonLongDisplayTextAllCaps(boolean allCaps) {
+        navBtnLongDisplayTextAllCaps = allCaps;
+        return this;
+    }
+
+    public CustomThemeBuilder setNavButtonLongDisplayTypeface(Typeface textTypeFace) {
+        navBtnLongDisplayTypeface = textTypeFace;
+        return this;
+    }
+
+    public CustomThemeBuilder setNavButtonLongDisplayTextStyle(int textStyle) {
+        navBtnLongDisplayTextStyle = textStyle;
+        return this;
+    }
+
     public interface FileChooserActivityMainLayoutStylizer {
         boolean styleNavigationDisplayToolbar(Toolbar toolbar);
         boolean styleNavigationByPathsBaseDisplay(TextView tvNavBtnsDirective);
@@ -317,6 +413,18 @@ public class CustomThemeBuilder {
             private final Drawable _globalBackBtnIcon = _globalBackBtnIconFinal;
             private final Drawable _doneActionBtnIcon = _doneActionBtnIconFinal;
             private final Drawable _cancelActionBtnIcon = _cancelActionBtnIconFinal;
+            private final int _actionButtonTextSize = actionButtonTextSize;
+            private final Typeface _actionButtonTypeface = actionButtonTypeface;
+            private final boolean _actionButtonTextAllCaps = actionButtonTextAllCaps;
+            private final int _actionButtonTextStyle = actionButtonTextStyle;
+            private final int _navBtnPrefixTextSize = navBtnPrefixTextSize;
+            private final boolean _navBtnPrefixTextAllCaps = navBtnPrefixTextAllCaps;
+            private final Typeface _navBtnPrefixTypeface = navBtnPrefixTypeface;
+            private final int _navBtnPrefixTextStyle = navBtnPrefixTextStyle;
+            private final int _navBtnLongDisplayTextSize = navBtnLongDisplayTextSize;
+            private final boolean _navBtnLongDisplayTextAllCaps = navBtnLongDisplayTextAllCaps;
+            private final Typeface _navBtnLongDisplayTypeface = navBtnLongDisplayTypeface;
+            private final int _navBtnLongDisplayTextStyle = navBtnLongDisplayTextStyle;
 
             @Override
             public boolean styleNavigationDisplayToolbar(Toolbar toolbar) {
@@ -369,6 +477,9 @@ public class CustomThemeBuilder {
                     return false;
                 }
                 navBtnLongDesc.setTextColor(_themeColorScheme.getColorPrimaryDark());
+                navBtnLongDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, _navBtnLongDisplayTextSize);
+                navBtnLongDesc.setAllCaps(_navBtnLongDisplayTextAllCaps);
+                navBtnLongDesc.setTypeface(_navBtnLongDisplayTypeface, _navBtnLongDisplayTextStyle);
                 return true;
             }
 
@@ -377,6 +488,9 @@ public class CustomThemeBuilder {
                 if(tvNavBtnsDirective == null) {
                     return false;
                 }
+                tvNavBtnsDirective.setTextSize(TypedValue.COMPLEX_UNIT_SP, _navBtnPrefixTextSize);
+                tvNavBtnsDirective.setAllCaps(_navBtnPrefixTextAllCaps);
+                tvNavBtnsDirective.setTypeface(_navBtnPrefixTypeface, _navBtnPrefixTextStyle);
                 tvNavBtnsDirective.setText(_navBarPrefixText);
                 tvNavBtnsDirective.setTextColor(_themeColorScheme.getColorPrimaryDark());
                 return true;
@@ -389,10 +503,16 @@ public class CustomThemeBuilder {
                 }
                 int btnBGColor = _useToolbarGradients ? _themeColorScheme.getColorTransparent() : _themeColorScheme.getColorAccentLight();
                 doneActionBtn.setBackgroundColor(btnBGColor);
+                doneActionBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, _actionButtonTextSize);
+                doneActionBtn.setTypeface(_actionButtonTypeface, _actionButtonTextStyle);
+                doneActionBtn.setAllCaps(_actionButtonTextAllCaps);
                 doneActionBtn.setTextColor(_themeColorScheme.getColorAccentMedium());
                 doneActionBtn.setText(_doneActionBtnText);
                 doneActionBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(_doneActionBtnIcon, null, null, null);
                 cancelActionBtn.setBackgroundColor(btnBGColor);
+                cancelActionBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, _actionButtonTextSize);
+                cancelActionBtn.setTypeface(_actionButtonTypeface, _actionButtonTextStyle);
+                cancelActionBtn.setAllCaps(_actionButtonTextAllCaps);
                 cancelActionBtn.setTextColor(_themeColorScheme.getColorAccentMedium());
                 cancelActionBtn.setText(_cancelActionBtnText);
                 cancelActionBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(_cancelActionBtnIcon, null, null, null);
@@ -513,6 +633,55 @@ public class CustomThemeBuilder {
         return 16; // pixels
     }
 
+    private boolean showFileItemMetaPropsVisible;
+    private int fileItemMetaPropsTextSize;
+    private int fileItemMetaPropsTextStyle;
+    private FileItemPermissionsDisplayStyle fileItemPermsDisplayStyle;
+
+    public CustomThemeBuilder setFileItemMetaDataPropertiesTextVisible(boolean show) {
+        showFileItemMetaPropsVisible = show;
+        return this;
+    }
+
+    public CustomThemeBuilder setFileItemMetaDataPropertiesTextSize(int textSize) {
+        fileItemMetaPropsTextSize = textSize;
+        return this;
+    }
+
+    public CustomThemeBuilder setFileItemMetaDataPropertiesTextStyle(int textStyle) {
+        fileItemMetaPropsTextStyle = textStyle;
+        return this;
+    }
+
+    public enum FileItemPermissionsDisplayStyle {
+        PERMISSIONS_DISPLAY_OCTAL_STYLE,
+        PERMISSIONS_DISPLAY_POSIX_STYLE;
+    }
+
+    public CustomThemeBuilder setFileItemMetaDataPermissionsDisplayStyle(FileItemPermissionsDisplayStyle displayStyle) {
+        fileItemPermsDisplayStyle = displayStyle;
+        return this;
+    }
+
+    private int fileItemNameTextSize;
+    private Typeface fileItemNameTypeface;
+    private int fileItemNameTextStyle;
+
+    public CustomThemeBuilder setFileItemNameTextSize(int textSize) {
+        fileItemNameTextSize = textSize;
+        return this;
+    }
+
+    public CustomThemeBuilder setFileItemNameTypeface(Typeface textTypeface) {
+        fileItemNameTypeface = textTypeface;
+        return this;
+    }
+
+    public CustomThemeBuilder setFileItemNameTextStyle(int textStyle) {
+        fileItemNameTextStyle = textStyle;
+        return this;
+    }
+
     public interface FileItemLayoutStylizer {
         FileChooserColorScheme getThemeColorizer();
         boolean setFileTypeIcon(ImageView imgBtn, DisplayTypes.FileType fileItemEntry);
@@ -531,15 +700,23 @@ public class CustomThemeBuilder {
         final Drawable fileIconFinal = DisplayUtils.resolveDrawableFromResId(activityCtx, fileIconResId);
         final Drawable fileHiddenIconFinal = DisplayUtils.resolveDrawableFromResId(activityCtx, fileHiddenIconResId);
         final Drawable folderIconFinal = DisplayUtils.resolveDrawableFromResId(activityCtx, folderIconResId);
+
         if(fileIconFinal == null || fileHiddenIconFinal == null || folderIconFinal == null) {
             return null;
         }
         return new FileItemLayoutStylizer() {
 
+            private final FileChooserColorScheme _themeColorScheme = themeColorScheme;
             private final Drawable _fileIcon = fileIconFinal;
             private final Drawable _fileHiddenIcon = fileHiddenIconFinal;
             private final Drawable _folderIcon = folderIconFinal;
-            private final FileChooserColorScheme _themeColorScheme = themeColorScheme;
+            private final boolean _fileItemMetaDataVisible = showFileItemMetaPropsVisible;
+            private final int _fileItemMetaDataTextSize = fileItemMetaPropsTextSize;
+            private final int _fileItemMetaDataTextStyle = fileItemMetaPropsTextStyle;
+            private final FileItemPermissionsDisplayStyle _fileItemPermsDisplayStyle = fileItemPermsDisplayStyle;
+            private final int _fileItemNameTextSize = fileItemNameTextSize;
+            private final Typeface _fileItemNameTypeface = fileItemNameTypeface;
+            private final int _fileItemNameTextStyle = fileItemNameTextStyle;
 
             @Override
             public FileChooserColorScheme getThemeColorizer() { return _themeColorScheme; }
@@ -597,9 +774,31 @@ public class CustomThemeBuilder {
                 else {
                     containerLayout.setBackgroundColor(_themeColorScheme.getColorPrimary());
                     tvPermsSummary.setTextColor(_themeColorScheme.getColorAccent());
-                    tvPropsDivider.setTextColor(_themeColorScheme.getColorAccent());
-                    tvFileSize.setTextColor(_themeColorScheme.getColorAccent());
+                    tvPermsSummary.setText(
+                            _fileItemPermsDisplayStyle.ordinal() == FileItemPermissionsDisplayStyle.PERMISSIONS_DISPLAY_OCTAL_STYLE.ordinal() ?
+                                    fileItemEntry.getChmodStylePermissions() :
+                                    fileItemEntry.getPosixPermissions()
+                    );
+                    if(!_fileItemMetaDataVisible) {
+                        tvPermsSummary.setVisibility(View.GONE);
+                        tvPropsDivider.setVisibility(View.GONE);
+                        tvFileSize.setVisibility(View.GONE);
+                    }
+                    else {
+                        tvPermsSummary.setTextSize(TypedValue.COMPLEX_UNIT_SP, _fileItemMetaDataTextSize);
+                        tvPermsSummary.setTypeface(Typeface.MONOSPACE, _fileItemMetaDataTextStyle);
+                        tvPropsDivider.setTextColor(_themeColorScheme.getColorAccent());
+                        tvPropsDivider.setTextSize(TypedValue.COMPLEX_UNIT_SP, _fileItemMetaDataTextSize);
+                        tvPropsDivider.setTypeface(Typeface.MONOSPACE, _fileItemMetaDataTextStyle);
+                        tvFileSize.setTextColor(_themeColorScheme.getColorAccent());
+                        tvFileSize.setText(fileItemEntry.getFileSizeString());
+                        tvFileSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, _fileItemMetaDataTextSize);
+                        tvFileSize.setTypeface(Typeface.MONOSPACE, _fileItemMetaDataTextStyle);
+                    }
                     tvFileBaseName.setTextColor(_themeColorScheme.getColorAccent());
+                    tvFileBaseName.setTextSize(TypedValue.COMPLEX_UNIT_SP, _fileItemNameTextSize);
+                    tvFileBaseName.setTypeface(_fileItemNameTypeface, _fileItemNameTextStyle);
+                    tvFileBaseName.setText(fileItemEntry.getBaseName());
                 }
                 boolean opStatus = true;
                 opStatus = opStatus && styleSelectionBox(parentViewContainer.findViewById(R.id.fileSelectCheckBox));
@@ -621,5 +820,8 @@ public class CustomThemeBuilder {
         };
 
     }
+
+    //tvNavBtnsDirective.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+    //                tvNavBtnsDirective.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD_ITALIC);
 
 }

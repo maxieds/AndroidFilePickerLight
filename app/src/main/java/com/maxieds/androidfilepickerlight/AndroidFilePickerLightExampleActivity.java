@@ -170,7 +170,8 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_recents_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_RECENT_DOCUMENTS)
                 .setDefaultFileIcon(R.drawable.greentheme_generic_file_icon32)
                 .setDefaultHiddenFileIcon(R.drawable.greentheme_hidden_file_icon32)
-                .setDefaultFolderIcon(R.drawable.greentheme_folder_icon32);
+                .setDefaultFolderIcon(R.drawable.greentheme_folder_icon32)
+                .setFileItemMetaDataPermissionsDisplayStyle(CustomThemeBuilder.FileItemPermissionsDisplayStyle.PERMISSIONS_DISPLAY_POSIX_STYLE);
 
         fpInst.setCustomThemeStylizerConfig(customThemeBuilder);
         fpInst.launchFilePicker();

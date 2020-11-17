@@ -44,7 +44,7 @@ Key features in the library include the following:
 ### Screenshots of the library in action
 
 <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeGreen-Screenshot_20201117-040512.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrangeWithGradientToolbars-Screenshot_20201117-065739.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrangeWithNavLongLabels-Screenshot_20201117-094425.png" width="250" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppGreeenThemeWithPosixStylePerms-Screenshot_20201117-124350.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrangeWithGradientToolbars-Screenshot_20201117-065739.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrangeWithNavLongLabels-Screenshot_20201117-094425.png" width="250" />
 ## Including the library for use in a client Android application
 
 There are a couple of quickstart items covered in the sections below to handle before this
@@ -230,7 +230,8 @@ The relevant ``enum`` types that can be passed as arguments to these methods inc
         FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DCIM);
     }
 ```
-Some other non-display type configuration options that can be set include the following:
+Some other non-display type configuration options that can be set include the following
+(*be cautious at tweaking these too much unless you really understand what you are doing!*):
 ```java
 FileChooserBuilder fcBuilderConfig = new FileChooserBuilder.getDirectoryChooserInstance(FileChooserActivity.getInstance())
      /* How many default file items to store in the RecyclerView when it initially loads? */
@@ -296,6 +297,35 @@ CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder((Activity) myActi
      .useToolbarGradients(true)
      .setDefaultHiddenFileIcon(R.drawable.my_hidden_file_icon_16x16)
      .setDefaultFolderIcon(R.drawable.my_folder_icon_16x16);
+
+/* Text size, typeface and style + other customizations: */
+/* Action Buttons: Done and Cancel buttons at the bottom navigation part of the screen. */
+/* Nav Button Prefix: The "Navigate" prefix text before displaying the stock path nav buttons. */
+/* Nav Button Long Display: If FileChooserBuilder.setNavigationLongForm(true) is set, these options
+ *                          stylize the text labels shown below the buttons.
+ */
+/* File Item Meta Data: Stylize the file size and permissions display to the left of the file item names. */
+/* File Item Name: Style the actual displayed file (base) names shown on screen. */
+ccustomThemeBuilder
+     .setActionButtonTextSize(int textSize)
+     .setActionButtonTypeface(Typeface textTypeFace)
+     .setActionButtonTextAllCaps(boolean allCaps)
+     .setActionButtonTextStyle(int textStyle)
+     .setNavButtonPrefixTextSize(int textSize)
+     .setNavButtonPrefixTextAllCaps(boolean allCaps)
+     .setNavButtonPrefixTypeface(Typeface textTypeFace)
+     .setNavButtonPrefixTextStyle(int textStyle)
+     .setNavButtonLongDisplayTextSize(int textSize)
+     .setNavButtonLongDisplayTextAllCaps(boolean allCaps)
+     .setNavButtonLongDisplayTypeface(Typeface textTypeFace)
+     .setNavButtonLongDisplayTextStyle(int textStyle)
+     .setFileItemMetaDataTextVisible(boolean show)
+     .setFileItemMetaDataTextSize(int textSize)
+     .setFileItemMetaDataTextStyle(int textStyle)
+     .setFileItemMetaDataPermissionsDisplayStyle(CustomThemeBuilder.FileItemPermissionsDisplayStyle.PERMISSIONS_DISPLAY_OCTAL_STYLE | PERMISSIONS_DISPLAY_POSIX_STYLE)
+     .setFileItemNameTextSize(int textSize)
+     .setFileItemNameTypeface(Typeface textTypeface)
+     .setFileItemNameTextStyle(int textStyle)
 
 FileChooserBuilder fcbConfig = new FileChooserBuilder();
 fcbConfig.setCustomThemeStylizerConfig(customThemeBuilder);
