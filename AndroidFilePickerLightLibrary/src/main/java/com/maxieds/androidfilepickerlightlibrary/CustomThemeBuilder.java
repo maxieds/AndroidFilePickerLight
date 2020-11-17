@@ -57,7 +57,7 @@ public class CustomThemeBuilder {
         cancelActionBtnIconResId = NULL_RESOURCE_ID;
         themeColorScheme = null;
         toolbarIconResId = NULL_RESOURCE_ID;
-        navBtnIconResIdMap = new HashMap<FileChooserBuilder.BaseFolderPathType, Integer>();
+        navBtnIconResIdMap = new HashMap<FileChooserBuilder.DefaultNavFoldersType, Integer>();
         fileIconResId = fileHiddenIconResId = folderIconResId = NULL_RESOURCE_ID;
     }
 
@@ -229,9 +229,9 @@ public class CustomThemeBuilder {
         return 48; // pixels
     }
 
-    private Map<FileChooserBuilder.BaseFolderPathType, Integer> navBtnIconResIdMap;
+    private Map<FileChooserBuilder.DefaultNavFoldersType, Integer> navBtnIconResIdMap;
 
-    public CustomThemeBuilder setNavigationByPathButtonIcon(@DrawableRes int iconResId, FileChooserBuilder.BaseFolderPathType whichBtnType) {
+    public CustomThemeBuilder setNavigationByPathButtonIcon(@DrawableRes int iconResId, FileChooserBuilder.DefaultNavFoldersType whichBtnType) {
         navBtnIconResIdMap.put(whichBtnType, iconResId);
         return this;
     }
@@ -243,7 +243,7 @@ public class CustomThemeBuilder {
     public interface FileChooserActivityMainLayoutStylizer {
         boolean styleNavigationDisplayToolbar(Toolbar toolbar);
         boolean styleNavigationByPathsBaseDisplay(TextView tvNavBtnsDirective);
-        boolean styleDefaultPathNavigationButton(ImageButton dirNavBtn, FileChooserBuilder.BaseFolderPathType baseFolderBtnType) throws RuntimeException;
+        boolean styleDefaultPathNavigationButton(ImageButton dirNavBtn, FileChooserBuilder.DefaultNavFoldersType baseFolderBtnType) throws RuntimeException;
         boolean styleBottomNavigationActionButtons(Button doneActionBtn, Button cancelActionBtn);
         boolean styleMainActivityLayout(View parentContainerLayoutView) throws RuntimeException;
         boolean styleMainActivityWindow(Window mainActivityWin) throws RuntimeException;
@@ -295,7 +295,7 @@ public class CustomThemeBuilder {
 
             private final Activity _activityCtx = activityCtx;
             private final FileChooserColorScheme _themeColorScheme = themeColorScheme;
-            private final Map<FileChooserBuilder.BaseFolderPathType, Integer> _navBtnIconResIdMap = navBtnIconResIdMap;
+            private final Map<FileChooserBuilder.DefaultNavFoldersType, Integer> _navBtnIconResIdMap = navBtnIconResIdMap;
             private final Drawable _toolbarLogoIcon = _toolbarLogoIconFinal;
             private final String _pickerTitleText = _pickerTitleTextFinal;
             private final String _navBarPrefixText = _navBarPrefixTextFinal;
@@ -318,7 +318,7 @@ public class CustomThemeBuilder {
             }
 
             @Override
-            public boolean styleDefaultPathNavigationButton(ImageButton dirNavBtn, FileChooserBuilder.BaseFolderPathType baseFolderBtnType) throws RuntimeException {
+            public boolean styleDefaultPathNavigationButton(ImageButton dirNavBtn, FileChooserBuilder.DefaultNavFoldersType baseFolderBtnType) throws RuntimeException {
                 if(dirNavBtn == null || baseFolderBtnType == null) {
                     return false;
                 }

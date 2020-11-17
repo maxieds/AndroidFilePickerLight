@@ -9,15 +9,6 @@
 
 <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/ReadmeEmojiBadges/HackerCatEmoji-v1.png" /><img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" /><img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/ReadmeEmojiBadges/tRUTH.png" />
 
-#### A polite request from the developer
-
-In the event that this library and the documentation of new Android features this code provides is useful, please 
-:star::star::star::star::star: my application. I have taken my free time on this project to 
-*Hack for freedom with free software (TM, so to speak, as I like to say it)* by providing users and 
-fellow Android developers alike with a quality code base. 
-It will make me just *so happy* all over if you all that appreciate this source code contribution as much as I have writing it 
-can help me reach out to my first **100-star** repository on GitHub.
-
 ## About the library 
 
 A file and directory chooser widget for Android that focuses on presenting an easy to configure lightweight UI.
@@ -42,17 +33,18 @@ media file processing minimal.
 ### Feature set
 
 Key features in the library include the following:
-* Easy to configure theming and UI display settings including icons and color choices
+* Easy to configure themes and UI display settings including icons and color choices
+  (see [docs link below](https://github.com/maxieds/AndroidFileChooserLight#configuring-the-client-theme-and-ui-look-and-feel-properties))
 * Simple actions and extendable Java interface to select and filter files/directories
+  (see [docs link below](https://github.com/maxieds/AndroidFileChooserLight#extending-file-types-for-filtering-and-sorting-purposes-in-the-picker-ui))
 * Allows client code to access many standard file system types on the Android device without 
-  complicated procedures and permissions headaches inherited by the new Android 11 policy changes
-* Exceptions and errors thrown at runtime extend the standard Java ``RuntimeException`` class for 
-  ease of handling. Many of these exceptions are just wrappers around data returned by a newly 
-  spawned file picker activity and do not necessarily indicate errors in the file selection process.
+  complicated procedures and permissions issues inherited by the new Android 11 policy changes
   
 ### Screenshots of the library in action (Default theme)
 
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
 
 ## Including the library for use in a client Android application
 
@@ -63,9 +55,6 @@ library can be included in the client Android application:
 * Update the project *AndroidManifest.xml* file to extend the documents provider, 
   request required permissions, and setup some helpful legacy file handling options for devices 
   targeting Android platforms with SDK < Android OS 11.
-  
-Examples of using the library to pick files and directories from client Java code is also 
-included in the detailed documentation in the next section.
 
 ### Application build.gradle modifications
 
@@ -95,16 +84,6 @@ allprojects {
 
 ### Project manifest modifications
 
-Near the top of the project manifest file, append the following permissions-related 
-statements:
-```xml
-    <!-- Core storage permissions required: -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:required="true" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:required="true" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" android:required="false" />
-    <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" android:required="false" />
-    <uses-permission android:name="android.permission.INTERNET" android:required="false" />
-```
 For applications targeting so-called legacy platforms, that is Android devices where the new 
 Android 11 storage management options are not explicitly required, it is 
 recommended for compatibility sake by the Google developer docs 
@@ -263,64 +242,6 @@ FileChooserBuilder fcBuilderConfig = new FileChooserBuilder.getDirectoryChooserI
      .setRecyclerViewPrefetchThreadUpdateDelay(550L)
 ```
 
-### Extending file types for filtering and sorting purposes in the picker UI
-
-Many other good file chooser libraries for Android implement extendable ways for users to filter, 
-select and sort the files that are presented to the user. We choose to offer the same extendable 
-functionality here while staying tightly coupled with more Java language standard constructs. 
-
-The following is an example of how to create a custom file filter for use with this library. 
-The full interface specification is found in the source file 
-[FileFilter.java](https://github.com/maxieds/AndroidFileChooserLight/blob/master/AndroidFilePickerLightLibrary/src/main/java/com/maxieds/androidfilepickerlightlibrary/FileFilter.java#L35):
-```java
-    public static class FileFilterByRegex extends FileFilterBase {
-        private Pattern patternSpec;
-        public FileFilterByRegex(String regexPatternSpec, boolean inclExcl) {
-            patternSpec = Pattern.compile(regexPatternSpec);
-            setIncludeExcludeMatchesOption(inclExcl);
-        }
-        public boolean fileMatchesFilter(String fileAbsName) {
-            if(patternSpec.matcher(fileAbsName).matches()) {
-                return includeExcludeMatches == INCLUDE_FILES_IN_FILTER_PATTERN;
-            }
-            return includeExcludeMatches == EXCLUDE_FILES_IN_FILTER_PATTERN;
-        }
-    }
-```
-The main interface in the base class for the example above extends the stock Java ``FilenameFilter``
-interface. There is a difference in what our derived classes must implement. Namely, subject to the 
-next defines, the code can decide whether to include or exclude the file matches based on whether the 
-filename filter matches the user specified pattern: 
-```java
-static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
-static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
-```
-Similarly, an overloaded sorting class that can be extended is sampled below:
-```java
-    public static class FileItemsSortFunc implements Comparator<File> {
-        public File[] sortFileItemsList(File[] folderContentsList) {
-            Arrays.sort(folderContentsList, this);
-            return folderContentsList;
-        }
-        @Override
-        public int compare(File f1, File f2) {
-            // default is standard lexicographical ordering (override the compare functor base classes for customized sorting):
-            return f1.getAbsolutePath().compareTo(f2.getAbsolutePath());
-        }
-    }
-```
-Here is an example of how to utilize these customized classes with the library's core 
-``FileChooserBuilder`` class instances:
-```java
-FileChooserBuilder fcConfig = new FileChooserBuilder();
-fcConfig.setFilesListSortCompareFunction(FileFilter.FileItemsSortFunc);
-
-// Some defaults for convenience:
-fcConfig.filterByDefaultFileTypes(List<DefaultFileTypes> fileTypesList, boolean includeExcludeInList);
-fcConfig.filterByMimeTypes(List<String> fileTypesList, boolean includeExcludeInList);
-fcConfig.filterByRegex(String fileFilterPattern, boolean includeExcludeInList);
-```
-
 ### Configuring the client theme and UI look-and-feel properties
 
 Now that we have the scheme for passing resources to the library to skin/color/custom theme its UI down,
@@ -374,19 +295,77 @@ fcbConfig.setCustomThemeStylizerConfig(customThemeBuilder);
 ```
 Alternately, the exact colors for the theme can be specified explicitly using:
 ```java
-public static final int COLOR_PRIMARY = 0;
-public static final int COLOR_PRIMARY_DARK = 1;
+public static final int COLOR_PRIMARY = 0;            /* The main RecyclerView (file items list) background color */
+public static final int COLOR_PRIMARY_DARK = 1;       /* Text color of the upper paths folder history views */
 public static final int COLOR_PRIMARY_VERY_DARK = 2;
-public static final int COLOR_ACCENT = 3;
-public static final int COLOR_ACCENT_MEDIUM = 4;
-public static final int COLOR_ACCENT_LIGHT = 5;
-public static final int COLOR_TOOLBAR_BG = 6;
-public static final int COLOR_TOOLBAR_FG = 7;
-public static final int COLOR_TOOLBAR_NAV = 8;
-public static final int COLOR_TOOLBAR_DIVIDER = 9;
+public static final int COLOR_ACCENT = 3;             /* Text color of the file items list */
+public static final int COLOR_ACCENT_MEDIUM = 4;      /* Text color of the Done/Cancel action buttons */
+public static final int COLOR_ACCENT_LIGHT = 5;       /* Background color of the Done/Cancel action buttons navigation bar */
+public static final int COLOR_TOOLBAR_BG = 6;         /* The darker background color of the topmost toolbar */
+public static final int COLOR_TOOLBAR_FG = 7;         /* The lighter text color of the topmost toolbar */
+public static final int COLOR_TOOLBAR_NAV = 8;        /* The background of the navigate to stock paths navigation bar (prefixed with "Navigate: ") */
+public static final int COLOR_TOOLBAR_DIVIDER = 9;    /* The in-between divider color separating the top toolbar and lower navigation */
 
 CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder((Activity) myActivityInst)
      .setThemeColors(@ColorRes int[] colorsList);
+```
+
+### Extending file types for filtering and sorting purposes in the picker UI
+
+Many other good file chooser libraries for Android implement extendable ways for users to filter,
+select and sort the files that are presented to the user. We choose to offer the same extendable
+functionality here while staying tightly coupled with more Java language standard constructs.
+
+The following is an example of how to create a custom file filter for use with this library.
+The full interface specification is found in the source file
+[FileFilter.java](https://github.com/maxieds/AndroidFileChooserLight/blob/master/AndroidFilePickerLightLibrary/src/main/java/com/maxieds/androidfilepickerlightlibrary/FileFilter.java#L35):
+```java
+    public static class FileFilterByRegex extends FileFilterBase {
+        private Pattern patternSpec;
+        public FileFilterByRegex(String regexPatternSpec, boolean inclExcl) {
+            patternSpec = Pattern.compile(regexPatternSpec);
+            setIncludeExcludeMatchesOption(inclExcl);
+        }
+        public boolean fileMatchesFilter(String fileAbsName) {
+            if(patternSpec.matcher(fileAbsName).matches()) {
+                return includeExcludeMatches == INCLUDE_FILES_IN_FILTER_PATTERN;
+            }
+            return includeExcludeMatches == EXCLUDE_FILES_IN_FILTER_PATTERN;
+        }
+    }
+```
+The main interface in the base class for the example above extends the stock Java ``FilenameFilter``
+interface. There is a difference in what our derived classes must implement. Namely, subject to the
+next defines, the code can decide whether to include or exclude the file matches based on whether the
+filename filter matches the user specified pattern:
+```java
+static final boolean INCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.INCLUDE_FILES_IN_FILTER_PATTERN;
+static final boolean EXCLUDE_FILES_IN_FILTER_PATTERN = FileChooserBuilder.EXCLUDE_FILES_IN_FILTER_PATTERN;
+```
+Similarly, an overloaded sorting class that can be extended is sampled below:
+```java
+    public static class FileItemsSortFunc implements Comparator<File> {
+        public File[] sortFileItemsList(File[] folderContentsList) {
+            Arrays.sort(folderContentsList, this);
+            return folderContentsList;
+        }
+        @Override
+        public int compare(File f1, File f2) {
+            // default is standard lexicographical ordering (override the compare functor base classes for customized sorting):
+            return f1.getAbsolutePath().compareTo(f2.getAbsolutePath());
+        }
+    }
+```
+Here is an example of how to utilize these customized classes with the library's core
+``FileChooserBuilder`` class instances:
+```java
+FileChooserBuilder fcConfig = new FileChooserBuilder();
+fcConfig.setFilesListSortCompareFunction(FileFilter.FileItemsSortFunc);
+
+// Some defaults for convenience:
+fcConfig.filterByDefaultFileTypes(List<DefaultFileTypes> fileTypesList, boolean includeExcludeInList);
+fcConfig.filterByMimeTypes(List<String> fileTypesList, boolean includeExcludeInList);
+fcConfig.filterByRegex(String fileFilterPattern, boolean includeExcludeInList);
 ```
 
 ### Misc other useful utilities and customizations bundled with the main library
@@ -413,7 +392,7 @@ NFC tags on Android (see [the MFCToolLibrary](https://github.com/maxieds/MifareC
 its demo application). The core of the progress bar is 
 shown by periodically posting Toast messages with a custom layout ``View``. 
 
-#### A custom (mostly all config options inclusive) GradientDrawable builder class (TODO)
+#### A custom (mostly all config options inclusive) GradientDrawable builder class (TODO -- Reserved for future uses)
 
 The specifications (mostly collected as compendia from Android reference manuals) are reproduced as follows:
 ```java

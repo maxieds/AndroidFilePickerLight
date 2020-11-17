@@ -29,4 +29,7 @@
     <color name="colorButtonStockBGPressedState">#838dcc</color>
     <color name="colorOnErrorDisplayText">#FF5722</color>
 
+    <color name="exampleCustomThemeGreen">#00E676</color>
+    <color name="exampleCustomThemeOrange">#FF9100</color>
+
 </resources>

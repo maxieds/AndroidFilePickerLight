@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.maxieds.androidfilepickerlightlibrary.CustomThemeBuilder;
 import com.maxieds.androidfilepickerlightlibrary.DisplayUtils;
 import com.maxieds.androidfilepickerlightlibrary.FileChooserBuilder;
 
@@ -138,15 +139,74 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         fpInst.launchFilePicker();
     }
 
-    public void actionButtonLaunchMultiPickerActivityNewTheme(View btnView) {
+    public void actionButtonLaunchMultiPickerActivityNewThemeGreen(View btnView) {
+
         FileChooserBuilder fpInst = new FileChooserBuilder(this);
         fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE);
         fpInst.setSelectMultiple(5);
         fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
         fpInst.showHidden(true);
         fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
-        // TODO: Set the theme ...
+
+        CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder(this)
+                .setPickerTitleText(R.string.picker_title_text)
+                .setNavBarPrefixText(R.string.navbar_prefix_text)
+                .setDoneActionButtonText(R.string.done_action_text)
+                .setCancelActionButtonText(R.string.cancel_action_text)
+                .setGlobalBackButtonIcon(R.drawable.greentheme_nav_back_button_icon32)
+                .setDoneActionButtonIcon(R.drawable.greentheme_done_button_check_icon24)
+                .setCancelActionButtonIcon(R.drawable.greentheme_cancel_button_x_icon24)
+                .generateThemeColors(R.color.exampleCustomThemeGreen)
+                .setActivityToolbarIcon(R.drawable.greentheme_file_chooser_default_toolbar_icon48)
+                .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_sdcard_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_ROOT_STORAGE)
+                .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_images_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_PICTURES)
+                .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_camera_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_CAMERA)
+                .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_screenshots_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_SCREENSHOTS)
+                .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_downloads_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_DOWNLOADS)
+                .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_user_home_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_USER_HOME)
+                .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_media_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_MEDIA_VIDEO)
+                .setDefaultFileIcon(R.drawable.greentheme_generic_file_icon32)
+                .setDefaultHiddenFileIcon(R.drawable.greentheme_hidden_file_icon32)
+                .setDefaultFolderIcon(R.drawable.greentheme_folder_icon32);
+
+        fpInst.setCustomThemeStylizerConfig(customThemeBuilder);
         fpInst.launchFilePicker();
+
+    }
+
+    public void actionButtonLaunchMultiPickerActivityNewThemeOrange(View btnView) {
+
+        FileChooserBuilder fpInst = new FileChooserBuilder(this);
+        fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE);
+        fpInst.setSelectMultiple(5);
+        fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
+        fpInst.showHidden(true);
+        fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+
+        CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder(this)
+                .setPickerTitleText(R.string.picker_title_text)
+                .setNavBarPrefixText(R.string.navbar_prefix_text)
+                .setDoneActionButtonText(R.string.done_action_text)
+                .setCancelActionButtonText(R.string.cancel_action_text)
+                .setGlobalBackButtonIcon(R.drawable.orangetheme_nav_back_button_icon32)
+                .setDoneActionButtonIcon(R.drawable.orangetheme_done_button_check_icon24)
+                .setCancelActionButtonIcon(R.drawable.orangetheme_cancel_button_x_icon24)
+                .generateThemeColors(R.color.exampleCustomThemeOrange)
+                .setActivityToolbarIcon(R.drawable.orangetheme_file_chooser_default_toolbar_icon48)
+                .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_sdcard_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_ROOT_STORAGE)
+                .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_images_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_PICTURES)
+                .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_camera_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_CAMERA)
+                .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_screenshots_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_SCREENSHOTS)
+                .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_downloads_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_DOWNLOADS)
+                .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_user_home_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_USER_HOME)
+                .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_media_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_MEDIA_VIDEO)
+                .setDefaultFileIcon(R.drawable.orangetheme_generic_file_icon32)
+                .setDefaultHiddenFileIcon(R.drawable.orangetheme_hidden_file_icon32)
+                .setDefaultFolderIcon(R.drawable.orangetheme_folder_icon32);
+
+        fpInst.setCustomThemeStylizerConfig(customThemeBuilder);
+        fpInst.launchFilePicker();
+
     }
 
     private static int progressBarDemoCount = 0;

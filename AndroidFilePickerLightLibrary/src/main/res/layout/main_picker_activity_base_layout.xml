@@ -180,9 +180,9 @@
             android:scrollbars="none"
             android:splitMotionEvents="false"
             android:verticalScrollbarPosition="right"
-            android:overScrollMode="never"
             android:scrollbarSize="30dp"
             />
+        <!--android:overScrollMode="never"-->
 
     </LinearLayout>
 

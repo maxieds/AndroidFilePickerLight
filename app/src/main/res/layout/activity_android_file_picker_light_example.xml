@@ -113,7 +113,7 @@
         style="@style/AppTheme.TextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Launch a multi-file chooser (different theme):" />
+        android:text=" ‣ Launch a multi-file chooser (different theme -- green):" />
 
     <Button
         style="@style/AppTheme.StockButton"
@@ -121,7 +121,21 @@
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/launcher_button4"
         android:text="GO!"
-        android:onClick="actionButtonLaunchMultiPickerActivityNewTheme" />
+        android:onClick="actionButtonLaunchMultiPickerActivityNewThemeGreen" />
+
+    <TextView
+        style="@style/AppTheme.TextLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" ‣ Launch a multi-file chooser (different theme -- orange):" />
+
+    <Button
+        style="@style/AppTheme.StockButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/launcher_button5"
+        android:text="GO!"
+        android:onClick="actionButtonLaunchMultiPickerActivityNewThemeOrange" />
 
     <TextView
         style="@style/AppTheme.TextLabel"
