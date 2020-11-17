@@ -159,14 +159,16 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         CustomThemeBuilder.FileChooserActivityMainLayoutStylizer mainLayoutStylizer = null;
         if(fpConfig.getCustomThemeStylizerConfig() != null) {
             mainLayoutStylizer = fpConfig.getCustomThemeStylizerConfig().createActivityMainLayoutStylizer();
-            mainLayoutStylizer.styleMainActivityLayout(findViewById(R.id.fileChooserActivityMainLayoutParentContainer));
+            if(mainLayoutStylizer != null) {
+                mainLayoutStylizer.styleMainActivityLayout(findViewById(R.id.fileChooserActivityMainLayoutParentContainer));
+            }
             getDisplayFragmentsInstance().setFileItemLayoutStylizer(fpConfig.getCustomThemeStylizerConfig().createFileItemLayoutStylizer(), true);
         }
 
         /* Setup the toolbar first: */
         Toolbar actionBar = (Toolbar) findViewById(R.id.mainLayoutToolbarActionBar);
+        actionBar.setTitle(String.format(Locale.getDefault(), "    %s (v%s)", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
         if(mainLayoutStylizer == null) {
-            actionBar.setTitle(String.format(Locale.getDefault(), "    %s (v%s)", getString(R.string.libraryName), String.valueOf(BuildConfig.VERSION_NAME)));
             actionBar.setSubtitle(String.format(Locale.getDefault(), "    ⇤%s⇥", getString(R.string.filePickerTitleText)));
             actionBar.setTitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
             actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
@@ -210,7 +212,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 dirNavBtn.setImageDrawable(DisplayUtils.resolveDrawableFromAttribute(defaultDirNavFolders.get(folderIdx).getFolderIconResId()));
             }
             else {
-                mainLayoutStylizer.styleDefaultPathNavigationButton(dirNavBtn, baseFolderType);
+                mainLayoutStylizer.styleDefaultPathNavigationButton(dirNavBtn, defaultDirNavFolders.get(folderIdx));
             }
             fileDirsNavButtonsContainer.addView(dirNavBtn);
         }

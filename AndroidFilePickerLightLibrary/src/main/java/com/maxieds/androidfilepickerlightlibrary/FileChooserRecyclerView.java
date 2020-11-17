@@ -21,24 +21,14 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
-
-import java.util.Locale;
 
 public class FileChooserRecyclerView extends RecyclerView {
 
@@ -70,7 +60,12 @@ public class FileChooserRecyclerView extends RecyclerView {
         setLayoutParams(layoutParams);
         FileChooserRecyclerView.LayoutManager rvLayoutManager = new FileChooserRecyclerView.LayoutManager(getContext());
         setLayoutManager((FileChooserRecyclerView.LayoutManager) rvLayoutManager);
-        addItemDecoration(new FileChooserRecyclerView.CustomDividerItemDecoration(R.drawable.rview_file_item_divider));
+        addItemDecoration(
+                new FileChooserRecyclerView.CustomDividerItemDecoration(
+                        R.drawable.rview_file_item_divider,
+                        DisplayFragments.getInstance().getFileItemLayoutStylizer()
+                )
+        );
         getItemAnimator().setChangeDuration(0);
 
     }
@@ -170,8 +165,15 @@ public class FileChooserRecyclerView extends RecyclerView {
             styledDefaultAttributes.recycle();
         }
 
-        public CustomDividerItemDecoration(int resId) {
-            listingsDivider = DisplayUtils.getDrawableFromResource(resId);
+        public CustomDividerItemDecoration(int resId, CustomThemeBuilder.FileItemLayoutStylizer layoutStylizer) {
+            if(layoutStylizer != null) {
+                Drawable baseDivider = DisplayUtils.getDrawableFromResource(resId);
+                layoutStylizer.applyStyleToLayoutDivider(baseDivider);
+                listingsDivider = baseDivider;
+            }
+            else {
+                listingsDivider = DisplayUtils.getDrawableFromResource(resId);
+            }
         }
 
         public static void setMarginAdjustments(int leftAdjust, int topAdjust, int rightAdjust, int bottomAdjust) {

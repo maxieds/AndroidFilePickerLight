@@ -31,7 +31,6 @@ public class FileUtils {
 
     private static String LOGTAG = FileUtils.class.getSimpleName();
 
-    public static final String FILE_LEGACY_PATH_SEPARATOR = "//";
     public static final String FILE_PATH_SEPARATOR = "/";
 
     public static boolean validFileBaseName(String filePath) {

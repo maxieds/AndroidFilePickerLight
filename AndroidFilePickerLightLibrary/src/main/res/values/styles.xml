@@ -76,9 +76,9 @@
     </style>
 
     <style name="FileItemSelectionBoxTheme" parent="LibraryDefaultTheme">
-        <item name="colorControlNormal">?__colorPrimaryDark</item>
-        <item name="colorControlActivated">?__colorPrimaryDark</item>
-        <item name="buttonTint">?__colorPrimaryDark</item>
+        <item name="colorControlNormal">?__colorAccentMedium</item>
+        <item name="colorControlActivated">?__colorAccentMedium</item>
+        <item name="buttonTint">?__colorAccentMedium</item>
     </style>
 
 </resources>

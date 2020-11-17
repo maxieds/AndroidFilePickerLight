@@ -21,9 +21,9 @@
     <string name="title_activity_android_file_picker_light_example">
         AndroidFilePickerLightExampleActivity
     </string>
-    <string name="picker_title_text">Make a selection by clicking ...</string>
+    <string name="picker_title_text">Make a selection by clicking</string>
     <string name="navbar_prefix_text">Navigate To Path:</string>
-    <string name="done_action_text">-- DONE --</string>
-    <string name="cancel_action_text">-- CANCEL --</string>
+    <string name="done_action_text">DONE</string>
+    <string name="cancel_action_text">CANCEL</string>
 
 </resources>

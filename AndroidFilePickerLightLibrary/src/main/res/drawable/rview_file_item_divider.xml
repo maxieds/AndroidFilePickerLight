@@ -22,19 +22,14 @@
     android:shape="rectangle"
     >
 
-    <corners android:radius="2dip" />
+    <corners android:radius="1dip" />
 
     <stroke
+        android:id="@+id/fileItemDividerDecoration"
         android:width="1dip"
-        android:color="@color/__colorPrimary"
+        android:color="@color/__colorAccentMedium"
         />
 
-    <gradient
-        android:angle="45"
-        android:endColor="@color/__colorPrimary"
-        android:startColor="@color/__colorPrimary"
-        />
-
-    <size android:height="3dp"/>
+    <size android:height="2dp"/>
 
 </shape>

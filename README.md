@@ -1,13 +1,14 @@
 # Android File Chooser Light Library
 
-<!--<img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/LibraryProfileIconPlayStore.png" width="750" height="350" />-->
-<!--<hr /><hr />-->
+<hr /><hr />
 
 <img src="https://jitpack.io/v/maxieds/AndroidFilePickerLight.svg" /><img src="https://img.shields.io/badge/NOTE%3A-Project%20is%20a%20work%20in%20progress-orange" /><img src="https://img.shields.io/badge/API%2029%2B-Tested%20on%20Android%2010-yellowgreen" /><img src="https://badges.frapsoft.com/os/gpl/gpl.svg?v=103" /> 
 
 <img src="https://forthebadge.com/images/badges/made-with-java.svg" /><img src="https://forthebadge.com/images/badges/powered-by-coffee.svg" /><img src="https://forthebadge.com/images/badges/built-for-android.svg" />
 
 <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/ReadmeEmojiBadges/HackerCatEmoji-v1.png" /><img src="https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103" /><img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/ReadmeEmojiBadges/tRUTH.png" />
+
+<hr /><hr />
 
 ## About the library 
 
@@ -40,11 +41,10 @@ Key features in the library include the following:
 * Allows client code to access many standard file system types on the Android device without 
   complicated procedures and permissions issues inherited by the new Android 11 policy changes
   
-### Screenshots of the library in action (Default theme)
+### Screenshots of the library in action
 
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" />
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" />
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeGreen-Screenshot_20201117-040512.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrange-Screenshot_20201117-040532.png" width="250" />
 
 ## Including the library for use in a client Android application
 
@@ -71,7 +71,10 @@ android {
     }
 }
 dependencies {
-    implementation 'com.github.maxieds:AndroidFilePickerLight:-SNAPSHOT'
+    // FOR the most recent build:
+    implementation 'com.github.maxieds:AndroidFilePickerLight:master-SNAPSHOT'
+    // -- OR: for the latest release:
+    implementation 'com.github.maxieds:AndroidFilePickerLight:release-v2'
 }
 allprojects {
     repositories {
@@ -275,8 +278,8 @@ CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder((Activity) myActi
      .setDoneActionButtonText(R.string.done_action_text)
      .setCancelActionButtonText(R.string.cancel_action_text)
      .setGlobalBackButtonIcon(R.drawable.my_global_back_btn_icon_32x32)
-     .setDoneActionButtonIcon(R.drawable.my_done_checkmark_icon_24x24)
-     .setCancelActionButtonIcon(R.drawable.my_cancel_xmark_icon_24x24)
+     .setDoneActionButtonIcon(R.drawable.my_done_checkmark_icon_16x16)
+     .setCancelActionButtonIcon(R.drawable.my_cancel_xmark_icon_16x16)
      .generateThemeColors(R.color.themeColorBase)
      .setActivityToolbarIcon(R.drawable.my_toolbar_logo_icon_48x48)
      .setNavigationByPathButtonIcon(R.drawable.my_icon_32x32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_ROOT_STORAGE)

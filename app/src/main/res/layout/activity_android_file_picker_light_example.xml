@@ -61,7 +61,7 @@
         android:id="@+id/textview_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Single directory chooser activity (root):"
+        android:text=" ‣ Single directory chooser activity (FS: root):"
        />
 
     <Button
@@ -78,7 +78,7 @@
         android:id="@+id/textview_second"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Single file chooser activity (screenshots):"
+        android:text=" ‣ Single file chooser activity (FS: screenshots):"
         />
 
     <Button
@@ -96,7 +96,7 @@
         android:id="@+id/textview_third"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Omnivorous multi-path chooser (root):"
+        android:text=" ‣ Omnivorous multi-path chooser (FS: root):"
         />
 
     <Button
@@ -113,7 +113,7 @@
         style="@style/AppTheme.TextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Launch a multi-file chooser (different theme -- green):" />
+        android:text=" ‣ Launch chooser (Theme -- Green):" />
 
     <Button
         style="@style/AppTheme.StockButton"
@@ -127,7 +127,7 @@
         style="@style/AppTheme.TextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Launch a multi-file chooser (different theme -- orange):" />
+        android:text=" ‣ Launch chooser (Theme -- Orange):" />
 
     <Button
         style="@style/AppTheme.StockButton"
@@ -141,7 +141,7 @@
         style="@style/AppTheme.TextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ‣ Display a demo of the toast-based progress bar:" />
+        android:text=" ‣ Display a demo of the progress bar:" />
 
     <Button
         style="@style/AppTheme.StockButton"

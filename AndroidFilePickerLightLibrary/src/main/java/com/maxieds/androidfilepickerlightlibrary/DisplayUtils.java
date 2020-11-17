@@ -35,6 +35,7 @@ import android.widget.Toast;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
+import androidx.core.graphics.ColorUtils;
 
 import java.util.Locale;
 
@@ -152,8 +153,6 @@ public class DisplayUtils {
         return resolveColorFromResId(FileChooserActivity.getInstance(), resID);
     }
 
-
-
     public static Drawable resolveDrawableFromAttribute(Activity activityRef, int attrID) throws FileChooserException.InvalidActivityContextException {
         if(activityRef == null) {
             throw new FileChooserException.InvalidThemeResourceException();
@@ -187,20 +186,14 @@ public class DisplayUtils {
         if(percentToLighten < 0.0f || percentToLighten > 1.0f) {
             return color;
         }
-        float[] hsvColorComps = new float[3];
-        Color.colorToHSV(color, hsvColorComps);
-        hsvColorComps[2] = 1.0f - percentToLighten * (1.0f - hsvColorComps[2]);
-        return Color.HSVToColor(hsvColorComps);
+        return ColorUtils.blendARGB(color, Color.WHITE, percentToLighten);
     }
 
     public static int darkenColor(int color, float percentToDarken) {
         if(percentToDarken < 0.0f || percentToDarken > 1.0f) {
             return color;
         }
-        float[] hsvColorComps = new float[3];
-        Color.colorToHSV(color, hsvColorComps);
-        hsvColorComps[2] = percentToDarken * hsvColorComps[2];
-        return Color.HSVToColor(hsvColorComps);
+        return ColorUtils.blendARGB(color, Color.BLACK, percentToDarken);
     }
 
     public static boolean checkIconDimensions(Drawable iconInput, int dimsHeight, int dimsWidth) {

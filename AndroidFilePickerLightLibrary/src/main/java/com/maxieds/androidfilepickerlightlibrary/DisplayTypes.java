@@ -313,12 +313,7 @@ public class DisplayTypes {
         }
 
         public String getFileSizeString() {
-            if(isDirectory()) {
-                return "DIR";
-            }
-            else {
-                return fileSizeLabel;
-            }
+            return fileSizeLabel;
         }
 
         public boolean isChecked() {
@@ -327,29 +322,6 @@ public class DisplayTypes {
 
         public void setChecked(boolean enable) {
             isChecked = enable;
-        }
-
-        public boolean setFileTypeIcon(Drawable fileIcon) {
-            if(fileIcon == null || fileItemLayoutContainer == null) {
-                return false;
-            }
-            ImageView fileIconImageView = fileItemLayoutContainer.findViewById(R.id.fileTypeIcon);
-            if(fileIconImageView == null) {
-                return false;
-            }
-            fileIconImageView.setImageDrawable(fileIcon);
-            return true;
-        }
-
-        public Drawable getFileTypeIcon() {
-            if(fileItemLayoutContainer == null) {
-                return null;
-            }
-            ImageView fileIconImageView = fileItemLayoutContainer.findViewById(R.id.fileTypeIcon);
-            if(fileIconImageView == null) {
-                return null;
-            }
-            return fileIconImageView.getDrawable();
         }
 
         public View getLayoutContainer() {

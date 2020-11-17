@@ -19,7 +19,10 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -28,11 +31,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
+import androidx.core.graphics.ColorUtils;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -110,7 +114,7 @@ public class CustomThemeBuilder {
     }
 
     public static int getActionButtonIconDimension() {
-        return 24; // pixels
+        return 16; // pixels
     }
 
     public static final int COLOR_PRIMARY = 0;
@@ -126,14 +130,9 @@ public class CustomThemeBuilder {
 
     public static class FileChooserColorScheme {
 
-        private Activity activityCtx;
         private int[] themeColorsList;
 
-        public FileChooserColorScheme(Activity activityCtxRef, int[] colorsList) throws FileChooserException.AndroidFilePickerLightException {
-            if(activityCtxRef == null) {
-                throw new FileChooserException.InvalidActivityContextException();
-            }
-            activityCtx = activityCtxRef;
+        public FileChooserColorScheme(int[] colorsList) throws FileChooserException.AndroidFilePickerLightException {
             if(colorsList.length != 10) {
                 throw new FileChooserException.InvalidIndexException();
             }
@@ -141,43 +140,43 @@ public class CustomThemeBuilder {
         }
 
         public int getColorPrimary() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_PRIMARY]);
+            return themeColorsList[COLOR_PRIMARY];
         }
 
         public int getColorPrimaryDark() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_PRIMARY_DARK]);
+            return themeColorsList[COLOR_PRIMARY_DARK];
         }
 
         public int getColorPrimaryVeryDark() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_PRIMARY_VERY_DARK]);
+            return themeColorsList[COLOR_PRIMARY_VERY_DARK];
         }
 
         public int getColorAccent() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_ACCENT]);
+            return themeColorsList[COLOR_ACCENT];
         }
 
         public int getColorAccentMedium() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_ACCENT_MEDIUM]);
+            return themeColorsList[COLOR_ACCENT_MEDIUM];
         }
 
         public int getColorAccentLight() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_ACCENT_LIGHT]);
+            return themeColorsList[COLOR_ACCENT_LIGHT];
         }
 
         public int getColorToolbarBG() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_TOOLBAR_BG]);
+            return themeColorsList[COLOR_TOOLBAR_BG];
         }
 
         public int getColorToolbarFG() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_TOOLBAR_FG]);
+            return themeColorsList[COLOR_TOOLBAR_FG];
         }
 
         public int getColorToolbarNav() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_TOOLBAR_NAV]);
+            return themeColorsList[COLOR_TOOLBAR_NAV];
         }
 
         public int getColorToolbarDivider() {
-            return DisplayUtils.resolveColorFromResId(activityCtx, themeColorsList[COLOR_TOOLBAR_DIVIDER]);
+            return themeColorsList[COLOR_TOOLBAR_DIVIDER];
         }
 
         public static int[] GenerateThemeColorsList(Activity activityCtxRef, @ColorRes int baseColorResId) {
@@ -190,17 +189,18 @@ public class CustomThemeBuilder {
                 } catch (Exception ex2) {}
             }
             return new int[] {
-                    resolvedColor,
-                    DisplayUtils.darkenColor(resolvedColor, 0.75f),
-                    DisplayUtils.darkenColor(resolvedColor, 0.86f),
-                    DisplayUtils.lightenColor(resolvedColor, 0.73f),
-                    DisplayUtils.lightenColor(resolvedColor, 0.50f),
-                    DisplayUtils.lightenColor(resolvedColor, 0.85f),
-                    DisplayUtils.darkenColor(resolvedColor, 0.90f),
-                    DisplayUtils.lightenColor(resolvedColor, 0.87f),
-                    DisplayUtils.lightenColor(resolvedColor, 0.54f),
-                    DisplayUtils.lightenColor(resolvedColor, 0.27f)
+                    resolvedColor,                                                   /* COLOR_PRIMARY */
+                    DisplayUtils.darkenColor(resolvedColor, 0.65f),   /* COLOR_PRIMARY_DARK */
+                    DisplayUtils.darkenColor(resolvedColor, 0.80f),   /* COLOR_PRIMARY_VERY_DARK */
+                    DisplayUtils.lightenColor(resolvedColor, 0.72f),  /* COLOR_ACCENT */
+                    DisplayUtils.lightenColor(resolvedColor, 0.50f),  /* COLOR_ACCENT_MEDIUM */
+                    DisplayUtils.lightenColor(resolvedColor, 0.89f),  /* COLOR_ACCENT_LIGHT */
+                    DisplayUtils.darkenColor(resolvedColor, 0.88f),   /* COLOR_TOOLBAR_BG */
+                    DisplayUtils.lightenColor(resolvedColor, 0.85f),  /* COLOR_TOOLBAR_FG */
+                    DisplayUtils.lightenColor(resolvedColor, 0.55f),  /* COLOR_TOOLBAR_NAV */
+                    DisplayUtils.darkenColor(resolvedColor, 0.50f)    /* COLOR_TOOLBAR_DIVIDER */
             };
+
         }
 
     }
@@ -208,13 +208,16 @@ public class CustomThemeBuilder {
     private FileChooserColorScheme themeColorScheme;
 
     public CustomThemeBuilder setThemeColors(@ColorRes int[] colorsList) {
-        themeColorScheme = new FileChooserColorScheme(activityCtx, colorsList);
+        for(int cidx = 0; cidx < colorsList.length; cidx++) {
+            colorsList[cidx] = DisplayUtils.resolveColorFromResId(activityCtx, colorsList[cidx]);
+        }
+        themeColorScheme = new FileChooserColorScheme(colorsList);
         return this;
     }
 
     public CustomThemeBuilder generateThemeColors(@ColorRes int baseColorResId) {
         int[] themeColorsList = FileChooserColorScheme.GenerateThemeColorsList(activityCtx, baseColorResId);
-        themeColorScheme = new FileChooserColorScheme(activityCtx, themeColorsList);
+        themeColorScheme = new FileChooserColorScheme(themeColorsList);
         return this;
     }
 
@@ -285,10 +288,12 @@ public class CustomThemeBuilder {
         );
         if (activityCtx == null || themeColorScheme == null || _pickerTitleTextFinal == null ||
                 _navBarPrefixTextFinal == null || _doneActionBtnTextFinal == null || _cancelActionBtnTextFinal == null ||
-                _toolbarLogoIconFinal == null || !DisplayUtils.checkIconDimensions(_toolbarLogoIconFinal, getToolbarIconDimension()) ||
-                _globalBackBtnIconFinal == null || !DisplayUtils.checkIconDimensions(_globalBackBtnIconFinal, getGlobalBackButtonIconDimension()) ||
-                _doneActionBtnIconFinal == null || !DisplayUtils.checkIconDimensions(_doneActionBtnIconFinal, getActionButtonIconDimension()) ||
-                _cancelActionBtnIconFinal == null || !DisplayUtils.checkIconDimensions(_cancelActionBtnIconFinal, getActionButtonIconDimension())) {
+                _toolbarLogoIconFinal == null || _globalBackBtnIconFinal == null ||
+                _doneActionBtnIconFinal == null || _cancelActionBtnIconFinal == null) {
+            Log.i(LOGTAG, " - " + !DisplayUtils.checkIconDimensions(_toolbarLogoIconFinal, getToolbarIconDimension()) +
+                    ", " + !DisplayUtils.checkIconDimensions(_globalBackBtnIconFinal, getGlobalBackButtonIconDimension()) +
+                    ", " + !DisplayUtils.checkIconDimensions(_doneActionBtnIconFinal, getActionButtonIconDimension()) +
+                    ", " + !DisplayUtils.checkIconDimensions(_cancelActionBtnIconFinal, getActionButtonIconDimension()));
             return null;
         }
         return new FileChooserActivityMainLayoutStylizer() {
@@ -360,11 +365,11 @@ public class CustomThemeBuilder {
                 doneActionBtn.setBackgroundColor(_themeColorScheme.getColorAccentLight());
                 doneActionBtn.setTextColor(_themeColorScheme.getColorAccentMedium());
                 doneActionBtn.setText(_doneActionBtnText);
-                doneActionBtn.setCompoundDrawables(_doneActionBtnIcon, null, null, null);
-                doneActionBtn.setBackgroundColor(_themeColorScheme.getColorAccentLight());
-                doneActionBtn.setTextColor(_themeColorScheme.getColorAccentMedium());
-                doneActionBtn.setText(_cancelActionBtnText);
-                doneActionBtn.setCompoundDrawables(_cancelActionBtnIcon, null, null, null);
+                doneActionBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(_doneActionBtnIcon, null, null, null);
+                cancelActionBtn.setBackgroundColor(_themeColorScheme.getColorAccentLight());
+                cancelActionBtn.setTextColor(_themeColorScheme.getColorAccentMedium());
+                cancelActionBtn.setText(_cancelActionBtnText);
+                cancelActionBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(_cancelActionBtnIcon, null, null, null);
                 return true;
             }
 
@@ -425,7 +430,7 @@ public class CustomThemeBuilder {
                 layoutDivider3.setBackgroundColor(_themeColorScheme.getColorToolbarDivider());
                 mainRecyclerViewContainerLayout.setBackgroundColor(_themeColorScheme.getColorPrimary());
                 layoutDivider4.setBackgroundColor(_themeColorScheme.getColorToolbarDivider());
-                bottomActionBtnsContainerLayout.setBackgroundColor(_themeColorScheme.getColorAccentMedium());
+                bottomActionBtnsContainerLayout.setBackgroundColor(_themeColorScheme.getColorAccentLight());
                 return true;
 
             }
@@ -471,30 +476,25 @@ public class CustomThemeBuilder {
         boolean setFileTypeIcon(ImageView imgBtn, DisplayTypes.FileType fileItemEntry);
         boolean styleSelectionBox(CompoundButton selectBox);
         boolean applyStyleToLayout(View parentViewContainer, DisplayTypes.FileType fileItemEntry) throws RuntimeException;
+        boolean applyStyleToLayoutDivider(Drawable fileItemSep);
     }
 
     public FileItemLayoutStylizer createFileItemLayoutStylizer() {
 
-        if(themeColorScheme == null || fileIconResId == NULL_RESOURCE_ID ||
-                fileHiddenIconResId  == NULL_RESOURCE_ID || folderIconResId  == NULL_RESOURCE_ID) {
+        if(activityCtx == null || themeColorScheme == null ||
+                fileIconResId == NULL_RESOURCE_ID || fileHiddenIconResId  == NULL_RESOURCE_ID ||
+                folderIconResId  == NULL_RESOURCE_ID) {
             return null;
         }
         final Drawable fileIconFinal = DisplayUtils.resolveDrawableFromResId(activityCtx, fileIconResId);
         final Drawable fileHiddenIconFinal = DisplayUtils.resolveDrawableFromResId(activityCtx, fileHiddenIconResId);
         final Drawable folderIconFinal = DisplayUtils.resolveDrawableFromResId(activityCtx, folderIconResId);
-        Drawable[] drawablesCheckList = {
-                fileIconFinal,
-                fileHiddenIconFinal,
-                folderIconFinal
-        };
-        for(int didx = 0; didx < drawablesCheckList.length; didx++) {
-            Drawable drawInst = drawablesCheckList[didx];
-            if(drawInst == null || !DisplayUtils.checkIconDimensions(drawInst, getFileItemEntryIconDimension())) {
-                return null;
-            }
+        if(fileIconFinal == null || fileHiddenIconFinal == null || folderIconFinal == null) {
+            return null;
         }
         return new FileItemLayoutStylizer() {
 
+            private final Activity _activityCtx = activityCtx;
             private final Drawable _fileIcon = fileIconFinal;
             private final Drawable _fileHiddenIcon = fileHiddenIconFinal;
             private final Drawable _folderIcon = folderIconFinal;
@@ -529,8 +529,8 @@ public class CustomThemeBuilder {
                         new int[] { android.R.attr.state_checked },
                 };
                 int[] cboxTrackColors = new int[] {
-                        _themeColorScheme.getColorPrimaryDark(),
-                        _themeColorScheme.getColorPrimaryDark(),
+                        ColorUtils.blendARGB(_themeColorScheme.getColorPrimaryDark(), _themeColorScheme.getColorAccentMedium(), 0.25f),
+                        ColorUtils.blendARGB(_themeColorScheme.getColorPrimaryDark(), _themeColorScheme.getColorAccentMedium(), 0.25f),
                 };
                 selectBox.setButtonTintList(new ColorStateList(cboxStatesList, cboxTrackColors));
                 return true;
@@ -563,6 +563,14 @@ public class CustomThemeBuilder {
                 if(!opStatus) {
                     throw new RuntimeException("Unable to style file item layout!");
                 }
+                return true;
+            }
+
+            public boolean applyStyleToLayoutDivider(Drawable fileItemSep) {
+                if(fileItemSep == null) {
+                    return false;
+                }
+                fileItemSep.setColorFilter(_themeColorScheme.getColorAccentMedium(), PorterDuff.Mode.SRC_ATOP);
                 return true;
             }
 
