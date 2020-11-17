@@ -338,7 +338,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
 
     }
 
-    private static final long THREAD_INIT_PAUSE_TIMEOUT = 125L; // Milliseconds
+    private static final long THREAD_INIT_PAUSE_TIMEOUT = 250L; // Milliseconds
     public static final long DEFAULT_THREAD_PAUSE_TIMEOUT = 550L; // Milliseconds
 
     private static long THREAD_PAUSE_TIMEOUT = DEFAULT_THREAD_PAUSE_TIMEOUT;

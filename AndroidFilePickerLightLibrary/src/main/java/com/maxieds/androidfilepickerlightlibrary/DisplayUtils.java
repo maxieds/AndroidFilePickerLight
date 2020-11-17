@@ -476,6 +476,17 @@ public class DisplayUtils {
         return colorStates;
     }
 
+    public static int[] generateGradientColorsListFromBaseColor(int baseColor, int blendColor, int numColorStates) {
+        if(numColorStates < 1) {
+            return null;
+        }
+        int[] colorStates = new int[numColorStates];
+        for(int cidx = 0; cidx < numColorStates; cidx++) {
+            colorStates[cidx] = ColorUtils.blendARGB(baseColor, blendColor, (0.80f / numColorStates) * cidx);
+        }
+        return colorStates;
+    }
+
     public static class GradientDrawableBuilder {
 
         private int[] colorsList;
@@ -569,6 +580,17 @@ public class DisplayUtils {
                     .setBorderStyle(BorderStyleSpec.BORDER_STYLE_SOLID)
                     .setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_LEFT_RIGHT)
                     .setColorsArray(baseColor, 3)
+                    .make();
+        }
+
+        public static GradientDrawable GetStockGradientFromBaseColor(int baseColor, int blendColor) {
+            return new GradientDrawableBuilder()
+                    .setGradientType(GradientMethodSpec.GRADIENT_METHOD_LINEAR)
+                    .setBorderColor(darkenColor(baseColor, 0.5f))
+                    .setBorderSize(0)
+                    .setBorderStyle(BorderStyleSpec.BORDER_STYLE_SOLID)
+                    .setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_RIGHT_LEFT)
+                    .setColorsArray(generateGradientColorsListFromBaseColor(baseColor, blendColor, 3))
                     .make();
         }
 

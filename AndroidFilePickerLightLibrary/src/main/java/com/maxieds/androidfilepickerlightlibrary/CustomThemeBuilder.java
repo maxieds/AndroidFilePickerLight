@@ -61,6 +61,7 @@ public class CustomThemeBuilder {
         cancelActionBtnIconResId = NULL_RESOURCE_ID;
         themeColorScheme = null;
         toolbarIconResId = NULL_RESOURCE_ID;
+        useToolbarGradients = false;
         navBtnIconResIdMap = new HashMap<FileChooserBuilder.DefaultNavFoldersType, Integer>();
         fileIconResId = fileHiddenIconResId = folderIconResId = NULL_RESOURCE_ID;
     }
@@ -179,6 +180,8 @@ public class CustomThemeBuilder {
             return themeColorsList[COLOR_TOOLBAR_DIVIDER];
         }
 
+        public int getColorTransparent() { return DisplayUtils.resolveColorFromAttribute(R.color.__colorTransparent); }
+
         public static int[] GenerateThemeColorsList(Activity activityCtxRef, @ColorRes int baseColorResId) {
             int resolvedColor = baseColorResId;
             try {
@@ -194,7 +197,7 @@ public class CustomThemeBuilder {
                     DisplayUtils.darkenColor(resolvedColor, 0.80f),   /* COLOR_PRIMARY_VERY_DARK */
                     DisplayUtils.lightenColor(resolvedColor, 0.72f),  /* COLOR_ACCENT */
                     DisplayUtils.lightenColor(resolvedColor, 0.50f),  /* COLOR_ACCENT_MEDIUM */
-                    DisplayUtils.lightenColor(resolvedColor, 0.89f),  /* COLOR_ACCENT_LIGHT */
+                    DisplayUtils.lightenColor(resolvedColor, 0.85f),  /* COLOR_ACCENT_LIGHT */
                     DisplayUtils.darkenColor(resolvedColor, 0.88f),   /* COLOR_TOOLBAR_BG */
                     DisplayUtils.lightenColor(resolvedColor, 0.85f),  /* COLOR_TOOLBAR_FG */
                     DisplayUtils.lightenColor(resolvedColor, 0.55f),  /* COLOR_TOOLBAR_NAV */
@@ -228,6 +231,13 @@ public class CustomThemeBuilder {
         return this;
     }
 
+    private boolean useToolbarGradients;
+
+    public CustomThemeBuilder useToolbarGradients(boolean enable) {
+        useToolbarGradients = enable;
+        return this;
+    }
+
     public static int getToolbarIconDimension() {
         return 48; // pixels
     }
@@ -254,6 +264,7 @@ public class CustomThemeBuilder {
 
     public FileChooserActivityMainLayoutStylizer createActivityMainLayoutStylizer() {
 
+        final boolean _useToolbarGradients = useToolbarGradients;
         final Drawable _toolbarLogoIconFinal = DisplayUtils.firstNonNull(
                 DisplayUtils.resolveDrawableFromResId(activityCtx, toolbarIconResId),
                 DisplayUtils.resolveDrawableFromResId(R.drawable.file_chooser_default_toolbar_icon48)
@@ -290,10 +301,6 @@ public class CustomThemeBuilder {
                 _navBarPrefixTextFinal == null || _doneActionBtnTextFinal == null || _cancelActionBtnTextFinal == null ||
                 _toolbarLogoIconFinal == null || _globalBackBtnIconFinal == null ||
                 _doneActionBtnIconFinal == null || _cancelActionBtnIconFinal == null) {
-            Log.i(LOGTAG, " - " + !DisplayUtils.checkIconDimensions(_toolbarLogoIconFinal, getToolbarIconDimension()) +
-                    ", " + !DisplayUtils.checkIconDimensions(_globalBackBtnIconFinal, getGlobalBackButtonIconDimension()) +
-                    ", " + !DisplayUtils.checkIconDimensions(_doneActionBtnIconFinal, getActionButtonIconDimension()) +
-                    ", " + !DisplayUtils.checkIconDimensions(_cancelActionBtnIconFinal, getActionButtonIconDimension()));
             return null;
         }
         return new FileChooserActivityMainLayoutStylizer() {
@@ -316,9 +323,17 @@ public class CustomThemeBuilder {
                     return false;
                 }
                 toolbar.setSubtitle(String.format(Locale.getDefault(), "    ⇤%s⇥", _pickerTitleText));
+                toolbar.setBackgroundColor(_themeColorScheme.getColorToolbarBG());
                 toolbar.setTitleTextColor(_themeColorScheme.getColorToolbarFG());
                 toolbar.setSubtitleTextColor(_themeColorScheme.getColorToolbarFG());
                 toolbar.setLogo(_toolbarLogoIcon);
+                if(_useToolbarGradients) {
+                    GradientDrawable bgGrad = DisplayUtils.GradientDrawableBuilder.GetStockGradientFromBaseColor(
+                            ColorUtils.blendARGB(_themeColorScheme.getColorToolbarBG(), _themeColorScheme.getColorPrimary(), 0.32f),
+                            _themeColorScheme.getColorToolbarBG()
+                    );
+                    toolbar.setBackground(bgGrad);
+                }
                 return true;
             }
 
@@ -362,11 +377,12 @@ public class CustomThemeBuilder {
                 if(doneActionBtn == null || cancelActionBtn == null) {
                     return false;
                 }
-                doneActionBtn.setBackgroundColor(_themeColorScheme.getColorAccentLight());
+                int btnBGColor = _useToolbarGradients ? _themeColorScheme.getColorTransparent() : _themeColorScheme.getColorAccentLight();
+                doneActionBtn.setBackgroundColor(btnBGColor);
                 doneActionBtn.setTextColor(_themeColorScheme.getColorAccentMedium());
                 doneActionBtn.setText(_doneActionBtnText);
                 doneActionBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(_doneActionBtnIcon, null, null, null);
-                cancelActionBtn.setBackgroundColor(_themeColorScheme.getColorAccentLight());
+                cancelActionBtn.setBackgroundColor(btnBGColor);
                 cancelActionBtn.setTextColor(_themeColorScheme.getColorAccentMedium());
                 cancelActionBtn.setText(_cancelActionBtnText);
                 cancelActionBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(_cancelActionBtnIcon, null, null, null);
@@ -427,10 +443,25 @@ public class CustomThemeBuilder {
                 navBtnsLinearLayout.setBackgroundColor(_themeColorScheme.getColorToolbarNav());
                 layoutDivider2.setBackgroundColor(_themeColorScheme.getColorToolbarDivider());
                 pathsHistoryContainer.setBackgroundColor(_themeColorScheme.getColorAccentLight());
+                if(_useToolbarGradients) {
+                    GradientDrawable bgGrad = DisplayUtils.GradientDrawableBuilder.GetStockGradientFromBaseColor(
+                            _themeColorScheme.getColorAccentLight(),
+                            _themeColorScheme.getColorPrimary()
+                    );
+                    pathsHistoryContainer.setBackground(bgGrad);
+                }
                 layoutDivider3.setBackgroundColor(_themeColorScheme.getColorToolbarDivider());
                 mainRecyclerViewContainerLayout.setBackgroundColor(_themeColorScheme.getColorPrimary());
                 layoutDivider4.setBackgroundColor(_themeColorScheme.getColorToolbarDivider());
                 bottomActionBtnsContainerLayout.setBackgroundColor(_themeColorScheme.getColorAccentLight());
+                if(_useToolbarGradients) {
+                    GradientDrawable bgGrad = DisplayUtils.GradientDrawableBuilder.GetStockGradientFromBaseColor(
+                            _themeColorScheme.getColorAccentLight(),
+                            DisplayUtils.darkenColor(_themeColorScheme.getColorPrimary(), 0.15f)
+                    );
+                    pathsHistoryContainer.setBackground(bgGrad);
+                    bottomActionBtnsContainerLayout.setBackground(bgGrad);
+                }
                 return true;
 
             }
@@ -481,7 +512,7 @@ public class CustomThemeBuilder {
 
     public FileItemLayoutStylizer createFileItemLayoutStylizer() {
 
-        if(activityCtx == null || themeColorScheme == null ||
+        if(themeColorScheme == null ||
                 fileIconResId == NULL_RESOURCE_ID || fileHiddenIconResId  == NULL_RESOURCE_ID ||
                 folderIconResId  == NULL_RESOURCE_ID) {
             return null;
@@ -494,7 +525,6 @@ public class CustomThemeBuilder {
         }
         return new FileItemLayoutStylizer() {
 
-            private final Activity _activityCtx = activityCtx;
             private final Drawable _fileIcon = fileIconFinal;
             private final Drawable _fileHiddenIcon = fileHiddenIconFinal;
             private final Drawable _folderIcon = folderIconFinal;
