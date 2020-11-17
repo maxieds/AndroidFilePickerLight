@@ -22,8 +22,9 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/progress_bar_background"
-    android:alpha="210"
+    android:background="@color/__colorTransparent"
+    android:alpha="55"
+    android:padding="12dp"
     >
 
     <ImageView
@@ -42,9 +43,9 @@
         android:textColor="#b2d8d8"
         android:typeface="serif"
         android:layout_gravity="center_horizontal|center_vertical"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:textStyle="normal|bold|italic"
-        android:paddingTop="5dp"
+        android:paddingTop="0dp"
         android:paddingBottom="10dp"
         />
 

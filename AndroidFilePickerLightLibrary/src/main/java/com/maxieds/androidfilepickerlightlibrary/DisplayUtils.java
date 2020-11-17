@@ -19,7 +19,11 @@ package com.maxieds.androidfilepickerlightlibrary;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
+import android.graphics.SweepGradient;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -33,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import androidx.core.graphics.ColorUtils;
@@ -253,28 +258,6 @@ public class DisplayUtils {
         displayToastMessageLong(FileChooserActivity.getInstance(), toastMsg);
     }
 
-    public static void displayFolderScrollContents(int scrolledToPosSoFar, int maxScrollPos) {
-        int percentage = (int) scrolledToPosSoFar / maxScrollPos;
-        Toast toastDisplay = Toast.makeText(
-                FileChooserActivity.getInstance(),
-                String.format(Locale.getDefault(), "%d %%", percentage),
-                Toast.LENGTH_SHORT
-        );
-        toastDisplay.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
-        toastDisplay.getView().setPadding(2, 2, 2, 2);
-        int toastBackgroundColor = getColorVariantFromTheme(R.attr.__colorPrimaryDark);
-        int toastTextColor = getColorVariantFromTheme(R.attr.__colorAccentLight);
-        toastDisplay.getView().getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
-        TextView toastTextMsg = toastDisplay.getView().findViewById(android.R.id.message);
-        if(toastTextMsg != null) {
-            toastTextMsg.setTextColor(toastTextColor);
-            toastTextMsg.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f);
-            toastTextMsg.setTypeface(Typeface.SANS_SERIF, Typeface.ITALIC);
-        }
-        toastDisplay.getView().setAlpha(0.65f);
-        toastDisplay.show();
-    }
-
     private static int[] PROGRESS_BAR_VISUAL_MARKERS = new int[] {
             R.drawable.progressbar_0,
             R.drawable.progressbar_1,
@@ -292,8 +275,11 @@ public class DisplayUtils {
     private static boolean toastsDismissed = true;
     private static int progressBarPos, progressBarTotal;
     private static String progressBarSliderName;
+    private static int progressBarTintColor = Color.LTGRAY;
+    private static boolean useProgressBarTintColor = false;
     private static Toast progressBarToast = null;
     private static Activity activityInst = FileChooserActivity.getInstance();
+
     private static Handler progressBarDisplayHandler = new Handler();
     private static Runnable progressBarDisplayRunnable = new Runnable() {
         public void run() {
@@ -302,6 +288,12 @@ public class DisplayUtils {
             }
         }
     };
+
+    public static boolean SetProgressBarMarkerTintColor(Activity activityInst, @ColorRes int colorTintResId) {
+        progressBarTintColor = resolveColorFromResId(activityInst, colorTintResId);
+        useProgressBarTintColor = true;
+        return true;
+    }
 
     public static void DisplayProgressBar(Activity activityInstInput, String thingsName, int curPos, int totalPos) {
         if(!thingsName.equals(progressBarSliderName) || curPos != progressBarPos || totalPos != progressBarTotal) {
@@ -315,7 +307,7 @@ public class DisplayUtils {
         progressBarTotal = totalPos;
         final int statusBarMarkerIdx = Math.min((int) ((curPos - 1) * PROGRESS_BAR_VISUAL_MARKERS.length / totalPos),
                                        PROGRESS_BAR_VISUAL_MARKERS.length - 1);
-        final String statusBarMsg = String.format(Locale.getDefault(), "%s % 3d / % 3d (% .2g %%)",
+        final String statusBarMsg = String.format(Locale.getDefault(), "%s\n% 3d / % 3d (% .2g %%)",
                 thingsName, curPos, totalPos, (float) curPos / totalPos * 100.0);
         final Activity mainAppActivity = activityInst;
         mainAppActivity.runOnUiThread(new Runnable() {
@@ -326,8 +318,15 @@ public class DisplayUtils {
                 LayoutInflater layoutInflater = mainAppActivity.getLayoutInflater();
                 View toastProgressView = layoutInflater.inflate(R.layout.progress_bar_layout, null);
                 Drawable statusBarMarkerImage = mainAppActivity.getResources().getDrawable(PROGRESS_BAR_VISUAL_MARKERS[statusBarMarkerIdx]);
+                if(useProgressBarTintColor) {
+                    statusBarMarkerImage.setTint(Color.WHITE);
+                    statusBarMarkerImage.setTint(progressBarTintColor);
+                }
                 ((ImageView) toastProgressView.findViewById(R.id.progressBarImageMarker)).setImageDrawable(statusBarMarkerImage);
+                ((TextView) toastProgressView.findViewById(R.id.progressBarText)).setTextColor(lightenColor(progressBarTintColor, 0.75f));
                 ((TextView) toastProgressView.findViewById(R.id.progressBarText)).setText(statusBarMsg);
+                GradientDrawable bgGradient = GradientDrawableBuilder.GetStockGradientFromBaseColor(progressBarTintColor);
+                toastProgressView.setBackgroundDrawable(bgGradient);
                 progressBarToast.setView(toastProgressView);
                 if(!toastsDismissed) {
                     progressBarDisplayHandler.postDelayed(progressBarDisplayRunnable, STATUS_TOAST_DISPLAY_REFRESH_TIME);
@@ -342,6 +341,12 @@ public class DisplayUtils {
         if(toastsDismissed) {
             progressBarDisplayHandler.removeCallbacks(progressBarDisplayRunnable);
         }
+    }
+
+    public static void ResetProgressBarDisplay(boolean enableRedisplay) {
+        progressBarTintColor = Color.LTGRAY;
+        useProgressBarTintColor = false;
+        EnableProgressBarDisplay(false);
     }
 
     public enum GradientMethodSpec {
@@ -386,22 +391,33 @@ public class DisplayUtils {
     };
 
     private static GradientDrawable.Orientation getOrientationFromEnum(int orientConstant) {
-        if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR.ordinal())
+        if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR.ordinal()) {
             return GradientDrawable.Orientation.BL_TR;
-        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_BOTTOM_TOP.ordinal())
+        }
+        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_BOTTOM_TOP.ordinal()) {
             return GradientDrawable.Orientation.BOTTOM_TOP;
-        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_BR_TL.ordinal())
+        }
+        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_BR_TL.ordinal()) {
             return GradientDrawable.Orientation.BR_TL;
-        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_LEFT_RIGHT.ordinal())
+        }
+        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_LEFT_RIGHT.ordinal()) {
             return GradientDrawable.Orientation.LEFT_RIGHT;
-        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_RIGHT_LEFT.ordinal())
+        }
+        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_RIGHT_LEFT.ordinal()) {
             return GradientDrawable.Orientation.RIGHT_LEFT;
-        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_TL_BR.ordinal())
+        }
+        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_TL_BR.ordinal()) {
             return GradientDrawable.Orientation.TL_BR;
-        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_TOP_BOTTOM.ordinal())
+        }
+        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_TOP_BOTTOM.ordinal()) {
             return GradientDrawable.Orientation.TOP_BOTTOM;
-        else
+         }
+        else if(orientConstant == GradientTypeSpec.GRADIENT_FILL_TYPE_TR_BL.ordinal()){
             return GradientDrawable.Orientation.TR_BL;
+        }
+        else {
+            return GradientDrawable.Orientation.BL_TR;
+        }
     }
 
     public enum BorderStyleSpec {
@@ -412,165 +428,69 @@ public class DisplayUtils {
         BORDER_STYLE_NONE,
     };
 
-    public enum NamedGradientColorThemes {
-        NAMED_COLOR_SCHEME_TURQUOISE,
-        NAMED_COLOR_SCHEME_YELLOW_TO_BLUE,
-        NAMED_COLOR_SCHEME_GREEN_YELLOW_GREEN,
-        NAMED_COLOR_SCHEME_METAL_STREAK_BILINEAR,
-        NAMED_COLOR_SCHEME_SILVER_BALLS,
-        NAMED_COLOR_SCHEME_EVENING_SKYLINE,
-        NAMED_COLOR_SCHEME_RAINBOW_STREAK,
-        NAMED_COLOR_SCHEME_STEEL_BLUE,
-        NAMED_COLOR_SCHEME_FIRE_BRIMSTONE,
-    };
-
-    public static GradientDrawable generateNamedGradientType(GradientMethodSpec gmethodSpec,
-                                                             GradientTypeSpec gfillTypeSpec,
-                                                             BorderStyleSpec borderStyleSpec,
-                                                             float gradientAngleSpec,
-                                                             int borderColor,
-                                                             int[] colorList) {
-        GradientDrawable gradientDrawObj = new GradientDrawable(getOrientationFromEnum(gfillTypeSpec.ordinal()), colorList);
-        float centerX = 0.5f, centerY = 0.5f;
-        int borderWidth = 5;
-        gradientDrawObj.setGradientCenter(centerX, centerY);
+    private static GradientDrawable generateGradientByType(GradientMethodSpec gmethodSpec,
+                                                           GradientTypeSpec gfillTypeSpec,
+                                                           BorderStyleSpec borderStyleSpec,
+                                                           int borderColor,
+                                                           int borderSize,
+                                                           int[] colorList) {
+        GradientDrawable gradientDrawObj = new GradientDrawable(
+                    getOrientationFromEnum(gfillTypeSpec.ordinal()),
+                    colorList
+            );
+        gradientDrawObj.setGradientCenter(0.5f, 0.5f);
         gradientDrawObj.setGradientType(getGradientTypeFromEnum(gmethodSpec.ordinal()));
-        gradientDrawObj.setCornerRadius(gradientAngleSpec);
-        gradientDrawObj.setShape(getGradientShapeFromEnum(gmethodSpec.ordinal()));
-        if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_SOLID)
-            gradientDrawObj.setStroke(borderWidth, borderColor);
-        else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_DASHED)
-            gradientDrawObj.setStroke(borderWidth, borderColor, 10, 10);
-        else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_DASHED_LONG)
-            gradientDrawObj.setStroke(borderWidth, borderColor, 25, 10);
-        else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_DASHED_SHORT)
-            gradientDrawObj.setStroke(borderWidth, borderColor, 4, 10);
-        gradientDrawObj.setUseLevel(true);
+        gradientDrawObj.setCornerRadius(3 * borderSize);
+        gradientDrawObj.setShape(GradientDrawable.RECTANGLE);
+        if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_SOLID) {
+            gradientDrawObj.setStroke(borderSize, borderColor);
+        }
+        else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_DASHED) {
+            gradientDrawObj.setStroke(borderSize, borderColor, 2 * borderSize, 2 * borderSize);
+        }
+        else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_DASHED_LONG) {
+            gradientDrawObj.setStroke(borderSize, borderColor, 5 * borderSize, 2 * borderSize);
+        }
+        else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_DASHED_SHORT) {
+            gradientDrawObj.setStroke(borderSize, borderColor, borderSize, borderSize);
+        }
+        else if(borderStyleSpec == BorderStyleSpec.BORDER_STYLE_NONE) {
+            gradientDrawObj.setStroke(borderSize, borderColor, 0, 0);
+        }
         return gradientDrawObj;
     }
 
-    public static GradientDrawable generateNamedGradientType(BorderStyleSpec borderStyleSpec,
-                                                             int borderColor,
-                                                             NamedGradientColorThemes namedColorTheme) {
-        GradientMethodSpec gmethodSpec;
-        GradientTypeSpec gfillTypeSpec;
-        float angleSpec = 45.0f; // Must be a multiple of 45.0f
-        int[] colorList;
-        switch(namedColorTheme) {
-            case NAMED_COLOR_SCHEME_TURQUOISE:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BR_TL;
-                colorList = new int[] {
-                        0xFF99DAFF,
-                        0xFF008080
-                };
-                break;
-            case NAMED_COLOR_SCHEME_YELLOW_TO_BLUE:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 45.0f;
-                colorList = new int[] {
-                        0xFFFFFF00,
-                        0xFF008080,
-                };
-                break;
-            case NAMED_COLOR_SCHEME_GREEN_YELLOW_GREEN:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 45.0f;
-                colorList = new int[] {
-                        0xFF008000,
-                        0xFFffff00,
-                        0xFF008000,
-                };
-                break;
-            case NAMED_COLOR_SCHEME_METAL_STREAK_BILINEAR:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 45.0f;
-                colorList = new int[] {
-                        0xFF000000,
-                        0xFFffffff,
-                        0xFF000000
-                };
-                break;
-            case NAMED_COLOR_SCHEME_SILVER_BALLS:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_RADIAL;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BOTTOM_TOP;
-                colorList = new int[] {
-                        0xFF000000,
-                        0xFFffffff,
-                };
-                break;
-            case NAMED_COLOR_SCHEME_EVENING_SKYLINE:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_RIGHT_LEFT;
-                angleSpec = 45.0f;
-                colorList = new int[] {
-                        0xFFff00ff,
-                        0xFF00ffff
-                };
-                break;
-            case NAMED_COLOR_SCHEME_RAINBOW_STREAK:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_RECTANGLE;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 45.0f;
-                colorList = new int[] {
-                        0xFFff0000,
-                        0xFFffff00,
-                        0xFFff0000
-                };
-                break;
-            case NAMED_COLOR_SCHEME_STEEL_BLUE:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_LEFT_RIGHT;
-                colorList = new int[] {
-                        0xFF008080,
-                        0xFFFFFFFF,
-                        0xFF005757
-                };
-                break;
-            case NAMED_COLOR_SCHEME_FIRE_BRIMSTONE:
-                gmethodSpec = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
-                gfillTypeSpec = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-                angleSpec = 45.0f;
-                colorList = new int[] {
-                        0xFFFF0000,
-                        0xFFffff00,
-                        0xFFff0000
-                };
-                break;
-            default:
-                return null;
+    public static int[] generateGradientColorsListFromBaseColor(int baseColor, int numColorStates) {
+        if(numColorStates < 1) {
+            return null;
         }
-        return generateNamedGradientType(gmethodSpec, gfillTypeSpec, borderStyleSpec, angleSpec, borderColor, colorList);
-    }
-
-    public static GradientDrawable generateNamedGradientType(BorderStyleSpec borderStyleSpec,
-                                                             NamedGradientColorThemes namedColorTheme) {
-        return generateNamedGradientType(borderStyleSpec, resolveColorFromAttribute(R.attr.colorPrimaryDark), namedColorTheme);
+        int[] colorStates = new int[numColorStates];
+        int beforeCount = numColorStates / 2, afterCount = numColorStates - 1 - beforeCount;
+        for(int cidx = 0; cidx < beforeCount; cidx++) {
+            colorStates[cidx] = ColorUtils.blendARGB(baseColor, Color.WHITE, 0.25f + (0.50f / beforeCount) * cidx);
+        }
+        colorStates[beforeCount] = baseColor;
+        for(int cidx = beforeCount + 1; cidx < numColorStates; cidx++) {
+            colorStates[cidx] = ColorUtils.blendARGB(baseColor, Color.BLACK, 0.25f + (0.50f / afterCount) * cidx);
+        }
+        return colorStates;
     }
 
     public static class GradientDrawableBuilder {
 
         private int[] colorsList;
         private GradientMethodSpec gradientType;
-        private float gradientAngle;
-        private int borderColor;
+        private int borderColor, borderSize;
         private BorderStyleSpec borderStyle;
         private GradientTypeSpec gradientFillStyle;
-        private boolean useNamedColorTheme;
-        private NamedGradientColorThemes namedColorTheme;
 
         public GradientDrawableBuilder() {
             colorsList = new int[] {};
             gradientType = GradientMethodSpec.GRADIENT_METHOD_LINEAR;
-            gradientAngle = 90.0f;
             borderColor = 0;
-            borderStyle = BorderStyleSpec.BORDER_STYLE_DASHED_LONG;
+            borderSize = 5;
+            borderStyle = BorderStyleSpec.BORDER_STYLE_SOLID;
             gradientFillStyle = GradientTypeSpec.GRADIENT_FILL_TYPE_BL_TR;
-            useNamedColorTheme = false;
-            namedColorTheme = null;
         }
 
         public GradientDrawableBuilder setColorsArray(int[] colorsArray) {
@@ -578,18 +498,27 @@ public class DisplayUtils {
             return this;
         }
 
+        public GradientDrawableBuilder setColorsArray(int baseColor, int numStates) {
+            colorsList = generateGradientColorsListFromBaseColor(baseColor, numStates);
+            return this;
+        }
+
+        public GradientDrawableBuilder setColorsArray(int baseColor) {
+            return setColorsArray(baseColor, 3);
+        }
+
         public GradientDrawableBuilder setGradientType(GradientMethodSpec gradType) {
             gradientType = gradType;
             return this;
         }
 
-        public GradientDrawableBuilder setGradientAngle(float gradAngle) {
-            gradientAngle = (float) Math.floor(gradAngle / 45.0f); /* Otherwise, Android throws at fatal warning if it is not a multiple of 45.0f */
+        public GradientDrawableBuilder setBorderColor(int bdrColor) {
+            borderColor = bdrColor;
             return this;
         }
 
-        public GradientDrawableBuilder setBorderColor(int bdrColor) {
-            borderColor = bdrColor;
+        public GradientDrawableBuilder setBorderSize(int bdrSize) {
+            borderSize = bdrSize;
             return this;
         }
 
@@ -603,23 +532,44 @@ public class DisplayUtils {
             return this;
         }
 
-        public GradientDrawableBuilder setNamedColorScheme(NamedGradientColorThemes namedTheme) {
-            if(namedTheme != null) {
-                namedColorTheme = namedTheme;
-                useNamedColorTheme = true;
+        public GradientDrawableBuilder setAngle(float gradientAngle) {
+            if(gradientAngle == 0.0f) {
+                return setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_LEFT_RIGHT);
             }
-            else {
-                namedColorTheme = null;
-                useNamedColorTheme = false;
+            else if(gradientAngle == 45.0f) {
+                return setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_TL_BR);
+            }
+            else if(gradientAngle == 90.0f) {
+                return setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_TOP_BOTTOM);
+            }
+            else if(gradientAngle ==  135.f) {
+                return setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_TR_BL);
+            }
+            else if(gradientAngle == -45.f) {
+                return setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_RIGHT_LEFT);
+            }
+            else if(gradientAngle ==  -90.f) {
+                return setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_BR_TL);
+            }
+            else if(gradientAngle == 135.f) {
+                return setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_BOTTOM_TOP);
             }
             return this;
         }
 
         public GradientDrawable make() {
-            if(useNamedColorTheme) {
-                return generateNamedGradientType(borderStyle, borderColor, namedColorTheme);
-            }
-            return generateNamedGradientType(gradientType, gradientFillStyle, borderStyle, gradientAngle, borderColor, colorsList);
+            return generateGradientByType(gradientType, gradientFillStyle, borderStyle, borderColor, borderSize, colorsList);
+        }
+
+        public static GradientDrawable GetStockGradientFromBaseColor(int baseColor) {
+            return new GradientDrawableBuilder()
+                    .setGradientType(GradientMethodSpec.GRADIENT_METHOD_LINEAR)
+                    .setBorderColor(darkenColor(baseColor, 0.5f))
+                    .setBorderSize(5)
+                    .setBorderStyle(BorderStyleSpec.BORDER_STYLE_SOLID)
+                    .setFillStyle(GradientTypeSpec.GRADIENT_FILL_TYPE_LEFT_RIGHT)
+                    .setColorsArray(baseColor, 3)
+                    .make();
         }
 
     }

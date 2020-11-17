@@ -19,7 +19,7 @@
 
 <resources>
 
-    <string name="libraryName">File Picker</string>
+    <string name="libraryName">File Chooser</string>
     <string name="libraryDesc">A lightweight modern file selector</string>
 
     <string name="errorMsgUnknown">An unknown error occurred</string>

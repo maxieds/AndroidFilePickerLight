@@ -4,6 +4,7 @@
   correctly formatted Drawable instances. This is lower priority, but still needs to get tracked down. 
 * Ability for users to create / specify icon types for custom file types (see ``FileChooserBuilder.DefaultFileTypes`` enum).
 * Recent documents default path?
+* Theme the toast messages and the progress bar.
 
 ## Documentation and approach to handling files internally within the picker library
 

@@ -232,6 +232,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
 
     public void actionButtonLaunchProgressBarDemo(View btnView) {
         progressBarDemoCount = 0;
+        DisplayUtils.SetProgressBarMarkerTintColor(this, R.color.exampleCustomThemeGreen);
         progressBarDemoHandler.postDelayed(progressBarDemoRunner, progressBarDemoDelta);
         DisplayUtils.EnableProgressBarDisplay(true);
     }

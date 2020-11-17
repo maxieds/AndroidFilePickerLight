@@ -384,56 +384,11 @@ let the user know that the directory is loading and that the client application 
 To invoke this progress bar display in realtime, consider calling the following 
 [code examples](https://github.com/maxieds/AndroidFileChooserLight/blob/master/AndroidFilePickerLightLibrary/src/main/java/com/maxieds/androidfilepickerlightlibrary/DisplayUtils.java#L159):
 ```java
-DisplayUtils.DisplayProgressBar(Activity activityInstInput, String thingsName, int curPos, int totalPos);
+DisplayUtils.SetProgressBarMarkerTintColor(Activity activityInst, @ColorRes int colorTintResId)
+DisplayUtils.DisplayProgressBar(Activity activityInst, String thingsName, int curPos, int totalPos);
 DisplayUtils.EnableProgressBarDisplay(true);
 // ... Then whenever the long process completes, kill the progress bar update callbacks with: ...
 DisplayUtils.EnableProgressBarDisplay(false);
 ```
 In principle, the status bar is useful when the underlying operation takes longer than, say 8-10 seconds to complete. 
-This code is modified from a status timer to keep the user informed while scanning for a long duration read of 
-NFC tags on Android (see [the MFCToolLibrary](https://github.com/maxieds/MifareClassicToolLibrary) and 
-its demo application). The core of the progress bar is 
-shown by periodically posting Toast messages with a custom layout ``View``. 
-
-#### A custom (mostly all config options inclusive) GradientDrawable builder class (TODO -- Reserved for future uses)
-
-The specifications (mostly collected as compendia from Android reference manuals) are reproduced as follows:
-```java
-    public enum GradientMethodSpec {
-        GRADIENT_METHOD_SWEEP,
-        GRADIENT_METHOD_LINEAR,
-        GRADIENT_METHOD_RADIAL,
-        GRADIENT_METHOD_RECTANGLE,
-        GRADIENT_METHOD_RING_LIKE
-    };
-    public enum GradientTypeSpec {
-        GRADIENT_FILL_TYPE_BL_TR,
-        GRADIENT_FILL_TYPE_BOTTOM_TOP,
-        GRADIENT_FILL_TYPE_BR_TL,
-        GRADIENT_FILL_TYPE_LEFT_RIGHT,
-        GRADIENT_FILL_TYPE_RIGHT_LEFT,
-        GRADIENT_FILL_TYPE_TL_BR,
-        GRADIENT_FILL_TYPE_TOP_BOTTOM,
-        GRADIENT_FILL_TYPE_TR_BL,
-    };
-    public enum BorderStyleSpec {
-        BORDER_STYLE_SOLID,
-        BORDER_STYLE_DASHED,
-        BORDER_STYLE_DASHED_LONG,
-        BORDER_STYLE_DASHED_SHORT,
-        BORDER_STYLE_NONE,
-    };
-    public enum NamedGradientColorThemes {
-        NAMED_COLOR_SCHEME_TURQUOISE,
-        NAMED_COLOR_SCHEME_YELLOW_TO_BLUE,
-        NAMED_COLOR_SCHEME_GREEN_YELLOW_GREEN,
-        NAMED_COLOR_SCHEME_METAL_STREAK_BILINEAR,
-        NAMED_COLOR_SCHEME_SILVER_BALLS,
-        NAMED_COLOR_SCHEME_EVENING_SKYLINE,
-        NAMED_COLOR_SCHEME_RAINBOW_STREAK,
-        NAMED_COLOR_SCHEME_STEEL_BLUE,
-        NAMED_COLOR_SCHEME_FIRE_BRIMSTONE,
-    };
-```
-
-
+The core of the progress bar is shown by periodically posting Toast messages with a custom layout ``View``.
