@@ -221,7 +221,7 @@ public class DisplayUtils {
         }
     }
 
-    private static void displayToastMessage(Activity activityInst, String toastMsg, int msgDuration) {
+    private static void displayToastMessage(Activity activityInst, String toastMsg, int msgDuration, CustomThemeBuilder.FileItemLayoutStylizer layoutStylizer) {
         Toast toastDisplay = Toast.makeText(
                 activityInst,
                 toastMsg,
@@ -231,6 +231,10 @@ public class DisplayUtils {
         toastDisplay.getView().setPadding(10, 10, 10, 10);
         int toastBackgroundColor = getColorVariantFromTheme(R.attr.__colorAccent);
         int toastTextColor = getColorVariantFromTheme(R.attr.__colorPrimaryDark);
+        if(layoutStylizer != null) {
+            toastBackgroundColor = layoutStylizer.getThemeColorizer().getColorAccent();
+            toastTextColor = layoutStylizer.getThemeColorizer().getColorPrimaryDark();
+        }
         toastDisplay.getView().getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
         TextView toastTextMsg = toastDisplay.getView().findViewById(android.R.id.message);
         if(toastTextMsg != null) {
@@ -242,20 +246,32 @@ public class DisplayUtils {
         toastDisplay.show();
     }
 
+    private static void displayToastMessage(Activity activityInst, String toastMsg, int msgDuration) {
+        displayToastMessage(activityInst, toastMsg, msgDuration, null);
+    }
+
+    public static void displayToastMessageShort(Activity activityInst, String toastMsg, CustomThemeBuilder.FileItemLayoutStylizer layoutStylizer) {
+        displayToastMessage(activityInst, toastMsg, Toast.LENGTH_SHORT, layoutStylizer);
+    }
+
     public static void displayToastMessageShort(Activity activityInst, String toastMsg) {
-        displayToastMessage(activityInst, toastMsg, Toast.LENGTH_SHORT);
+        displayToastMessageShort(activityInst, toastMsg, null);
     }
 
     public static void displayToastMessageShort(String toastMsg) {
-        displayToastMessageShort(FileChooserActivity.getInstance(), toastMsg);
+        displayToastMessageShort(FileChooserActivity.getInstance(), toastMsg, DisplayFragments.getInstance().getFileItemLayoutStylizer());
+    }
+
+    public static void displayToastMessageLong(Activity activityInst, String toastMsg, CustomThemeBuilder.FileItemLayoutStylizer layoutStylizer) {
+        displayToastMessage(activityInst, toastMsg, Toast.LENGTH_LONG, layoutStylizer);
     }
 
     public static void displayToastMessageLong(Activity activityInst, String toastMsg) {
-        displayToastMessage(activityInst, toastMsg, Toast.LENGTH_LONG);
+        displayToastMessageLong(activityInst, toastMsg, null);
     }
 
     public static void displayToastMessageLong(String toastMsg) {
-        displayToastMessageLong(FileChooserActivity.getInstance(), toastMsg);
+        displayToastMessageLong(FileChooserActivity.getInstance(), toastMsg, DisplayFragments.getInstance().getFileItemLayoutStylizer());
     }
 
     private static int[] PROGRESS_BAR_VISUAL_MARKERS = new int[] {

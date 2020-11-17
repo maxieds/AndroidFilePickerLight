@@ -48,5 +48,6 @@
     <attr name="namedFolderDownloadsIcon" format="reference" />
     <attr name="namedFolderUserHomeIcon" format="reference" />
     <attr name="namedFolderMediaIcon" format="reference" />
+    <attr name="namedFolderRecentDocsIcon" format="reference" />
 
 </resources>

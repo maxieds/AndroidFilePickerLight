@@ -132,7 +132,7 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
 
         setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread threadRef, Throwable ex) {
-                threadRef.stop();
+                threadRef.interrupt();
             }
         });
 
@@ -355,50 +355,55 @@ public class PrefetchFilesUpdater extends Thread implements FileChooserRecyclerV
         DisplayFragments displayCtx = DisplayFragments.getInstance();
         while(true) {
 
-            if(!isInit) {
+            try {
 
-                FileChooserActivity.getInstance().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!displayCtx.viewportCapacityMesaured && displayCtx.getMainRecyclerView().getLayoutManager().getChildCount() != 0) {
-                            displayCtx.fileItemDisplayHeight = displayCtx.getMainRecyclerView().getLayoutManager().getChildAt(0).getMeasuredHeight();
+                if (!isInit) {
 
-                            if (displayCtx.resetViewportMaxFilesCount(displayCtx.getMainRecyclerView())) {
+                    FileChooserActivity.getInstance().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!displayCtx.viewportCapacityMesaured && displayCtx.getMainRecyclerView().getLayoutManager().getChildCount() != 0) {
+                                displayCtx.fileItemDisplayHeight = displayCtx.getMainRecyclerView().getLayoutManager().getChildAt(0).getMeasuredHeight();
+
+                                if (displayCtx.resetViewportMaxFilesCount(displayCtx.getMainRecyclerView())) {
+                                    displayCtx.getMainRecyclerView().scrollToPosition(0);
+                                    initializeFromRenderedLayout();
+                                }
+                            } else if (displayCtx.viewportCapacityMesaured) {
                                 displayCtx.getMainRecyclerView().scrollToPosition(0);
                                 initializeFromRenderedLayout();
                             }
-                        } else if (displayCtx.viewportCapacityMesaured) {
-                            displayCtx.getMainRecyclerView().scrollToPosition(0);
-                            initializeFromRenderedLayout();
                         }
+                    });
+
+                    try {
+                        Thread.sleep(THREAD_INIT_PAUSE_TIMEOUT);
+                        continue;
+                    } catch (InterruptedException ie) {
+                        throw new InterruptedException();
                     }
-                });
 
-                try {
-                    Thread.sleep(THREAD_INIT_PAUSE_TIMEOUT);
-                    continue;
-                } catch(InterruptedException ie) {
-                    break;
+                } else if (displayCtx.getCwdFolderContext() == null) {
+
+                    try {
+                        Thread.sleep(THREAD_INIT_PAUSE_TIMEOUT);
+                        continue;
+                    } catch (InterruptedException ie) {
+                        throw new InterruptedException();
+                    }
+
                 }
 
-            }
-            else if(displayCtx.getCwdFolderContext() == null) {
+                PrefetchFilesAsyncTask nextPrefetchInBgTask = new PrefetchFilesAsyncTask();
+                nextPrefetchInBgTask.execute();
 
                 try {
-                    Thread.sleep(THREAD_INIT_PAUSE_TIMEOUT);
-                    continue;
-                } catch(InterruptedException ie) {
-                    break;
+                    Thread.sleep(THREAD_PAUSE_TIMEOUT);
+                } catch (InterruptedException ie) {
+                    throw new InterruptedException();
                 }
 
-            }
-
-            PrefetchFilesAsyncTask nextPrefetchInBgTask = new PrefetchFilesAsyncTask();
-            nextPrefetchInBgTask.execute();
-
-            try {
-                Thread.sleep(THREAD_PAUSE_TIMEOUT);
-            } catch(InterruptedException ie) {
+            } catch(Exception ie) {
                 break;
             }
 

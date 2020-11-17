@@ -120,7 +120,6 @@ public class BasicFileProvider extends DocumentsProvider {
     private boolean setLegacyBaseFolderByName(String namedSubFolder) {
         String userPathSep = FileUtils.FILE_PATH_SEPARATOR;
         String storageRelPath = "/storage/self/primary" + (namedSubFolder.length() > 0 ? userPathSep : "");
-        //String storageRelPath = Environment.getExternalStorageDirectory() + userPathSep;
         String absFullFolderPath = String.format(Locale.getDefault(), "%s%s", storageRelPath, namedSubFolder);
         File nextFileByPath = new File(absFullFolderPath);
         if(nextFileByPath == null || !nextFileByPath.exists()) {
@@ -177,6 +176,13 @@ public class BasicFileProvider extends DocumentsProvider {
             default:
                 return;
         }
+    }
+
+    public String getCWD() {
+        if(baseDirPath == null) {
+            return "";
+        }
+        return baseDirPath.getAbsolutePath();
     }
 
     public boolean enterNextSubfolder(String subfolderPath) {

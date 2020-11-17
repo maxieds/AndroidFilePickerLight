@@ -29,6 +29,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -86,7 +87,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         prefetchFilesUpdaterInst.start();
     }
 
-    public void stopPrefetchFileUpdatesThread() { prefetchFilesUpdaterInst.interrupt(); }
+    public void stopPrefetchFileUpdatesThread() {
+        prefetchFilesUpdaterInst.interrupt();
+    }
 
     /**
      * Default handler for  all uncaught exceptions.
@@ -188,8 +191,12 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         List<FileChooserBuilder.DefaultNavFoldersType> defaultDirNavFolders = fpConfig.getNavigationFoldersList();
         final LinearLayout fileDirsNavButtonsContainer = (LinearLayout) findViewById(R.id.mainFileNavBtnsContainer);
         for(int folderIdx = 0; folderIdx < defaultDirNavFolders.size(); folderIdx++) {
+            View longFormBtnView = View.inflate(this, R.layout.nav_folder_button_long_form, null);
             FileChooserBuilder.BaseFolderPathType baseFolderType = defaultDirNavFolders.get(folderIdx).getBaseFolderPathType();
             ImageButton dirNavBtn = new ImageButton(this);
+            if(fpConfig.getShowNavigationLongForm()) {
+                dirNavBtn = longFormBtnView.findViewById(R.id.navigationImgBtn);
+            }
             dirNavBtn.setPadding(10, 10, 10, 10);
             dirNavBtn.setTag(baseFolderType.name());
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
@@ -207,14 +214,23 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 }
             };
             dirNavBtn.setOnClickListener(stockDirNavBtnClickHandler);
-            if(mainLayoutStylizer == null) {
+            if (mainLayoutStylizer == null) {
                 dirNavBtn.setBackgroundColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorToolbarNav));
                 dirNavBtn.setImageDrawable(DisplayUtils.resolveDrawableFromAttribute(defaultDirNavFolders.get(folderIdx).getFolderIconResId()));
-            }
-            else {
+            } else {
                 mainLayoutStylizer.styleDefaultPathNavigationButton(dirNavBtn, defaultDirNavFolders.get(folderIdx));
             }
-            fileDirsNavButtonsContainer.addView(dirNavBtn);
+            if(!fpConfig.getShowNavigationLongForm()) {
+                fileDirsNavButtonsContainer.addView(dirNavBtn);
+            }
+            else {
+                TextView tvLongBtnPathDesc = longFormBtnView.findViewById(R.id.navigationPathShortDescText);
+                if (mainLayoutStylizer != null) {
+                    mainLayoutStylizer.styleDefaultPathNavigationButtonLongText(tvLongBtnPathDesc);
+                }
+                tvLongBtnPathDesc.setText(defaultDirNavFolders.get(folderIdx).getFolderLabel());
+                fileDirsNavButtonsContainer.addView(longFormBtnView);
+            }
         }
 
         /*
@@ -235,10 +251,18 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 String displayAscendingPrecurseMsg = String.format(Locale.getDefault(), "Ascending back upwards into DIR \"%s\".",
                         displayCtx.pathHistoryStack.peek().getCWDBasePath());
                 DisplayUtils.displayToastMessageShort(displayAscendingPrecurseMsg);
-                DisplayTypes.DirectoryResultContext priorFolder = DisplayTypes.DirectoryResultContext.probePreviousFolder(1);
-                DisplayFragments.getInstance().pathHistoryStack.push(priorFolder);
-                DisplayFragments.getInstance().descendIntoNextDirectory(displayCtx.pathHistoryStack.pop().isTopLevelFolder());
-                DisplayFragments.backupFolderHistoryPaths();
+                if(displayCtx.pathHistoryStack.peek().isRecentDocuments()) {
+                    BasicFileProvider fpInst = BasicFileProvider.getInstance();
+                    fpInst.selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+                    DisplayFragments.getInstance().descendIntoNextDirectory(true);
+                    DisplayFragments.updateFolderHistoryPaths(displayCtx.getCwdFolderContext().getCWDBasePath(), true);
+                }
+                else {
+                    DisplayTypes.DirectoryResultContext.probePreviousFolder(1);
+                    boolean initNewTree = displayCtx.pathHistoryStack.peek().isTopLevelFolder();
+                    DisplayFragments.getInstance().descendIntoNextDirectory(initNewTree);
+                    DisplayFragments.updateFolderHistoryPaths(displayCtx.getCwdFolderContext().getCWDBasePath(), initNewTree);
+                }
             }
         });
         LinearLayout dirHistoryNavContainer = (LinearLayout) findViewById(R.id.mainDirPrevPathsNavContainer);
@@ -280,16 +304,6 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         getDisplayFragmentsInstance().initializeRecyclerViewLayout(mainLayoutRecyclerView, fpConfig);
         getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialBaseFolder());
 
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -361,12 +375,14 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     }
 
     public void postSelectedFilesActivityResult() {
+        getDisplayFragmentsInstance().cancelAllOperationsInProgress();
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
         setResult(Activity.RESULT_OK, filesResultIntent);
         finish();
     }
 
     public void postSelectedFilesActivityResult(Exception runtimeExcpt) {
+        getDisplayFragmentsInstance().cancelAllOperationsInProgress();
         runtimeExcpt.printStackTrace();
         Intent filesResultIntent = getSelectedFilesActivityResultIntent();
         FileChooserException.AndroidFilePickerLightException rteLocal = (FileChooserException.AndroidFilePickerLightException) runtimeExcpt;

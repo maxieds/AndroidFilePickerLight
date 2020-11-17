@@ -196,7 +196,7 @@ public class CustomThemeBuilder {
                     DisplayUtils.darkenColor(resolvedColor, 0.65f),   /* COLOR_PRIMARY_DARK */
                     DisplayUtils.darkenColor(resolvedColor, 0.80f),   /* COLOR_PRIMARY_VERY_DARK */
                     DisplayUtils.lightenColor(resolvedColor, 0.72f),  /* COLOR_ACCENT */
-                    DisplayUtils.lightenColor(resolvedColor, 0.50f),  /* COLOR_ACCENT_MEDIUM */
+                    DisplayUtils.lightenColor(resolvedColor, 0.15f),  /* COLOR_ACCENT_MEDIUM */
                     DisplayUtils.lightenColor(resolvedColor, 0.85f),  /* COLOR_ACCENT_LIGHT */
                     DisplayUtils.darkenColor(resolvedColor, 0.88f),   /* COLOR_TOOLBAR_BG */
                     DisplayUtils.lightenColor(resolvedColor, 0.85f),  /* COLOR_TOOLBAR_FG */
@@ -258,6 +258,7 @@ public class CustomThemeBuilder {
         boolean styleNavigationByPathsBaseDisplay(TextView tvNavBtnsDirective);
         boolean styleDefaultPathNavigationButton(ImageButton dirNavBtn, FileChooserBuilder.DefaultNavFoldersType baseFolderBtnType) throws RuntimeException;
         boolean styleBottomNavigationActionButtons(Button doneActionBtn, Button cancelActionBtn);
+        boolean styleDefaultPathNavigationButtonLongText(TextView navBtnLongDesc);
         boolean styleMainActivityLayout(View parentContainerLayoutView) throws RuntimeException;
         boolean styleMainActivityWindow(Window mainActivityWin) throws RuntimeException;
     }
@@ -360,6 +361,15 @@ public class CustomThemeBuilder {
                 } catch(NullPointerException npe) {
                     return false;
                 }
+            }
+
+            @Override
+            public boolean styleDefaultPathNavigationButtonLongText(TextView navBtnLongDesc) {
+                if(navBtnLongDesc == null) {
+                    return false;
+                }
+                navBtnLongDesc.setTextColor(_themeColorScheme.getColorPrimaryDark());
+                return true;
             }
 
             @Override
@@ -504,6 +514,7 @@ public class CustomThemeBuilder {
     }
 
     public interface FileItemLayoutStylizer {
+        FileChooserColorScheme getThemeColorizer();
         boolean setFileTypeIcon(ImageView imgBtn, DisplayTypes.FileType fileItemEntry);
         boolean styleSelectionBox(CompoundButton selectBox);
         boolean applyStyleToLayout(View parentViewContainer, DisplayTypes.FileType fileItemEntry) throws RuntimeException;
@@ -529,6 +540,9 @@ public class CustomThemeBuilder {
             private final Drawable _fileHiddenIcon = fileHiddenIconFinal;
             private final Drawable _folderIcon = folderIconFinal;
             private final FileChooserColorScheme _themeColorScheme = themeColorScheme;
+
+            @Override
+            public FileChooserColorScheme getThemeColorizer() { return _themeColorScheme; }
 
             @Override
             public boolean setFileTypeIcon(ImageView fileTypeIcon, DisplayTypes.FileType fileItemEntry) {

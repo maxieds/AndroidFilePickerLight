@@ -91,7 +91,8 @@ public class FileChooserBuilder implements Serializable {
         FOLDER_SCREENSHOTS("Screenshots", R.attr.namedFolderScreenshotsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS),
         FOLDER_DOWNLOADS("Downloads", R.attr.namedFolderDownloadsIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS),
         FOLDER_USER_HOME("Home", R.attr.namedFolderUserHomeIcon, BaseFolderPathType.BASE_PATH_TYPE_USER_DATA_DIR),
-        FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DCIM);
+        FOLDER_MEDIA_VIDEO("Media", R.attr.namedFolderMediaIcon, BaseFolderPathType.BASE_PATH_TYPE_EXTERNAL_FILES_DCIM),
+        FOLDER_RECENT_DOCUMENTS("Recent", R.attr.namedFolderRecentDocsIcon, BaseFolderPathType.BASE_PATH_TYPE_RECENT_DOCUMENTS);
 
         public static final Map<Integer, DefaultNavFoldersType> NAV_FOLDER_INDEX_LOOKUP_MAP = new HashMap<>();
         public static final Map<String, DefaultNavFoldersType> NAV_FOLDER_NAME_LOOKUP_MAP = new HashMap<>();
@@ -153,6 +154,7 @@ public class FileChooserBuilder implements Serializable {
 
     public static List<DefaultNavFoldersType> getDefaultNavFoldersList() {
         List<DefaultNavFoldersType> navFoldersList = new ArrayList<DefaultNavFoldersType>();
+        navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_RECENT_DOCUMENTS"));
         navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_ROOT_STORAGE"));
         navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_USER_HOME"));
         navFoldersList.add(DefaultNavFoldersType.NAV_FOLDER_NAME_LOOKUP_MAP.get("FOLDER_PICTURES"));
@@ -173,6 +175,7 @@ public class FileChooserBuilder implements Serializable {
         BASE_PATH_TYPE_MEDIA_STORE,
         BASE_PATH_SECONDARY_STORAGE,
         BASE_PATH_DEFAULT,
+        BASE_PATH_TYPE_RECENT_DOCUMENTS,
         BASE_PATH_EXTERNAL_PROVIDER;
 
         public static final Map<Integer, BaseFolderPathType> NAV_FOLDER_INDEX_TO_INST_MAP = new HashMap<>();
@@ -209,6 +212,7 @@ public class FileChooserBuilder implements Serializable {
     private CustomThemeBuilder displayUIConfig;
     private int activityActionCode;
     private List<DefaultNavFoldersType> defaultNavFoldersList;
+    private boolean navPathBtnsLongForm;
     private boolean showHidden;
     private int maxSelectedFiles;
     private BaseFolderPathType initFolderBasePathType;
@@ -235,6 +239,7 @@ public class FileChooserBuilder implements Serializable {
         displayUIConfig = null;
         activityActionCode = ACTIVITY_CODE_SELECT_FILE_ONLY;
         defaultNavFoldersList = getDefaultNavFoldersList();
+        navPathBtnsLongForm = false;
         showHidden = false;
         maxSelectedFiles = DEFAULT_MAX_SELECTED_FILES;
         initFolderBasePathType = BaseFolderPathType.getInstanceByType(BaseFolderPathType.BASE_PATH_TYPE_FILES_DIR);
@@ -271,6 +276,11 @@ public class FileChooserBuilder implements Serializable {
     public boolean allowSelectFolderItems() {
         return pathSelectMode.ordinal() == SelectionModeType.SELECT_DIRECTORY_ONLY.ordinal() ||
                 pathSelectMode.ordinal() != SelectionModeType.SELECT_FILE_ONLY.ordinal();
+    }
+
+    public FileChooserBuilder setNavigationLongForm(boolean enableLongForm) {
+        navPathBtnsLongForm = enableLongForm;
+        return this;
     }
 
     public FileChooserBuilder setRecyclerViewStartBufferSize(int newBufSize) {
@@ -367,6 +377,8 @@ public class FileChooserBuilder implements Serializable {
     public FileChooserBuilder setExternalFilesProvider(ContentProvider extFileProvider) {
         throw new FileChooserException.NotImplementedException();
     }
+
+    public boolean getShowNavigationLongForm() { return navPathBtnsLongForm; }
 
     public long getIdleTimeout() {
         return idleTimeoutMillis;

@@ -191,7 +191,9 @@ public class DisplayFragments {
             lastFileDataStartIndex = 0;
             lastFileDataEndIndex = Math.min(Math.max(0, nextFolder.getFolderChildCount() - 1), lastFileDataStartIndex + getViewportMaxFilesCount() - 1);
             setCwdFolderContext(nextFolder);
-            getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
+            if(!nextFolder.isRecentDocuments()) {
+                getCwdFolderContext().computeDirectoryContents(lastFileDataStartIndex, lastFileDataEndIndex);
+            }
             displayNextDirectoryFilesList(getCwdFolderContext().getWorkingDirectoryContents());
 
             // Restart the prefetch thread for the current directory:
@@ -299,7 +301,6 @@ public class DisplayFragments {
 
     private static final String EMPTY_FOLDER_HISTORY_PATH = "";
     private static String folderHistoryOneBackPath = EMPTY_FOLDER_HISTORY_PATH;
-    private static String folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
 
     public static FolderNavigationFragment mainFolderNavFragment = null;
 
@@ -322,20 +323,7 @@ public class DisplayFragments {
         else {
             nextFolderEntryPointPath = String.format(Locale.getDefault(), "➤  %s", nextFolderEntryPointPath);
         }
-        if(initNewFileTree) {
-            folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
-            folderHistoryOneBackPath = nextFolderEntryPointPath;
-        }
-        else {
-            folderHistoryTwoBackPath = folderHistoryOneBackPath;
-            folderHistoryOneBackPath = nextFolderEntryPointPath;
-        }
-        DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
-    }
-
-    public static void backupFolderHistoryPaths() {
-        folderHistoryOneBackPath = folderHistoryTwoBackPath;
-        folderHistoryTwoBackPath = EMPTY_FOLDER_HISTORY_PATH;
+        folderHistoryOneBackPath = nextFolderEntryPointPath;
         DisplayFragments.FolderNavigationFragment.dirsOneBackText.setText(folderHistoryOneBackPath);
     }
 

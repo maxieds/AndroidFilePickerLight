@@ -145,6 +145,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE);
         fpInst.setSelectMultiple(5);
         fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
+        fpInst.setNavigationLongForm(false);
         fpInst.showHidden(true);
         fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
 
@@ -166,6 +167,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_downloads_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_DOWNLOADS)
                 .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_user_home_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_USER_HOME)
                 .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_media_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_MEDIA_VIDEO)
+                .setNavigationByPathButtonIcon(R.drawable.greentheme_named_folder_recents_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_RECENT_DOCUMENTS)
                 .setDefaultFileIcon(R.drawable.greentheme_generic_file_icon32)
                 .setDefaultHiddenFileIcon(R.drawable.greentheme_hidden_file_icon32)
                 .setDefaultFolderIcon(R.drawable.greentheme_folder_icon32);
@@ -181,6 +183,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE);
         fpInst.setSelectMultiple(5);
         fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
+        fpInst.setNavigationLongForm(true);
         fpInst.showHidden(true);
         fpInst.setPickerInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
 
@@ -202,6 +205,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_downloads_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_DOWNLOADS)
                 .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_user_home_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_USER_HOME)
                 .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_media_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_MEDIA_VIDEO)
+                .setNavigationByPathButtonIcon(R.drawable.orangetheme_named_folder_recents_icon32, FileChooserBuilder.DefaultNavFoldersType.FOLDER_RECENT_DOCUMENTS)
                 .setDefaultFileIcon(R.drawable.orangetheme_generic_file_icon32)
                 .setDefaultHiddenFileIcon(R.drawable.orangetheme_hidden_file_icon32)
                 .setDefaultFolderIcon(R.drawable.orangetheme_folder_icon32);

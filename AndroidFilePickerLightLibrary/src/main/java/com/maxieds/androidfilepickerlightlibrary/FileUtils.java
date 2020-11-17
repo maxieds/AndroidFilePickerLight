@@ -49,6 +49,17 @@ public class FileUtils {
         return absPath.substring(lastPathSep + 1);
     }
 
+    public static String getFileBasePath(String absPath) {
+        if(absPath == null) {
+            return "";
+        }
+        int lastPathSep = absPath.lastIndexOf(FILE_PATH_SEPARATOR);
+        if(lastPathSep < 0) {
+            lastPathSep = absPath.length();
+        }
+        return absPath.substring(lastPathSep);
+    }
+
     public static boolean isHiddenFile(String filePath) {
         return validFileBaseName(filePath) && filePath.length() >= 1 && filePath.charAt(0) == '.';
     }

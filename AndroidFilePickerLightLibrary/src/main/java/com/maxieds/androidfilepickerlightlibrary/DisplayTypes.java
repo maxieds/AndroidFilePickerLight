@@ -45,6 +45,7 @@ public class DisplayTypes {
         private String activeCWDAbsPath;
         private int folderMaxChildCount;
         private boolean isTopLevelFolder;
+        private boolean isRecentDocsFolder;
 
         public DirectoryResultContext(MatrixCursor mcResult, String parentFolderDocId, String parentFolderAbsPath) {
             directoryContentsList = new ArrayList<FileType>();
@@ -55,13 +56,19 @@ public class DisplayTypes {
             BasicFileProvider fpInst = BasicFileProvider.getInstance();
             fpInst.noUpdateQueryFilesList();
             try {
-                folderMaxChildCount = fpInst.getFolderChildCount(parentDocId);
+                if(isRecentDocuments()) {
+                    folderMaxChildCount = mcResult.getCount();
+                }
+                else {
+                    folderMaxChildCount = fpInst.getFolderChildCount(parentDocId);
+                }
             } catch(FileNotFoundException nfe) {
                 nfe.printStackTrace();
                 folderMaxChildCount = 0;
             }
             isTopLevelFolder = false;
-            Log.i(LOGTAG, String.format(Locale.getDefault(), "Initializing new folder at path: \"%s\" ... ", activeCWDAbsPath));
+            isRecentDocsFolder = false;
+            Log.d(LOGTAG, String.format(Locale.getDefault(), "Initializing new folder at path: \"%s\" ... ", activeCWDAbsPath));
         }
 
         public List<FileType> getWorkingDirectoryContents() { return directoryContentsList; }
@@ -72,6 +79,14 @@ public class DisplayTypes {
 
         public boolean isTopLevelFolder() { return isTopLevelFolder; }
         public void setTopLevelFolder(boolean topLevel) { isTopLevelFolder = topLevel; }
+
+        public boolean isRecentDocuments() {
+            return isRecentDocsFolder;
+        }
+        public void setIsRecentDocuments(boolean isRecentDocs) {
+            isRecentDocsFolder = isRecentDocs;
+            setTopLevelFolder(isRecentDocs);
+        }
 
         public String getCWDBasePath() {
             return FileUtils.getFileBaseNameFromPath(activeCWDAbsPath);
@@ -165,12 +180,38 @@ public class DisplayTypes {
             DisplayFragments.updateFolderHistoryPaths(FileUtils.getFileBaseNameFromPath(activeCWDAbsPath), initNewFileTree);
             try {
                 // Load the document ID for the current position in case it is out of range:
-                computeDirectoryContents(posIndex, posIndex);
-                FileType selectedFileItem = directoryContentsList.get(0);
-                return probeAtCursoryFolderQuery(selectedFileItem.getBaseName());
+                if(!isRecentDocuments()) {
+                    computeDirectoryContents(posIndex, posIndex);
+                    FileType selectedFileItem = directoryContentsList.get(0);
+                    return probeAtCursoryFolderQuery(selectedFileItem.getBaseName());
+                }
+                else {
+                    FileType selectedFileItem = directoryContentsList.get(posIndex);
+                    return probeAtCursoryFolderQuery(selectedFileItem.getAbsolutePath().replaceAll(fpInst.getCWD(), ""));
+                }
             } catch(Exception ioe) {
                 ioe.printStackTrace();
                 DisplayFragments.getInstance().pathHistoryStack.pop();
+                return null;
+            }
+        }
+
+        private static DirectoryResultContext probeAtCursoryFolderQueryGetNextRecents() {
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            try {
+                MatrixCursor cursoryProbe = (MatrixCursor) fpInst.queryRoots(BasicFileProvider.DEFAULT_ROOT_PROJECTION);
+                cursoryProbe.moveToFirst();
+                String initDirBaseName = fpInst.getBaseNameAtCurrentRow(cursoryProbe, BasicFileProvider.CURSOR_TYPE_IS_ROOT);
+                String cursoryProbeFolderCwd = "Recent Documents";
+                DisplayFragments.updateFolderHistoryPaths(cursoryProbeFolderCwd, true);
+                String parentDocsId = cursoryProbe.getString(BasicFileProvider.ROOT_PROJ_ROOTID_COLUMN_INDEX);
+                MatrixCursor expandedFolderContents = (MatrixCursor) fpInst.queryRecentDocuments(parentDocsId, BasicFileProvider.DEFAULT_DOCUMENT_PROJECTION);
+                DirectoryResultContext exploredFolderCtx = new DirectoryResultContext(expandedFolderContents, parentDocsId, cursoryProbeFolderCwd);
+                exploredFolderCtx.setIsRecentDocuments(true);
+                return exploredFolderCtx;
+            }
+            catch(IOException ioe) {
+                ioe.printStackTrace();
                 return null;
             }
         }
@@ -203,8 +244,14 @@ public class DisplayTypes {
                 fpInst.setCustomFileFilter(DisplayFragments.getInstance().localFilesListFilter);
                 fpInst.setCustomFolderSort(DisplayFragments.getInstance().localFilesListSortFunc);
             }
-            fpInst.selectBaseDirectoryByType(baseFolderChoice);
-            return probeAtCursoryFolderQueryGetNext();
+            if(baseFolderChoice.ordinal() != FileChooserBuilder.BaseFolderPathType.BASE_PATH_TYPE_RECENT_DOCUMENTS.ordinal()) {
+                fpInst.selectBaseDirectoryByType(baseFolderChoice);
+                return probeAtCursoryFolderQueryGetNext();
+            }
+            else {
+                fpInst.selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+                return probeAtCursoryFolderQueryGetNextRecents();
+            }
         }
 
         public static DirectoryResultContext probeAtCursoryFolderQuery(String nextSubfolderPath) {
@@ -285,6 +332,10 @@ public class DisplayTypes {
 
         public String getBaseName() {
             return FileUtils.getFileBaseNameFromPath(getAbsolutePath());
+        }
+
+        public String getBasePath() {
+            return FileUtils.getFileBasePath(getAbsolutePath());
         }
 
         public boolean isDirectory() {

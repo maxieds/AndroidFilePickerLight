@@ -44,8 +44,7 @@ Key features in the library include the following:
 ### Screenshots of the library in action
 
 <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201112-052224.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/WorkingUI-Screenshot_20201113-134724.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFilePickerLight/master/Screenshots/SampleApplicationDemo-ProgressBarDisplay.png" width="250" />
-<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeGreen-Screenshot_20201117-040512.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrange-Screenshot_20201117-040532.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrangeWithGradientToolbars-Screenshot_20201117-065739.png" width="250" />
-
+<img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeGreen-Screenshot_20201117-040512.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrangeWithGradientToolbars-Screenshot_20201117-065739.png" width="250" /> <img src="https://raw.githubusercontent.com/maxieds/AndroidFileChooserLight/master/Screenshots/SampleAppThemeOrangeWithNavLongLabels-Screenshot_20201117-094425.png" width="250" />
 ## Including the library for use in a client Android application
 
 There are a couple of quickstart items covered in the sections below to handle before this
@@ -74,7 +73,7 @@ dependencies {
     // FOR the most recent build:
     implementation 'com.github.maxieds:AndroidFilePickerLight:master-SNAPSHOT'
     // -- OR: for the latest release:
-    implementation 'com.github.maxieds:AndroidFilePickerLight:release-v3'
+    implementation 'com.github.maxieds:AndroidFilePickerLight:release-v4'
 }
 allprojects {
     repositories {
@@ -187,6 +186,7 @@ These can be set using the ``AndroidFilePickerLight.Builder`` class as follows:
         .setCustomThemeStylizerConfig(CustomThemeBuilder uiCfg) // See docs below
         .setActionCode(int activityResultCode)
         .setNavigationFoldersList(List<DefaultNavFoldersType> navFoldersList)
+        .setNavigationLongForm(true)
         .showHidden(boolean enable)
         .setSelectMultiple(int maxFileInsts)
         .setSelectionMode(SelectionModeType modeType)

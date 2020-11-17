@@ -79,7 +79,6 @@ public class DisplayAdapters {
 
         @Override
         public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            //Log.i(LOGTAG,"onCreateViewHolder");
             View rowItem = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_file_entry_item, parent, false);
             return new BaseViewHolder(rowItem);
         }
@@ -98,19 +97,13 @@ public class DisplayAdapters {
         }
 
         @Override
-        public void onViewRecycled(BaseViewHolder bvHolder) {
-            //Log.i(LOGTAG,"onViewRecycled: " + bvHolder + " AT initial INDEX " + bvHolder.getInitialIndexPosition());
-        }
+        public void onViewRecycled(BaseViewHolder bvHolder) {}
 
         @Override
-        public void onViewDetachedFromWindow(BaseViewHolder bvHolder) {
-            //Log.i(LOGTAG,"onViewDetachedFromWindow: " + bvHolder + " AT initial INDEX " + bvHolder.getInitialIndexPosition());
-        }
+        public void onViewDetachedFromWindow(BaseViewHolder bvHolder) {}
 
         @Override
-        public void onViewAttachedToWindow(BaseViewHolder bvHolder) {
-            //Log.i(LOGTAG,"onViewAttachedToWindow: " + bvHolder + " AT initial INDEX " + bvHolder.getInitialIndexPosition());
-        }
+        public void onViewAttachedToWindow(BaseViewHolder bvHolder) {}
 
         @Override
         public int getItemCount() {
@@ -146,7 +139,7 @@ public class DisplayAdapters {
             }
             @Override
             public void onLongPress(MotionEvent e) {
-                Log.i(LOGTAG, "BaseViewHolder::GestureDetector::onLongPress");
+                //Log.i(LOGTAG, "BaseViewHolder::GestureDetector::onLongPress");
                 RecyclerView mainFileListRecyclerView = DisplayFragments.getMainRecyclerView();
                 View childView = mainFileListRecyclerView.findChildViewUnder(e.getX(), e.getY());
                 if(childView != null) {
@@ -190,13 +183,11 @@ public class DisplayAdapters {
 
         @Override
         public void onClick(View v) {
-            Log.i(LOGTAG, "BaseViewHolder::onClick");
             onLongClick(v);
         }
 
         @Override
         public boolean onLongClick(View v) {
-            Log.i(LOGTAG, "BaseViewHolder::onLongClick");
             DisplayTypes.FileType fileItem = getFileItemForView(v);
             if(fileItem != null && fileItem.isDirectory()) {
                 // Recursively descend into the clicked directory location:
@@ -205,8 +196,6 @@ public class DisplayAdapters {
                     return false;
                 }
                 int fileItemPosIndex = getPositionForView(v);
-                DisplayTypes.DirectoryResultContext workingFolder;
-                nextFolderParent.clearDirectoryContentsList();
                 DisplayFragments.getInstance().pathHistoryStack.push(nextFolderParent);
                 DisplayTypes.DirectoryResultContext nextFolder = nextFolderParent.loadNextFolderAtIndex(fileItemPosIndex, true);
                 DisplayFragments.getInstance().pathHistoryStack.push(nextFolder);
@@ -215,18 +204,6 @@ public class DisplayAdapters {
                 DisplayUtils.displayToastMessageShort(displayRecurseMsg);
                 return true;
             }
-            /*else if(fileItem != null && !fileItem.isDirectory()) {
-                View cbView = v.findViewById(R.id.fileSelectCheckBox);
-                if(cbView == null) {
-                    return false;
-                }
-                CheckBox selectionBox = (CheckBox) cbView;
-                if(!selectionBox.isEnabled()) {
-                    return false;
-                }
-                boolean isPrevSelected = selectionBox.isSelected();
-                return (isPrevSelected == !selectionBox.performClick()); // if the click performed changed the selection, then success
-            }*/
             return false;
         }
 
