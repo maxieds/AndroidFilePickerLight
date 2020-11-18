@@ -31,8 +31,8 @@ android {
     defaultConfig {
         minSdkVersion 29
         targetSdkVersion 30
-        versionCode 9
-        versionName "1.0.8"
+        versionCode 10
+        versionName "1.0.9"
         defaultConfig.applicationId "com.maxieds.androidfilepickerlightlibrary"
     }
 
