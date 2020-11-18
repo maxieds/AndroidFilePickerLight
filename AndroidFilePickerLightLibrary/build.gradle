@@ -33,6 +33,7 @@ android {
         targetSdkVersion 30
         versionCode 9
         versionName "1.0.8"
+        defaultConfig.applicationId "com.maxieds.androidfilepickerlightlibrary"
     }
 
     compileOptions {
