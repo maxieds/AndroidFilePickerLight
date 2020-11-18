@@ -487,31 +487,22 @@ public class FileChooserBuilder implements Serializable {
         if(activityInst == null || data == null) {
             throw new FileChooserException.CommunicateNoDataException();
         }
-        switch(requestCode) {
-            case ACTIVITY_CODE_SELECT_FILE_ONLY:
-            case ACTIVITY_CODE_SELECT_DIRECTORY_ONLY:
-            case ACTIVITY_CODE_SELECT_MULTIPLE_FILES:
-                if(resultCode == RESULT_OK) {
-                    List<String> selectedDataItems = data.getStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY);
-                    finishActivityResultHandler(activityInst);
-                    try { // A short pause to give the calling Activity time to resume form at the top of the display:
-                        Thread.sleep(250);
-                    } catch(InterruptedException ie) {}
-                    return selectedDataItems;
-                }
-                else if(resultCode == RESULT_CANCELED) {
-                    try {
-                        String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
-                        finishActivityResultHandler(activityInst);
-                        throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
-                    } catch (NullPointerException npe) {
-                        npe.printStackTrace();
-                    }
-                }
-                break;
-            default:
-                break;
-
+        if(resultCode == RESULT_OK) {
+            List<String> selectedDataItems = data.getStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY);
+            finishActivityResultHandler(activityInst);
+            try { // A short pause to give the calling Activity time to resume form at the top of the display:
+                Thread.sleep(250);
+            } catch(InterruptedException ie) {}
+            return selectedDataItems;
+        }
+        else if(resultCode == RESULT_CANCELED) {
+            try {
+                String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
+                finishActivityResultHandler(activityInst);
+                throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
+            } catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
         }
         FileChooserException.AndroidFilePickerLightException resultNotOKException = new FileChooserException.GenericRuntimeErrorException();
         resultNotOKException.packageDataItemsFromIntent(data);

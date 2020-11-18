@@ -62,7 +62,7 @@ configuration:
 ```bash
 android {
      defaultConfig {
-        minSdkVersion 29
+        minSdkVersion 26
      }
      compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -73,7 +73,7 @@ dependencies {
     // FOR the most recent build:
     implementation 'com.github.maxieds:AndroidFilePickerLight:master-SNAPSHOT'
     // -- OR: for the latest release:
-    implementation 'com.github.maxieds:AndroidFilePickerLight:release-v6'
+    implementation 'com.github.maxieds:AndroidFilePickerLight:release-v7'
 }
 allprojects {
     repositories {
