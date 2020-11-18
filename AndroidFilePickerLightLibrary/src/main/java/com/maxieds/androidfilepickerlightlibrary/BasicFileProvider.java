@@ -777,7 +777,7 @@ public class BasicFileProvider extends DocumentsProvider {
             return null;
         }
         try {
-            ParcelFileDescriptor docDesc = openDocument(documentId, "r+", null);
+            ParcelFileDescriptor docDesc = openDocument(documentId, "r", null);
             FileDescriptor fd = docDesc.getFileDescriptor();
             FileInputStream inputStream = new FileInputStream(fd);
             StringBuilder sbuilder = new StringBuilder();
@@ -806,7 +806,7 @@ public class BasicFileProvider extends DocumentsProvider {
             return null;
         }
         try {
-            ParcelFileDescriptor docDesc = openDocument(documentId, "r+", null);
+            ParcelFileDescriptor docDesc = openDocument(documentId, "r", null);
             FileDescriptor fd = docDesc.getFileDescriptor();
             FileInputStream inputStream = new FileInputStream(fd);
             int actualSize = 0, bufCapacity = BYTE_BUFFER_SIZE;
