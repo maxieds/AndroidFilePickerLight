@@ -843,7 +843,7 @@ public class BasicFileProvider extends DocumentsProvider {
      *    https://developer.android.com/guide/topics/providers/create-document-provider#browsing
      */
 
-    class DocumentPointer {
+    public static class DocumentPointer {
 
         private BasicFileProvider fpInst;
         private boolean isValid;
@@ -932,11 +932,19 @@ public class BasicFileProvider extends DocumentsProvider {
             return fpInst.readFileContentsAsString(documentId, offset, maxBytes);
         }
 
+        public StringBuilder readFileContentsAsString() {
+            return readFileContentsAsString(0, Integer.MAX_VALUE);
+        }
+
         public byte[] readFileContentsAsByteArray(int offset, int maxBytes) {
             if(!isValid() || documentId == null) {
                 return null;
             }
             return fpInst.readFileContentsAsByteArray(documentId, offset, maxBytes);
+        }
+
+        public byte[] readFileContentsAsByteArray() {
+            return readFileContentsAsByteArray(0, Integer.MAX_VALUE);
         }
 
     }
