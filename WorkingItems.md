@@ -1,6 +1,25 @@
 # TODO: A working tabulation of items that still need to get fixed for the next release of the library (TBD)
 
 * Ability for users to create / specify icon types for custom file types (see ``FileChooserBuilder.DefaultFileTypes`` enum).
+* Moving forward (especially with the restrictive upcoming Android 11 permissions settings), are going to need a way to
+  translate an obtained chosen path, and then read from it without having to tag the returned results with
+  FileProvider docIds that the user doesn't need to know about. Create a handy utils interface for this ???
+
+* A working question of mine is why we need all of this abstraction just to access files on the local disks?
+  I get that more abstract file types (e.g., from over the network) or interfaces can be desirable in complicated setups,
+  but why when the stock Java ``File`` interfaces work already are we having to go through this convoluted way of
+  confusing the user's access by standard file paths as IDs? The inner implementation suggested by Google just
+  transforms the ``File`` back and forth from that object type to the document ID, or ``root:pathData`` format.
+  1. NOTE: It is not always possible to set Posix file permissions on external storage in recent Android APIs.
+  2. The system also does not like to always honor returning genuine properties back to the user about the document,
+     even if it just corresponds to a (correct) path on disk obtained legitimately by the working ``DocumentsProvider` instance.
+  3. In this case (just working off of the default file system on your Droid device), is the difference that the system
+     gives some magic credence to interfaces derived from ``DocumentsProvider``? E.g., so that it will allow an
+     instance of that interface to magically grok FS data and properties, but deny the same access to users that are only
+     working within stock Java ``File`` I/O contexts?
+  4. If (3) is true, I repeat my confusion and distaste for this scheme and added bits of convolution rather than
+     useful abstraction to a generalized more powerful interface.
+     I need more information, but the documentation for this is still very missing in a lot of places.
 
 ## Documentation and approach to handling files internally within the picker library
 

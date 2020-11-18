@@ -71,7 +71,6 @@
             android:permission="android.permission.MANAGE_DOCUMENTS"
             android:initOrder="100"
             >
-            <!--"com.maxieds.androidfilepickerlightlibrary.FileChooserActivity"-->
 
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />

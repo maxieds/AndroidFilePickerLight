@@ -341,6 +341,22 @@ public class FileChooserException {
 
     }
 
+    public static class BasicFileProviderException extends AndroidFilePickerLightException {
+
+        private static int UNIQUE_ERROR_CODE = claimNextUniqueErrorCode();
+
+        protected static BasicFileProviderException getNewInstance() {
+            return new BasicFileProviderException();
+        }
+
+        public BasicFileProviderException() {
+            configureExceptionParams(UNIQUE_ERROR_CODE,
+                    "The BasicFileProvider is not initialized or has reached an illegal state",
+                    true, DEFAULT_DATA_ITEMS_TYPE, null);
+        }
+
+    }
+
     public static class UnsupportedTypeException extends AndroidFilePickerLightException {
 
         private static int UNIQUE_ERROR_CODE = claimNextUniqueErrorCode();

@@ -145,7 +145,7 @@ public class BasicFileProvider extends DocumentsProvider {
         return true;
     }
 
-    public void selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
+    public boolean selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
         Context appCtx = FileChooserActivity.getInstance();
         switch(baseFolderType) {
             case BASE_PATH_TYPE_FILES_DIR:
@@ -189,8 +189,9 @@ public class BasicFileProvider extends DocumentsProvider {
             case BASE_PATH_TYPE_MEDIA_STORE:
             case BASE_PATH_EXTERNAL_PROVIDER:
             default:
-                return;
+                break;
         }
+        return baseDirPath != null;
     }
 
     public String getCWD() {
@@ -400,6 +401,7 @@ public class BasicFileProvider extends DocumentsProvider {
         if(extDocsProviderStaticInst != null) {
             return extDocsProviderStaticInst.openDocumentThumbnail(documentId, sizeHint, signal);
         }
+        // The document needs to have the flag: FLAG_SUPPORTS_THUMBNAIL ???
 
         final File file = getFileForDocId(documentId);
         final ParcelFileDescriptor pfd =
@@ -668,7 +670,6 @@ public class BasicFileProvider extends DocumentsProvider {
         } else {
             final String path = docId.substring(splitIndex + 1);
             target = new File(target, path);
-            //Log.i(LOGTAG, "DOCID effective path -> " + target.getAbsolutePath());
             if (!target.exists()) {
                 throw new FileNotFoundException("Missing file for " + docId + " at " + target);
             }
@@ -676,9 +677,14 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
+    private long getDocumentSize(String docId) throws FileNotFoundException {
+        File docFileRef = getFileForDocId(docId);
+        return docFileRef.length();
+    }
+
     public static final boolean CURSOR_TYPE_IS_ROOT = true;
 
-    public static String getDocumentIdForCursorType(MatrixCursor mcResult, boolean cursorType) {
+    private static String getDocumentIdForCursorType(MatrixCursor mcResult, boolean cursorType) {
         if(mcResult.getCount() == 0) {
             return null;
         }
@@ -766,18 +772,22 @@ public class BasicFileProvider extends DocumentsProvider {
 
     private static final int BYTE_BUFFER_SIZE = 128;
 
-    public StringBuilder readFileContentsAsString(final String documentId) {
+    public StringBuilder readFileContentsAsString(final String documentId, int offset, int maxBytes) {
+        if(offset < 0 || maxBytes <= 0) {
+            return null;
+        }
         try {
             ParcelFileDescriptor docDesc = openDocument(documentId, "r+", null);
             FileDescriptor fd = docDesc.getFileDescriptor();
             FileInputStream inputStream = new FileInputStream(fd);
             StringBuilder sbuilder = new StringBuilder();
             byte[] byteBuf = new byte[BYTE_BUFFER_SIZE];
-            int bytesRead = inputStream.read(byteBuf, 0, BYTE_BUFFER_SIZE);
+            int bytesRead = inputStream.read(byteBuf, offset, Math.min(maxBytes, BYTE_BUFFER_SIZE));
             while(bytesRead > 0) {
+                maxBytes -= bytesRead;
                 byte[] bytesReadBuf = Arrays.copyOf(byteBuf, bytesRead);
                 sbuilder.append(new String(bytesReadBuf));
-                bytesRead = inputStream.read(byteBuf, 0, BYTE_BUFFER_SIZE);
+                bytesRead = inputStream.read(byteBuf, 0, Math.min(maxBytes, BYTE_BUFFER_SIZE));
             }
             inputStream.close();
             docDesc.close();
@@ -791,15 +801,19 @@ public class BasicFileProvider extends DocumentsProvider {
         }
     }
 
-    public byte[] readFileContentsAsBytesArray(final String documentId) {
+    public byte[] readFileContentsAsByteArray(final String documentId, int offset, int maxBytes) {
+        if(offset < 0 || maxBytes <= 0) {
+            return null;
+        }
         try {
             ParcelFileDescriptor docDesc = openDocument(documentId, "r+", null);
             FileDescriptor fd = docDesc.getFileDescriptor();
             FileInputStream inputStream = new FileInputStream(fd);
             int actualSize = 0, bufCapacity = BYTE_BUFFER_SIZE;
             byte[] returnBuf = new byte[BYTE_BUFFER_SIZE], byteBuf = new byte[BYTE_BUFFER_SIZE];
-            int bytesRead = inputStream.read(byteBuf, 0, BYTE_BUFFER_SIZE);
+            int bytesRead = inputStream.read(byteBuf, offset, Math.min(maxBytes, BYTE_BUFFER_SIZE));
             while(bytesRead > 0) {
+                maxBytes -= bytesRead;
                 byte[] bytesReadBuf = Arrays.copyOf(byteBuf, bytesRead);
                 System.arraycopy(returnBuf, actualSize, bytesReadBuf, 0, bytesRead);
                 actualSize += bytesRead;
@@ -809,7 +823,7 @@ public class BasicFileProvider extends DocumentsProvider {
                     System.arraycopy(nextReturnBuf, 0, returnBuf, 0, actualSize);
                     returnBuf = nextReturnBuf;
                 }
-                bytesRead = inputStream.read(byteBuf, 0, BYTE_BUFFER_SIZE);
+                bytesRead = inputStream.read(byteBuf, 0, Math.min(maxBytes, BYTE_BUFFER_SIZE));
             }
             inputStream.close();
             docDesc.close();
@@ -821,6 +835,110 @@ public class BasicFileProvider extends DocumentsProvider {
             ioe.printStackTrace();
             return null;
         }
+    }
+
+    /* More robust DocumentsProvider functionality:
+     * -> Support document creation: https://developer.android.com/guide/topics/providers/create-document-provider#creating
+     * -> Support document management features: (delete, rename, copy, move, remove)
+     *    https://developer.android.com/guide/topics/providers/create-document-provider#browsing
+     */
+
+    class DocumentPointer {
+
+        private BasicFileProvider fpInst;
+        private boolean isValid;
+        private FileChooserBuilder.BaseFolderPathType baseFolderType;
+        private String relativeFolderPathOffset;
+        private String absFolderPathOffset;
+        private String filePath;            // Should be trimmed relative to the initial base folders
+        private String documentId;
+        private Cursor documentCursorEntry; // Of size one
+
+        private void initializeDefaults() {
+            fpInst = BasicFileProvider.getInstance();
+            if(fpInst == null) {
+                throw new FileChooserException.BasicFileProviderException();
+            }
+            isValid = false;
+            baseFolderType = null;
+            relativeFolderPathOffset = null;
+            absFolderPathOffset = null;
+            filePath = null;
+            documentId = null;
+            documentCursorEntry = null;
+        }
+
+        DocumentPointer(FileChooserBuilder.BaseFolderPathType baseFolderType) {
+            initializeDefaults();
+            fpInst.resetBaseDirectory();
+            isValid = fpInst.selectBaseDirectoryByType(baseFolderType);
+            this.baseFolderType = baseFolderType;
+        }
+
+        DocumentPointer(FileChooserBuilder.BaseFolderPathType baseFolderType, String relativeOffsetPath) {
+            initializeDefaults();
+            fpInst.resetBaseDirectory();
+            isValid = fpInst.selectBaseDirectoryByType(baseFolderType);
+            isValid = isValid && fpInst.enterNextSubfolder(relativeOffsetPath);
+            this.baseFolderType = baseFolderType;
+            this.relativeFolderPathOffset = relativeOffsetPath;
+        }
+
+        DocumentPointer(String absInitFolderPath) {
+            initializeDefaults();
+            fpInst.resetBaseDirectory();
+            isValid = fpInst.enterNextSubfolder(absInitFolderPath);
+            this.absFolderPathOffset = absInitFolderPath;
+        }
+
+        public boolean isValid() { return isValid; }
+
+        public boolean locateDocument(String documentPath) throws FileNotFoundException {
+            if(!isValid()) {
+                return false;
+            }
+            this.filePath = documentPath.replaceFirst(fpInst.getCWD(), "");
+            File docFile = new File(fpInst.getCWD(), filePath);
+            documentId = fpInst.getDocIdForFile(docFile);
+            return true;
+        }
+
+        public boolean deleteDocument() throws FileNotFoundException {
+            if(!isValid() || documentId == null) {
+                return false;
+            }
+            fpInst.deleteDocument(documentId);
+            return true;
+        }
+
+        public String getDocumentType() throws FileNotFoundException {
+            if(!isValid() || documentId == null) {
+                return null;
+            }
+            return fpInst.getDocumentType(documentId);
+        }
+
+        public long getDocumentSize() throws FileNotFoundException {
+            if(!isValid() || documentId == null) {
+                return 0;
+            }
+            return fpInst.getDocumentSize(documentId);
+        }
+
+        public StringBuilder readFileContentsAsString(int offset, int maxBytes) {
+            if(!isValid() || documentId == null) {
+                return null;
+            }
+            return fpInst.readFileContentsAsString(documentId, offset, maxBytes);
+        }
+
+        public byte[] readFileContentsAsByteArray(int offset, int maxBytes) {
+            if(!isValid() || documentId == null) {
+                return null;
+            }
+            return fpInst.readFileContentsAsByteArray(documentId, offset, maxBytes);
+        }
+
     }
 
 }
