@@ -102,7 +102,6 @@ that the application set the option
         android:launchMode="singleTop"
         android:manageSpaceActivity=".MyAndroidProjectMainActivity"
         android:requestLegacyExternalStorage="true"
-        android:preserveLegacyExternalStorage="true"
         android:allowBackup="true"
         >
      <!-- Complete the internals of the application tag (activities, etc.) below -->

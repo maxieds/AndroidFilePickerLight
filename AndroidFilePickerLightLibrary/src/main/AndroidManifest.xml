@@ -36,9 +36,9 @@
         android:usesCleartextTraffic="false"
         android:installLocation="preferExternal"
         android:requestLegacyExternalStorage="true"
-        android:preserveLegacyExternalStorage="true"
         android:largeHeap="true"
         >
+        <!--android:preserveLegacyExternalStorage="true" : Causes problems with minSDK < 29 ... -->
 
         <activity
             android:name=".FileChooserActivity"
