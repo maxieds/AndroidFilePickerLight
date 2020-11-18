@@ -404,7 +404,64 @@ fcConfig.filterByMimeTypes(List<String> fileTypesList, boolean includeExcludeInL
 fcConfig.filterByRegex(String fileFilterPattern, boolean includeExcludeInList);
 ```
 
-### Misc other useful utilities and customizations bundled with the main library
+### BasicFileProvider (DocumentsProvider) post hoc interface
+
+In the use case I have for this library, I expect users to select default folder paths and initial
+script files from disk that will be run much later on after selection. In this context, it makes little
+sense to queue up to much backend resources devoted to holding on to a pivot in the documents provider
+that should service out the file contents until it is ready to be called. Thus, we will require a
+mechanism to recall folder position and state from within the local ``DocumentsProvider`` class,
+and then read (later more advanced functionality) out the file contents as a ``String`` or ``byte[]`` buffer,
+either in small chunks, or all at once for sufficiently small sized text files (like small shell scripts).
+
+With this in mind, there is a class in
+[BasicFileProvider.java](https://github.com/maxieds/AndroidFilePickerLight/blob/master/AndroidFilePickerLightLibrary/src/main/java/com/maxieds/androidfilepickerlightlibrary/BasicFileProvider.java#L846) called
+``DocumentPointer`` that allows for this sort of long after the fact post hoc recovery of file I/O
+access once a user has selected the document path on disk (the ``Activity`` may restart, in fact,
+before we need to recover the read access to the file by its path). It seems silly that Android 11 now
+invokes having to go through this abstraction hoop when we are already returned a fully qualified path on disk.
+Nonetheless, the permissions specs in upcoming API releases dictate getting used to this procedure now, and
+better at this point than after a forced system upgrade that breaks my application in a year.
+
+Here is an example that determines whether a file path (a priori known to point to a normal file, not directory)
+is text based based on its mime type. Then, if it is, the second function below fetches its contents in ``String`` form:
+```java
+    public static boolean isFileContentsTextBased(String filePath) {
+            try {
+                BasicFileProvider.DocumentPointer docRef = new BasicFileProvider.DocumentPointer(CONFIG_DEFAULT_STORAGE_TYPE, FileUtils.getFileBasePath(filePath));
+                if (!docRef.isValid()) {
+                    return false;
+                } else if (!docRef.locateDocument(filePath)) {
+                    return false;
+                }
+                String fileMimeType = docRef.getDocumentType();
+                return fileMimeType.toLowerCase(Locale.getDefault()).startsWith("text");
+            } catch(Exception ex) {
+                ex.printStackTrace();
+                return false;
+            }
+        }
+
+        public static String getFileContentsAsString(String filePath) {
+            if(!isFileContentsTextBased(filePath)) {
+                return null;
+            }
+            try {
+                BasicFileProvider.DocumentPointer docRef = new BasicFileProvider.DocumentPointer(CONFIG_DEFAULT_STORAGE_TYPE, FileUtils.getFileBasePath(filePath));
+                if (!docRef.isValid()) {
+                    return null;
+                } else if (!docRef.locateDocument(filePath)) {
+                    return null;
+                }
+                return docRef.readFileContentsAsString().toString();
+            } catch(Exception ex) {
+                ex.printStackTrace();
+                return null;
+            }
+        }
+```
+
+### Other useful utilities and customizations bundled with the main library
 
 #### Displaying a visual linear bar style progress bar for slow directory loads
 
@@ -412,7 +469,7 @@ This functionality may be useful at some point for those willing to extend this 
 custom external file providers, e.g., to read and recurse into directories on Dropbox or GitHub. 
 I have a simple visual Toast-like display that can be updated and/or canceled in real time to 
 let the user know that the directory is loading and that the client application is just "thinking" 
-(as opposed to freezing with an inexplicable runtime error).
+(as opposed to unexpectedly freezing with an inexplicable to the user runtime error).
 
 To invoke this progress bar display in realtime, consider calling the following 
 [code examples](https://github.com/maxieds/AndroidFileChooserLight/blob/master/AndroidFilePickerLightLibrary/src/main/java/com/maxieds/androidfilepickerlightlibrary/DisplayUtils.java#L159):
