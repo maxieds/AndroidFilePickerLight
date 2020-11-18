@@ -263,10 +263,10 @@ public class DisplayTypes {
                 fpInst.setCustomFileFilter(DisplayFragments.getInstance().localFilesListFilter);
                 fpInst.setCustomFolderSort(DisplayFragments.getInstance().localFilesListSortFunc);
             }
-            if(!fpInst.enterNextSubfolder(nextSubfolderPath)) {
+            // Choose to degrade nicely if possible (no throwing fatal errors if can recover):
+            if(!fpInst.enterNextSubfolder(nextSubfolderPath) && fpInst.getCWD().equals("")) { // did not load anywhere:
                 return null;
             }
-            Log.i(LOGTAG, "ENTERING subfolder \"" + nextSubfolderPath + "\" ...");
             return probeAtCursoryFolderQueryGetNext();
         }
 
