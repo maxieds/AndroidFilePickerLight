@@ -64,13 +64,14 @@
 
         <provider
             android:name="com.maxieds.androidfilepickerlightlibrary.BasicFileProvider"
-            android:authorities="com.maxieds.androidfilepickerlightlibrary.FileChooserActivity"
-            android:exported="true"
+            android:authorities="com.maxieds.androidfilepickerlightlibrary"
+            android:exported="false"
             android:enabled="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS"
             android:initOrder="100"
             >
+            <!--"com.maxieds.androidfilepickerlightlibrary.FileChooserActivity"-->
 
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
