@@ -868,14 +868,14 @@ public class BasicFileProvider extends DocumentsProvider {
             documentCursorEntry = null;
         }
 
-        DocumentPointer(FileChooserBuilder.BaseFolderPathType baseFolderType) {
+        public DocumentPointer(FileChooserBuilder.BaseFolderPathType baseFolderType) {
             initializeDefaults();
             fpInst.resetBaseDirectory();
             isValid = fpInst.selectBaseDirectoryByType(baseFolderType);
             this.baseFolderType = baseFolderType;
         }
 
-        DocumentPointer(FileChooserBuilder.BaseFolderPathType baseFolderType, String relativeOffsetPath) {
+        public DocumentPointer(FileChooserBuilder.BaseFolderPathType baseFolderType, String relativeOffsetPath) {
             initializeDefaults();
             fpInst.resetBaseDirectory();
             isValid = fpInst.selectBaseDirectoryByType(baseFolderType);
@@ -884,7 +884,7 @@ public class BasicFileProvider extends DocumentsProvider {
             this.relativeFolderPathOffset = relativeOffsetPath;
         }
 
-        DocumentPointer(String absInitFolderPath) {
+        public DocumentPointer(String absInitFolderPath) {
             initializeDefaults();
             fpInst.resetBaseDirectory();
             isValid = fpInst.enterNextSubfolder(absInitFolderPath);
