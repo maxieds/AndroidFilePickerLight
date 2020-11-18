@@ -65,7 +65,7 @@
         <provider
             android:name="com.maxieds.androidfilepickerlightlibrary.BasicFileProvider"
             android:authorities="com.maxieds.androidfilepickerlightlibrary"
-            android:exported="false"
+            android:exported="true"
             android:enabled="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS"
