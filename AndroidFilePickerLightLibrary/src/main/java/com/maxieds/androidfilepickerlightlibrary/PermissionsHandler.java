@@ -22,6 +22,9 @@ import android.content.pm.PackageManager;
 
 import androidx.core.content.ContextCompat;
 
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
+
 public class PermissionsHandler {
 
     protected static boolean hasAccessPermission(Activity activityCtx, String permName) {
@@ -34,11 +37,18 @@ public class PermissionsHandler {
     public static boolean obtainRequiredPermissions(Activity activityCtx, String[] permsList) {
         if(android.os.Build.VERSION.SDK_INT >= 23) {
              activityCtx.requestPermissions(permsList, REQUEST_REQUIRED_PERMISSIONS_CODE);
+             EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(activityCtx, REQUEST_REQUIRED_PERMISSIONS_CODE, permsList)
+                            .setRationale(R.string.grantPermsDialogRationaleText)
+                            .setPositiveButtonText(R.string.grantPermsDialogOkBtnText)
+                            .setNegativeButtonText(R.string.grantPermsDialogCancelBtnText)
+                            .setTheme(R.style.LibraryDefaultTheme)
+                            .build());
         }
         for(int pidx = 0; pidx < permsList.length; pidx++) {
             if(!hasAccessPermission(activityCtx, permsList[pidx])) {
-                //throw new FileChooserException.PermissionsErrorException();
-                return false;
+                throw new FileChooserException.PermissionsErrorException();
+                //return false;
             }
         }
         return true;

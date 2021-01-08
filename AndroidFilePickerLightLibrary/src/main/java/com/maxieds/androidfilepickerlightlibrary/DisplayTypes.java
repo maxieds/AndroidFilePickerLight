@@ -106,7 +106,7 @@ public class DisplayTypes {
                 return;
             }
             if(newItemsCount > 0) {
-                fpInst.setFilesStartIndex(maxIndexPos + 1 - Math.abs(newItemsCount));
+                fpInst.setFilesStartIndex(Math.max(0, maxIndexPos + 1 - Math.abs(newItemsCount)));
                 fpInst.setFilesListLength(Math.abs(newItemsCount));
                 Log.d(LOGTAG, "REQUESTING start index = " + (maxIndexPos + 1 - Math.abs(newItemsCount)) + ", LEN = " + Math.abs(newItemsCount));
             }

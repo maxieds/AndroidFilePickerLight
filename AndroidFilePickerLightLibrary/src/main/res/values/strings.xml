@@ -36,4 +36,12 @@
     <string name="filePickerDoneActionButtonText">Done</string>
     <string name="filePickerCancelActionButtonText">Cancel</string>
 
+    <string name="grantPermsDialogOkBtnText">Grant Permissions</string>
+    <string name="grantPermsDialogCancelBtnText">Deny Permissions</string>
+    <string name="grantPermsDialogRationaleText">
+        We require several file storage permissions to list and access the local device file system,
+        e.g., to choose a file or directory path to load. You will not be able to select files with
+        this application unless these permissions are granted.
+    </string>
+
 </resources>

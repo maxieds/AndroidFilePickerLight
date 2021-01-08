@@ -452,11 +452,12 @@ public class BasicFileProvider extends DocumentsProvider {
         int lastFileIndex = startFileIndex + getFilesListLength();
         if(lastFileIndex >= docsQueryFilesList.length) {
             lastFileIndex = docsQueryFilesList.length - 1;
-            startFileIndex = Math.max(0, lastFileIndex - getFilesListLength());
+            startFileIndex = Math.max(0, lastFileIndex + 1 - getFilesListLength());
         }
         int curFileIndex = 0;
         for(File file : docsQueryFilesList) {
-            if(curFileIndex++ < startFileIndex) {
+            if(curFileIndex < startFileIndex) {
+                curFileIndex++;
                 continue;
             }
             else if(curFileIndex > lastFileIndex) {

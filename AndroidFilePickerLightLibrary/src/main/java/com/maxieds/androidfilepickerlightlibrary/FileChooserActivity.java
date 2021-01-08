@@ -325,12 +325,13 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public static final String[] ACTIVITY_REQUIRED_PERMISSIONS = {
             "android.permission.READ_EXTERNAL_STORAGE",
             "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.ACCESS_MEDIA_LOCATION",
     };
 
     public static final String[] ACTIVITY_OPTIONAL_PERMISSIONS = {
-            "android.permission.MANAGE_EXTERNAL_STORAGE",
+            "android.permission.INTERNET",
             "android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
-            "android.permission.INTERNET"
+            "android.permission.MANAGE_EXTERNAL_STORAGE",
     };
 
     @Override
@@ -402,5 +403,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         setResult(Activity.RESULT_CANCELED, filesResultIntent);
         finish();
     }
+
+    @Override
+    public void onBackPressed() {}
 
 }

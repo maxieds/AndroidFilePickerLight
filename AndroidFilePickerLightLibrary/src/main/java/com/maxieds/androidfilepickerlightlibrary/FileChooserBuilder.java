@@ -471,6 +471,7 @@ public class FileChooserBuilder implements Serializable {
         Intent launchPickerIntent = new Intent(activityContextRef.get().getApplicationContext(), FileChooserActivity.class);
         launchPickerIntent.setAction(Intent.ACTION_PICK_ACTIVITY);
         launchPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        launchPickerIntent.setType("*/*");
         activityContextRef.get().startActivityForResult(launchPickerIntent, activityActionCode);
     }
 
