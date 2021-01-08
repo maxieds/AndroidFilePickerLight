@@ -426,7 +426,7 @@ better at this point than after a forced system upgrade that breaks my applicati
 Here is an example that determines whether a file path (a priori known to point to a normal file, not directory)
 is text based based on its mime type. Then, if it is, the second function below fetches its contents in ``String`` form:
 ```java
-    public static boolean isFileContentsTextBased(String filePath) {
+        public static boolean isFileContentsTextBased(String filePath) {
             try {
                 BasicFileProvider.DocumentPointer docRef = new BasicFileProvider.DocumentPointer(CONFIG_DEFAULT_STORAGE_TYPE, FileUtils.getFileBasePath(filePath));
                 if (!docRef.isValid()) {
