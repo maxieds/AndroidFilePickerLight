@@ -247,26 +247,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DisplayFragments displayCtx = DisplayFragments.getInstance();
-                if(displayCtx.pathHistoryStack.empty() || displayCtx.getCwdFolderContext().isTopLevelFolder()) {
-                    getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
-                    return;
-                }
-                String displayAscendingPrecurseMsg = String.format(Locale.getDefault(), "Ascending back upwards into DIR \"%s\".",
-                        displayCtx.pathHistoryStack.peek().getCWDBasePath());
-                DisplayUtils.displayToastMessageShort(displayAscendingPrecurseMsg);
-                if(displayCtx.pathHistoryStack.peek().isRecentDocuments()) {
-                    BasicFileProvider fpInst = BasicFileProvider.getInstance();
-                    fpInst.selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
-                    DisplayFragments.getInstance().descendIntoNextDirectory(true);
-                    DisplayFragments.updateFolderHistoryPaths(displayCtx.getCwdFolderContext().getCWDBasePath(), true);
-                }
-                else {
-                    DisplayTypes.DirectoryResultContext.probePreviousFolder(1);
-                    boolean initNewTree = displayCtx.pathHistoryStack.peek().isTopLevelFolder();
-                    DisplayFragments.getInstance().descendIntoNextDirectory(initNewTree);
-                    DisplayFragments.updateFolderHistoryPaths(displayCtx.getCwdFolderContext().getCWDBasePath(), initNewTree);
-                }
+                chooserBackButtonPressed();
             }
         });
         LinearLayout dirHistoryNavContainer = (LinearLayout) findViewById(R.id.mainDirPrevPathsNavContainer);
@@ -315,6 +296,29 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             getDisplayFragmentsInstance().initiateNewFolderLoad(fpConfig.getInitialBaseFolder(), fpConfig.getInitialPathRelative());
         }
 
+    }
+
+    private void chooserBackButtonPressed() {
+        DisplayFragments displayCtx = DisplayFragments.getInstance();
+        if(displayCtx.pathHistoryStack.empty() || displayCtx.getCwdFolderContext().isTopLevelFolder()) {
+            getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
+            return;
+        }
+        String displayAscendingPrecurseMsg = String.format(Locale.getDefault(), "Ascending back upwards into DIR \"%s\".",
+                displayCtx.pathHistoryStack.peek().getCWDBasePath());
+        DisplayUtils.displayToastMessageShort(displayAscendingPrecurseMsg);
+        if(displayCtx.pathHistoryStack.peek().isRecentDocuments()) {
+            BasicFileProvider fpInst = BasicFileProvider.getInstance();
+            fpInst.selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
+            DisplayFragments.getInstance().descendIntoNextDirectory(true);
+            DisplayFragments.updateFolderHistoryPaths(displayCtx.getCwdFolderContext().getCWDBasePath(), true);
+        }
+        else {
+            DisplayTypes.DirectoryResultContext.probePreviousFolder(1);
+            boolean initNewTree = displayCtx.pathHistoryStack.peek().isTopLevelFolder();
+            DisplayFragments.getInstance().descendIntoNextDirectory(initNewTree);
+            DisplayFragments.updateFolderHistoryPaths(displayCtx.getCwdFolderContext().getCWDBasePath(), initNewTree);
+        }
     }
 
     @Override
@@ -405,6 +409,9 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     }
 
     @Override
-    public void onBackPressed() {}
+    public void onBackPressed() {
+        //super.onBackPressed();
+        chooserBackButtonPressed();
+    }
 
 }

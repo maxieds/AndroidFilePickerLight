@@ -894,12 +894,19 @@ public class BasicFileProvider extends DocumentsProvider {
 
         public boolean isValid() { return isValid; }
 
+        public File getFile(String documentPath) {
+            if(!isValid()) {
+                return null;
+            }
+            this.filePath = documentPath.replaceFirst(fpInst.getCWD(), "");
+            return new File(fpInst.getCWD(), filePath);
+        }
+
         public boolean locateDocument(String documentPath) throws FileNotFoundException {
             if(!isValid()) {
                 return false;
             }
-            this.filePath = documentPath.replaceFirst(fpInst.getCWD(), "");
-            File docFile = new File(fpInst.getCWD(), filePath);
+            File docFile = getFile(documentPath);
             documentId = fpInst.getDocIdForFile(docFile);
             return true;
         }
