@@ -335,7 +335,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public static final String[] ACTIVITY_OPTIONAL_PERMISSIONS = {
             "android.permission.INTERNET",
             "android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
-            "android.permission.MANAGE_EXTERNAL_STORAGE",
+            //"android.permission.MANAGE_EXTERNAL_STORAGE",
     };
 
     @Override
