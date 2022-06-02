@@ -22,6 +22,7 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Environment;
 import android.os.Handler;
@@ -132,9 +133,9 @@ public class BasicFileProvider extends DocumentsProvider {
      * Also, may consider files flags:
      * Context.MODE_APPEND, Context.MODE_PRIVATE, Context.MODE_MULTI_PROCESS ;
      */
-    private boolean setLegacyBaseFolderByName(String namedSubFolder) {
+    private boolean setLegacyBaseFolderByName(String prefixBasePath, String namedSubFolder) {
         String userPathSep = FileUtils.FILE_PATH_SEPARATOR;
-        String storageRelPath = "/storage/self/primary" + (namedSubFolder.length() > 0 ? userPathSep : "");
+        String storageRelPath = prefixBasePath + (namedSubFolder.length() > 0 ? userPathSep : "");
         String absFullFolderPath = String.format(Locale.getDefault(), "%s%s", storageRelPath, namedSubFolder);
         File nextFileByPath = new File(absFullFolderPath);
         if(nextFileByPath == null || !nextFileByPath.exists()) {
@@ -143,6 +144,31 @@ public class BasicFileProvider extends DocumentsProvider {
         }
         baseDirPath = nextFileByPath;
         return true;
+    }
+
+    private boolean setLegacyBaseFolderByName(String namedSubFolder) {
+        String defaultLegacyStorageDir = "/storage/self/primary";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                String ctxStorageDir = FileChooserActivity.getInstance().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+                if (ctxStorageDir != null && ctxStorageDir.length() > 0) {
+                    defaultLegacyStorageDir = ctxStorageDir;
+                    return setLegacyBaseFolderByName(defaultLegacyStorageDir, namedSubFolder);
+                }
+            } catch(Exception rtex) {
+                rtex.printStackTrace();
+            }
+            try {
+                String envStorageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+                if (envStorageDir != null && envStorageDir.length() > 0) {
+                    defaultLegacyStorageDir = envStorageDir;
+                    return setLegacyBaseFolderByName(defaultLegacyStorageDir, namedSubFolder);
+                }
+            } catch(Exception rtex) {
+                rtex.printStackTrace();
+            }
+        }
+        return setLegacyBaseFolderByName(defaultLegacyStorageDir, namedSubFolder);
     }
 
     public boolean selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
