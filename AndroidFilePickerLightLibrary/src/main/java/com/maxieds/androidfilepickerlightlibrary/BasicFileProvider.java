@@ -17,6 +17,8 @@
 
 package com.maxieds.androidfilepickerlightlibrary;
 
+import static java.util.Locale.ROOT;
+
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -32,8 +34,6 @@ import android.provider.DocumentsProvider;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import androidx.core.content.FileProvider;
-
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
@@ -41,19 +41,14 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Set;
-
-import static java.util.Locale.ROOT;
 
 /*
  * Adapted from the source at:

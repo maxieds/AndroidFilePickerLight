@@ -20,7 +20,6 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -31,10 +30,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.Toolbar;
-
-import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -334,7 +331,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     public static final String[] ACTIVITY_OPTIONAL_PERMISSIONS = {
             "android.permission.INTERNET",
-            "android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
+            //"android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
             //"android.permission.MANAGE_EXTERNAL_STORAGE",
     };
 
