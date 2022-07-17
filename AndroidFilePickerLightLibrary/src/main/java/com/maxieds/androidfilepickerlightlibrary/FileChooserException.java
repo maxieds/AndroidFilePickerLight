@@ -75,13 +75,21 @@ public class FileChooserException {
         private ExceptionDataFieldFormatter dataItemsFormatter;
 
         /* Constructors -- building a new descriptive exception from the usual causal data: */
-        public AndroidFilePickerLightException() {
+        public void initializeExceptionData(String excptErrorMsg) {
             isError = false;
             errorCode = 0;
-            errorMsg = "";
+            errorMsg = excptErrorMsg;
             invokingJavaExcpt = null;
             defaultDataItemsFmtType = DEFAULT_DATA_ITEMS_TYPE;
             dataItemsFormatter = null;
+        }
+
+        public AndroidFilePickerLightException(String excptErrorMsg) {
+            initializeExceptionData(excptErrorMsg);
+        }
+
+        public AndroidFilePickerLightException() {
+            initializeExceptionData("<NO-EMSG>");
         }
 
         protected static AndroidFilePickerLightException getNewInstance() {

@@ -205,8 +205,8 @@ public class FileChooserBuilder implements Serializable {
         SELECT_OMNIVORE
     }
 
-    private static FileChooserBuilder localActivityBuildeStaticInst;
-    public static FileChooserBuilder getInstance() { return localActivityBuildeStaticInst; }
+    private static FileChooserBuilder localActivityBuildStaticInst;
+    public static FileChooserBuilder getInstance() { return localActivityBuildStaticInst; }
 
     private WeakReference<Activity> activityContextRef;
     private FileChooserException.AndroidFilePickerLightException defaultExceptionType;
@@ -235,7 +235,7 @@ public class FileChooserBuilder implements Serializable {
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
 
     public FileChooserBuilder(Activity activityContextInst) {
-        localActivityBuildeStaticInst = this;
+        localActivityBuildStaticInst = this;
         activityContextRef = new WeakReference<Activity>(activityContextInst);
         defaultExceptionType = FileChooserException.CommunicateSelectionDataException.getNewInstance();
         displayUIConfig = null;

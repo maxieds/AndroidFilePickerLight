@@ -20,6 +20,8 @@ package com.maxieds.androidfilepickerlightlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -32,6 +34,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +64,18 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     public void setTopLevelBaseFolder(FileChooserBuilder.BaseFolderPathType tlFolder) { topLevelBaseFolder = tlFolder; }
 
     private PrefetchFilesUpdater prefetchFilesUpdaterInst;
+
+    public static final String[] ACTIVITY_REQUIRED_PERMISSIONS = {
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.ACCESS_MEDIA_LOCATION",
+            "android.permission.INTERNET"
+    };
+
+    public static final String[] ACTIVITY_OPTIONAL_PERMISSIONS = {
+            //"android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
+            //"android.permission.MANAGE_EXTERNAL_STORAGE",
+    };
 
     public void startPrefetchFileUpdatesThread() {
         if(prefetchFilesUpdaterInst.isAlive()) {
@@ -96,15 +111,75 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread paramThread, Throwable paramExcpt) {
-                getInstance().postSelectedFilesActivityResult((Exception) paramExcpt);
+                FileChooserException.AndroidFilePickerLightException paramAsRTE = null;
+                String unhandledExcptMsg = "Unhandled file chooser exception";
+                if (paramExcpt != null) {
+                    unhandledExcptMsg = String.format(Locale.getDefault(), "%s: %s", unhandledExcptMsg, paramExcpt.getMessage());
+                    paramAsRTE = new FileChooserException.AndroidFilePickerLightException(unhandledExcptMsg);
+                    paramAsRTE.initCause(paramExcpt);
+                } else {
+                    paramAsRTE = new FileChooserException.AndroidFilePickerLightException(unhandledExcptMsg);
+                }
+                getInstance().postSelectedFilesActivityResult((Exception) paramAsRTE);
             }
         });
+    }
+
+    private final long FILE_CHOOSER_ACTIVITY_PERMISSIONS_CHECK_DELAY = 5000;
+
+    private void checkRequiredPermissionsForActivityLaunch(long closeActivityDelayTimeout) {
+
+        /* A fix to  the problem where the activity hangs indefinitely with a blank screen the
+         * first time an application using the library is run. If we do not have the required
+         * storage permissions, then abort. The notification asking the user whether to allow
+         * the storage access permissions will persist so that running the file chooser activity
+         * the next time will succeed.
+         */
+        String[] requiredPermsList = ACTIVITY_REQUIRED_PERMISSIONS;
+        String missingPermission = "<Unspecified>";
+        boolean checkPermsStatusOK = true;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (String permission : requiredPermsList) {
+                if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    Log.w(LOGTAG, String.format(Locale.getDefault(), "No permission for %s", permission));
+                    checkPermsStatusOK = false;
+                    missingPermission = permission;
+                    break;
+                }
+            }
+        }
+        if (!checkPermsStatusOK) {
+            String activityReturnErrorMsg = String.format(Locale.getDefault(), "File chooser activity aborted: Unable to obtain required permission: %s", missingPermission);
+            final FileChooserException.AndroidFilePickerLightException closeActivityRTEFinal = new FileChooserException.AndroidFilePickerLightException(activityReturnErrorMsg);
+            Handler closeActivityDelayTimeoutHandler = new Handler();
+            Runnable closeActivityDelayTimeoutRunner = new Runnable() {
+                final FileChooserException.AndroidFilePickerLightException rteToPost = closeActivityRTEFinal;
+                @Override
+                public void run() {
+                    FileChooserActivity.getInstance().postSelectedFilesActivityResult((Exception) rteToPost);
+                }
+            };
+            Log.e(LOGTAG, "Aborting file chooser activity with denied permission(s) :(");
+            closeActivityDelayTimeoutHandler.postDelayed(closeActivityDelayTimeoutRunner, closeActivityDelayTimeout);
+        } else {
+            Log.i(LOGTAG, "All required permissions for file chooser obtained!");
+        }
+
     }
 
     @Override
     public void onCreate(Bundle lastSettingsBundle) {
 
         super.onCreate(lastSettingsBundle);
+
+        RuntimeException closeActivityRTE = null;
+        boolean checkPermsStatus = true;
+        try {
+            PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
+            PermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
+        } catch (Throwable permsEx) {}
+
+        /* Otherwise, continue with initializing the file chooser display: */
         setUnhandledExceptionHandler();
         staticRunningInst = this;
         displayFragmentsInst = new DisplayFragments();
@@ -112,13 +187,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         BasicFileProvider.resetBasicFileProviderDefaults();
         cwdFolderCtx = null;
 
-        FileChooserBuilder fpConfig = FileChooserBuilder.getInstance();
+        FileChooserBuilder fpConfig = new FileChooserBuilder(this);
         if(fpConfig.getExternalFilesProvider() != null) {
             BasicFileProvider.setExternalDocumentsProvider(fpConfig.getExternalFilesProvider());
         }
-
-        PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
-        PermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
 
         setTheme(R.style.LibraryDefaultTheme);
         setContentView(R.layout.main_picker_activity_base_layout);
@@ -145,7 +217,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         );
 
         long idleTimeout = fpConfig.getIdleTimeout();
-        if(idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {
+        if (idleTimeout != FileChooserBuilder.NO_ABORT_TIMEOUT) {
             Handler execIdleTimeoutHandler = new Handler();
             Runnable execIdleTimeoutRunner = new Runnable() {
                 @Override
@@ -155,6 +227,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             };
             execIdleTimeoutHandler.postDelayed(execIdleTimeoutRunner, idleTimeout);
         }
+        checkRequiredPermissionsForActivityLaunch(FILE_CHOOSER_ACTIVITY_PERMISSIONS_CHECK_DELAY);
 
     }
 
@@ -323,18 +396,6 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         super.onNewIntent(broadcastIntent);
     }
 
-    public static final String[] ACTIVITY_REQUIRED_PERMISSIONS = {
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.WRITE_EXTERNAL_STORAGE",
-            "android.permission.ACCESS_MEDIA_LOCATION",
-    };
-
-    public static final String[] ACTIVITY_OPTIONAL_PERMISSIONS = {
-            "android.permission.INTERNET",
-            //"android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
-            //"android.permission.MANAGE_EXTERNAL_STORAGE",
-    };
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permsList, int[] grantedPermsList) {
         super.onRequestPermissionsResult(requestCode, permsList, grantedPermsList);
@@ -350,7 +411,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             new AppSettingsDialog.Builder(this).build().show();
         }
         else if(requestCode == PermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE) {
-            throw new FileChooserException.PermissionsErrorException();
+            getInstance().postSelectedFilesActivityResult((Exception) new FileChooserException.PermissionsErrorException());
         }
     }
 

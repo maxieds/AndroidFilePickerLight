@@ -22,9 +22,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:required="true" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:required="true" />
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" android:required="true" />
-    <!--<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" android:required="false" />-->
-    <!--<uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" android:required="false" />-->
-    <uses-permission android:name="android.permission.INTERNET" android:required="false" />
+    <uses-permission android:name="android.permission.INTERNET" android:required="true" />
 
     <application
         android:launchMode="singleTop"
@@ -36,9 +34,9 @@
         android:usesCleartextTraffic="false"
         android:installLocation="preferExternal"
         android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
         android:largeHeap="true"
         >
-        <!--android:preserveLegacyExternalStorage="true" : Causes problems with minSDK < 29 ... -->
 
         <activity
             android:name=".FileChooserActivity"
@@ -52,13 +50,19 @@
             android:grantUriPermissions="true"
             android:noHistory="true"
             android:excludeFromRecents="true"
+            android:launchMode="singleTop"
+            android:autoRemoveFromRecents="true"
+            android:finishOnTaskLaunch="true"
+            android:immersive="true"
+            android:persistableMode="persistNever"
+            android:resizeableActivity="false"
             >
 
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.ACTION_PICK_ACTIVITY" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <!--<category android:name="android.intent.category.HOME" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
 
         </activity>

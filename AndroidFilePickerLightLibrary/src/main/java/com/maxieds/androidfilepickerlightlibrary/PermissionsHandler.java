@@ -34,6 +34,8 @@ public class PermissionsHandler {
     public static final int REQUEST_REQUIRED_PERMISSIONS_CODE = 0;
     public static final int REQUEST_OPTIONAL_PERMISSIONS_CODE = 1;
 
+    public static boolean ABORT_ON_DENIED_PERMISSION = false;
+
     public static boolean obtainRequiredPermissions(Activity activityCtx, String[] permsList) {
         if(android.os.Build.VERSION.SDK_INT >= 23) {
              activityCtx.requestPermissions(permsList, REQUEST_REQUIRED_PERMISSIONS_CODE);
@@ -47,8 +49,11 @@ public class PermissionsHandler {
         }
         for(int pidx = 0; pidx < permsList.length; pidx++) {
             if(!hasAccessPermission(activityCtx, permsList[pidx])) {
-                throw new FileChooserException.PermissionsErrorException();
-                //return false;
+                if (ABORT_ON_DENIED_PERMISSION) {
+                    throw new FileChooserException.PermissionsErrorException();
+                } else {
+                    return false;
+                }
             }
         }
         return true;
