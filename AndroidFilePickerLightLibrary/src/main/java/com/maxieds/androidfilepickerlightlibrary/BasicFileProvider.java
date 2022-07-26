@@ -167,7 +167,7 @@ public class BasicFileProvider extends DocumentsProvider {
     }
 
     public boolean selectBaseDirectoryByType(FileChooserBuilder.BaseFolderPathType baseFolderType) {
-        Context appCtx = FileChooserActivity.getInstance();
+        FileChooserActivity appCtx = FileChooserActivity.getInstance();
         switch(baseFolderType) {
             case BASE_PATH_TYPE_FILES_DIR:
                 baseDirPath = appCtx.getFilesDir();
@@ -201,7 +201,11 @@ public class BasicFileProvider extends DocumentsProvider {
                 setLegacyBaseFolderByName("Pictures");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_SCREENSHOTS:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS);
+                } else {
+                    baseDirPath = new File(appCtx.getFilesDir(), "Pictures/Screenshots");
+                }
                 setLegacyBaseFolderByName("Pictures/Screenshots");
                 break;
             case BASE_PATH_TYPE_USER_DATA_DIR:
