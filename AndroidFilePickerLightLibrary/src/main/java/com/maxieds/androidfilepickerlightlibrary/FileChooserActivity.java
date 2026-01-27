@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.jar.Manifest;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -66,10 +67,14 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     private PrefetchFilesUpdater prefetchFilesUpdaterInst;
 
     public static final String[] ACTIVITY_REQUIRED_PERMISSIONS = {
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.WRITE_EXTERNAL_STORAGE",
-            "android.permission.ACCESS_MEDIA_LOCATION",
-            "android.permission.INTERNET"
+            //"android.permission.READ_EXTERNAL_STORAGE",
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            //"android.permission.WRITE_EXTERNAL_STORAGE",
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            //"android.permission.ACCESS_MEDIA_LOCATION",
+            Manifest.permission.ACCESS_MEDIA_LOCATION,
+            //"android.permission.INTERNET"
+            Manifest.permission.INTERNET
     };
 
     public static final String[] ACTIVITY_OPTIONAL_PERMISSIONS = {
@@ -141,7 +146,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             for (String permission : requiredPermsList) {
                 if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                    Log.w(LOGTAG, String.format(Locale.getDefault(), "No permission for %s", permission));
+                    Log.w(LOGTAG, String.format(Locale.getDefault(), R.string.activityPermErrorMsgFormat, permission));
                     checkPermsStatusOK = false;
                     missingPermission = permission;
                     break;
@@ -149,7 +154,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             }
         }
         if (!checkPermsStatusOK) {
-            String activityReturnErrorMsg = String.format(Locale.getDefault(), "File chooser activity aborted: Unable to obtain required permission: %s", missingPermission);
+            String activityReturnErrorMsg = String.format(Locale.getDefault(), R.string.activityPermErrorMsgFormat, missingPermission);
             final FileChooserException.AndroidFilePickerLightException closeActivityRTEFinal = new FileChooserException.AndroidFilePickerLightException(activityReturnErrorMsg);
             Handler closeActivityDelayTimeoutHandler = new Handler();
             Runnable closeActivityDelayTimeoutRunner = new Runnable() {
@@ -167,14 +172,41 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     }
 
+    private static ActivityResultCallback activityResCb;
+    private static ActivityResultLauncher activityResCbLauncher;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // TODO: If all permissions are obtained, launch the file
+        //       chooser activity before the default 5-sec timeout.
+        if (requestCode == PermissionsHandler.REQUEST_CODE_ASK_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission was granted, proceed with the functionality
+            } else {
+                // Permission was denied, gracefully degrade the app's functionality
+            }
+        }
+    }
     @Override
     public void onCreate(Bundle lastSettingsBundle) {
 
         super.onCreate(lastSettingsBundle);
 
         RuntimeException closeActivityRTE = null;
+        activityResCb = new ActivityResultCallback(this);
+        activityResCbLauncher = registerForActivityResult(activityResCb);
         boolean checkPermsStatus = true;
         try {
+            for (whichPerm : ACTIVITY_REQUIRED_PERMISSIONS) {
+                if (!PermissionsHandler.obtainLocalPermission(this, whichPerm)) {
+                    activityResCbLauncher.launch(whichPerm);
+                }
+            }
             PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
             PermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
         } catch (Throwable permsEx) {}
