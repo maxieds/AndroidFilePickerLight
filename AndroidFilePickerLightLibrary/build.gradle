@@ -41,7 +41,7 @@ android {
 
     defaultConfig {
 
-        ndkVersion null
+        //ndkVersion null
         minSdkVersion 26
         targetSdkVersion 26
         compileSdkVersion 26
