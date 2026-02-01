@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <root-path name="external_files" path="/storage/self/primary" />
+
+        <files-path name="external_files" path="." />
+        <files-path name="root" path="/" />
+        <files-path name="shared" path="shared/"/>
+
+        <cache-path name="cache" path="/" />
+
+        <external-cache-path name="external_cache" path="." />
+
+        <external-files name="/storage/self/primary" path="."/>
+        <external-files name="Download" path="Download/" />
+        <external-files name="Downloads" path="Downloads/" />
+        <external-files name="Movies" path="./Movies/" />
+        <external-files name="Music" path="./Music" />
+        <external-files name="Pictures" path="./Pictures/" />
+        <external-files name="Screenshots" path="Pictures/Screenshots/" />
+        <external-files name="DCIM" path="./DCIM/" />
+        <external-files name="Camera" path="./DCIM/Camera/" />
+
+        <external-files-path name="/storage/self/primary" path="."/>
+        <external-files-path name="Download" path="Download/" />
+        <external-files-path name="Downloads" path="Downloads/" />
+        <external-files-path name="Movies" path="Movies/" />
+        <external-files-path name="Music" path="Music" />
+        <external-files-path name="Pictures" path="Pictures/" />
+        <external-files-path name="Screenshots" path="Pictures/Screenshots/" />
+        <external-files-path name="DCIM" path="DCIM/" />
+        <external-files-path name="Camera" path="DCIM/Camera/" />
+
+</paths>

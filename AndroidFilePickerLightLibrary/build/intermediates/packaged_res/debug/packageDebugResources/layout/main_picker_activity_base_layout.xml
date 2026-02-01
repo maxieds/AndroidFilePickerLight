@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/LibraryDefaultTheme"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:layout_margin="0dp"
+    android:padding="0dp"
+    android:scrollbars="none"
+    android:clickable="true"
+    android:fillViewport="true"
+    tools:context=".FileChooserActivity"
+    >
+
+    <LinearLayout
+        android:id="@+id/fileChooserActivityMainLayoutParentContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:layout_margin="0dp"
+        android:padding="0dp"
+        android:background="@color/__colorAccent"
+        android:clickable="true"
+        >
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/mainLayoutToolbarActionBar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="?mainToolbarBackgroundColor"
+            android:overScrollMode="never"
+            app:titleTextAppearance="@style/LibraryToolbar.TitleText"
+            app:subtitleTextAppearance="@style/LibraryToolbar.SubtitleText"
+            />
+
+        <View
+            android:id="@+id/mainLayoutToolbarFirstShortDivider"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?colorToolbarDivider" />
+
+        <LinearLayout
+            android:id="@+id/mainFileNavBtnsContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:padding="0dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:layout_gravity="left|center_vertical"
+            android:gravity="left|center_vertical"
+            android:orientation="horizontal"
+            android:background="?colorToolbarNav"
+            android:clickable="true"
+            >
+
+            <TextView
+                android:id="@+id/mainFileNavBtnsDirectiveText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:layout_gravity="left|center_vertical"
+                android:layout_margin="0dp"
+                android:layout_marginLeft="8dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="6dp"
+                android:text="@string/filePickerNavBarText"
+                android:textColor="?__colorPrimaryDark"
+                android:textSize="17sp"
+                android:textAllCaps="true"
+                android:textStyle="normal|bold"
+                android:typeface="serif"
+                />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/mainLayoutShortDivider2"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?colorToolbarDivider" />
+
+        <LinearLayout
+            android:id="@+id/mainDirPrevPathsNavContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:padding="2dp"
+            android:layout_gravity="left|center_vertical"
+            android:gravity="left|center_vertical"
+            android:background="?__colorAccentLight"
+            android:orientation="horizontal"
+            android:clickable="true"
+            >
+
+            <ImageButton
+                android:id="@+id/mainDirNavGlobalBackBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center_vertical"
+                android:layout_margin="2dp"
+                android:paddingLeft="6dp"
+                android:paddingRight="15dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/nav_back_button_icon32"
+                />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:layout_gravity="left|center_vertical"
+                android:orientation="vertical"
+                >
+
+                <TextView
+                    android:id="@+id/mainDirNavBackOnePathDisplayText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left|center_vertical"
+                    android:layout_gravity="left|center_vertical"
+                    android:paddingBottom="2dp"
+                    android:text=""
+                    android:textColor="?__colorPrimaryDark"
+                    android:textSize="15sp"
+                    android:textStyle="normal|bold"
+                    android:typeface="serif"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/mainLayoutShortDivider3"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?colorToolbarDivider" />
+
+        <LinearLayout
+            android:id="@+id/mainRecyclerViewContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="400dp"
+            android:layout_weight="1"
+            android:layout_margin="0dp"
+            android:padding="0dp"
+            android:layout_gravity="center_horizontal|top"
+            android:gravity="center_horizontal|top"
+            android:background="?__colorPrimary"
+            android:orientation="vertical"
+            android:clickable="true"
+            >
+
+            <com.maxieds.androidfilepickerlightlibrary.FileChooserRecyclerView
+                android:id="@+id/mainRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="0dp"
+                android:gravity="center_horizontal|top"
+                android:layout_gravity="center_horizontal|top"
+                android:orientation="vertical"
+                android:padding="0dp"
+                android:paddingBottom="6dp"
+                android:fastScrollEnabled="true"
+                android:scrollbarStyle="insideInset"
+                android:scrollbars="none"
+                android:splitMotionEvents="false"
+                android:verticalScrollbarPosition="right"
+                android:scrollbarSize="30dp"
+                />
+            <!--android:overScrollMode="never"-->
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/mainLayoutShortDivider4"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?colorToolbarDivider" />
+
+        <LinearLayout
+            android:id="@+id/bottomActionButtonsNavLayoutContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:padding="0dp"
+            android:layout_gravity="right|bottom"
+            android:gravity="right|bottom"
+            android:background="?__colorAccentLight"
+            android:orientation="horizontal"
+            >
+
+            <Button
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/mainNavBtnActionCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="6dp"
+                android:background="?__colorAccentLight"
+                android:drawableLeft="@drawable/cancel_button_x_icon24"
+                android:drawablePadding="10dp"
+                android:gravity="right|center_vertical"
+                android:layout_gravity="right|center_vertical"
+                android:textColor="?__colorAccentMedium"
+                android:text="@string/filePickerCancelActionButtonText"
+                android:textAllCaps="true"
+                android:textSize="14sp"
+                android:textStyle="normal|bold"
+                />
+
+            <View
+                android:layout_width="6dp"
+                android:layout_height="fill_parent"
+                android:background="@android:color/transparent" />
+
+            <Button
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/mainNavBtnActionDone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:background="?__colorAccentLight"
+                android:drawableLeft="@drawable/done_button_check_icon24"
+                android:drawablePadding="10dp"
+                android:gravity="right|center_vertical"
+                android:layout_gravity="right|center_vertical"
+                android:textColor="?__colorAccentMedium"
+                android:text="@string/filePickerDoneActionButtonText"
+                android:textAllCaps="true"
+                android:textSize="14sp"
+                android:textStyle="normal|bold"
+                />
+
+            <View
+                android:layout_width="6dp"
+                android:layout_height="fill_parent"
+                android:background="@android:color/transparent" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

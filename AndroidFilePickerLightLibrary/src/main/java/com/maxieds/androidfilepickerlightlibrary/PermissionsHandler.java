@@ -23,9 +23,12 @@ import android.content.pm.PackageManager;
 import androidx.core.content.ContextCompat;
 
 import java.util.jar.Manifest;
+import java.util.Map;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
+
+import com.maxieds.androidfilepickerlightlibrary.R;
 
 public class PermissionsHandler {
 
@@ -42,45 +45,30 @@ public class PermissionsHandler {
     private static Map<String, String> REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP;
     static {
         REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP.put(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                R.string.permReadExternalRationale
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "The file chooser needs permission to read/write external storage."
         );
         REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP.put(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                R.string.permWriteExternalRationale
+                "android.permission.WRITE_EXTERNAL_STORAGE",
+                "The file chooser needs permission to read/write external storage."
         );
         REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP.put(
-                Manifest.permission.ACCESS_MEDIA_LOCATION,
-                R.string.permAccessMediaLocRationale
+                "android.permission.ACCESS_MEDIA_LOCATION",
+                "The file chooser needs permission to access file media location."
         );
         REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP.put(
-                Manifest.permission.INTERNET,
-                R.string.permInternetRationale
+                "android.permission.INTERNET",
+                "The file chooser needs Internet permissions to post notifications."
         );
     }
-    public static String lookupPermissionRationale(@NotNull String permID) {
+    public static String lookupPermissionRationale(String permID) {
         String permRationaleLookupResult = REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP.get(permID);
         if (permID == null) {
-            return String.format(R.string.permOptionalRationaleFormat, permID);
+            return String.format("Unknown (optional) permission requested: %s.", permID);
         }
         return permRationaleLookupResult;
     }
 
-    public static boolean obtainLocalPermission(@NotNull Activity activityCtx, String whichPerm) {
-        int hasPerm = activityCtx.checkSelfPermission(whichPerm);
-        int hasPermCompat = ContextCompat.checkSelfPermission(activityCtx, whichPerm)
-        if (hasPerm != PackageManager.PERMISSION_GRANTED ||
-            hasPermCompat == PackageManager.PERMISSION_DENIED) {
-            if (activityCtx.shouldShowRequestPermissionRationale()) {
-                String permRationale = lookupPermissionRationale(whichPerm);
-                displayToastMessageShort(activityCtx, permRationale);
-            }
-            String[] reqPerms = new String[] { whichPerm };
-            activityCtx.requestPermissions(reqPerms, PermissionsHandler.REQUEST_CODE_ASK_PERMISSIONS);
-            return false;
-        }
-        return true;
-    }
     public static boolean obtainRequiredPermissions(Activity activityCtx, String[] permsList) {
         if(android.os.Build.VERSION.SDK_INT >= 23) {
              activityCtx.requestPermissions(permsList, REQUEST_REQUIRED_PERMISSIONS_CODE);

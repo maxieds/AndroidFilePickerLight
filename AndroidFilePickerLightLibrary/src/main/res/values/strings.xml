@@ -44,12 +44,4 @@
         this application unless these permissions are granted.
     </string>
 
-    <string name="activityPermErrorMsgFormat">File chooser activity aborted: Unable to obtain required permission: %s</string>
-
-    <string name="permReadExternalRationale">The file chooser needs permission to read/write external storage.</string>
-    <string name="permWriteExternalRationale">The file chooser needs permission to read/write external storage.</string>
-    <string name="permAccessMediaLocRationale">The file chooser needs permission to access file media location.</string>
-    <string name="permInternetRationale">The file chooser needs Internet permissions to post notifications.</string>
-    <string name="permOptionalRationaleFormat">Unknown (optional) permission requested: %s.</string>
-
 </resources>

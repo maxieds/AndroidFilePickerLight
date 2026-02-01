@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    This program (the AndroidFilePickerLight library) is free software written by
+    Maxie Dion Schmidt: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    The complete license provided with source distributions of this library is
+    available at the following link:
+    https://github.com/maxieds/AndroidFilePickerLight
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.maxieds.androidfilepickerlightlibrary" >
+
+    <uses-sdk android:minSdkVersion="29" />
+    //package="com.maxieds.androidfilepickerlightlibrary">
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.ACCESS_MEDIA_LOCATION"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        android:required="true" />
+
+    <application
+        android:defaultToDeviceProtectedStorage="true"
+        android:excludeFromRecents="false"
+        android:hardwareAccelerated="true"
+        android:installLocation="preferExternal"
+        android:largeHeap="true"
+        android:launchMode="singleTop"
+        android:noHistory="false"
+        android:preserveLegacyExternalStorage="true"
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="false" >
+        <activity
+            android:name="com.maxieds.androidfilepickerlightlibrary.FileChooserActivity"
+            android:alwaysRetainTaskState="true"
+            android:autoRemoveFromRecents="true"
+            android:clearTaskOnLaunch="true"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:finishOnTaskLaunch="true"
+            android:grantUriPermissions="true"
+            android:hardwareAccelerated="true"
+            android:immersive="true"
+            android:launchMode="singleTop"
+            android:noHistory="true"
+            android:persistableMode="persistNever"
+            android:resizeableActivity="false"
+            android:screenOrientation="nosensor"
+            android:stateNotNeeded="true"
+            android:uiOptions="none" >
+            <intent-filter android:priority="1000" >
+                <action android:name="android.intent.action.ACTION_PICK_ACTIVITY" />
+                <!-- <category android:name="android.intent.category.HOME" /> -->
+                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="com.maxieds.androidfilepickerlightlibrary.BasicFileProvider"
+            android:authorities="dollar_openBracket_applicationId_closeBracket.FileChooserActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:initOrder="100"
+            android:permission="android.permission.MANAGE_DOCUMENTS" >
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths_base" />
+        </provider>
+    </application>
+
+</manifest>

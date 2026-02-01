@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr format="reference|color" name="__colorAccent"/>
+    <attr format="reference|color" name="__colorAccentLight"/>
+    <attr format="reference|color" name="__colorAccentMedium"/>
+    <attr format="reference|color" name="__colorPrimary"/>
+    <attr format="reference|color" name="__colorPrimaryDark"/>
+    <attr format="reference|color" name="__colorPrimaryVeryDark"/>
+    <attr format="reference|color" name="colorToolbarDivider"/>
+    <attr format="reference|color" name="colorToolbarNav"/>
+    <attr format="reference" name="defaultFileIcon"/>
+    <attr format="reference" name="defaultFolderIcon"/>
+    <attr format="reference" name="defaultHiddenFileIcon"/>
+    <attr format="reference|string" name="filePickerCancelButtonText"/>
+    <attr format="reference|string" name="filePickerDoneButtonText"/>
+    <attr format="reference|string" name="filePickerNavBarText"/>
+    <attr format="reference|string" name="filePickerTitleText"/>
+    <attr format="reference|color" name="mainToolbarBackgroundColor"/>
+    <attr format="reference|color" name="mainToolbarBackgroundColor2"/>
+    <attr format="reference|color" name="mainToolbarBackgroundColor3"/>
+    <attr format="reference|color" name="mainToolbarBackgroundColor4"/>
+    <attr format="reference|color" name="mainToolbarForegroundTextColor"/>
+    <attr format="reference" name="namedFolderCameraIcon"/>
+    <attr format="reference" name="namedFolderDownloadsIcon"/>
+    <attr format="reference" name="namedFolderMediaIcon"/>
+    <attr format="reference" name="namedFolderPicsIcon"/>
+    <attr format="reference" name="namedFolderRecentDocsIcon"/>
+    <attr format="reference" name="namedFolderSDCardIcon"/>
+    <attr format="reference" name="namedFolderScreenshotsIcon"/>
+    <attr format="reference" name="namedFolderUserHomeIcon"/>
+    <color name="__colorAccent">#A7CEE6</color>
+    <color name="__colorAccentLight">#E9EEF1</color>
+    <color name="__colorAccentMedium">#7A97A9</color>
+    <color name="__colorPrimary">#72B1D6</color>
+    <color name="__colorPrimaryDark">#215270</color>
+    <color name="__colorPrimaryVeryDark">#061B29</color>
+    <color name="__colorTransparent">@android:color/transparent</color>
+    <color name="colorFileListDivider_border">#90A9B8</color>
+    <color name="colorFileListDivider_gradientEnd">#E9EEF1</color>
+    <color name="colorFileListDivider_gradientStart">#BCCBD4</color>
+    <color name="colorMainToolbarBackground">#0D212D</color>
+    <color name="colorMainToolbarBackground2">#1C323E</color>
+    <color name="colorMainToolbarBackground3">#354954</color>
+    <color name="colorMainToolbarBackground4">#4f5F69</color>
+    <color name="colorMainToolbarForegroundText">#DCE4E8</color>
+    <color name="colorToolbarDivider">#215270</color>
+    <color name="colorToolbarNav">#A6BAC6</color>
+    <string name="errorMsgNotSelectable">Cannot select the file path (too many or no multiple)</string>
+    <string name="errorMsgPathJailExceeded">Cannot jump out of the preset top level path sandbox!</string>
+    <string name="errorMsgUnknown">An unknown error occurred</string>
+    <string name="filePickerCancelActionButtonText">Cancel</string>
+    <string name="filePickerDoneActionButtonText">Done</string>
+    <string name="filePickerNavBarText">Navigate: </string>
+    <string name="filePickerTitleText">Select files by path</string>
+    <string name="fileProviderRootSummayDesc">Root of storage for our basic file provider implementation</string>
+    <string name="grantPermsDialogCancelBtnText">Deny Permissions</string>
+    <string name="grantPermsDialogOkBtnText">Grant Permissions</string>
+    <string name="grantPermsDialogRationaleText">
+        We require several file storage permissions to list and access the local device file system,
+        e.g., to choose a file or directory path to load. You will not be able to select files with
+        this application unless these permissions are granted.
+    </string>
+    <string name="libraryDesc">A lightweight modern file selector</string>
+    <string name="libraryName">File Chooser</string>
+    <string name="optionalPermsRationale">These permissions are technically optional, but make things more convenient.</string>
+    <string name="requiredPermsRationale">These permissions are requirements for the file chooser library to access files on the Android device.</string>
+    <style name="FileItemSelectionBoxTheme" parent="LibraryDefaultTheme">
+        <item name="colorControlNormal">?__colorAccentMedium</item>
+        <item name="colorControlActivated">?__colorAccentMedium</item>
+        <item name="buttonTint">?__colorAccentMedium</item>
+    </style>
+    <style name="LibraryDefaultTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="filePickerTitleText">@string/filePickerTitleText</item>
+        <item name="filePickerNavBarText">@string/filePickerNavBarText</item>
+        <item name="filePickerDoneButtonText">@string/filePickerDoneActionButtonText</item>
+        <item name="filePickerCancelButtonText">@string/filePickerCancelActionButtonText</item>
+        <item name="namedFolderSDCardIcon">@drawable/named_folder_sdcard_icon32</item>
+        <item name="defaultFileIcon">@drawable/text_file_icon32</item>
+        <item name="defaultHiddenFileIcon">@drawable/hidden_file_icon32</item>
+        <item name="defaultFolderIcon">@drawable/folder_icon32</item>
+        <item name="namedFolderPicsIcon">@drawable/named_folder_images_icon32</item>
+        <item name="namedFolderCameraIcon">@drawable/named_folder_camera_icon32</item>
+        <item name="namedFolderScreenshotsIcon">@drawable/named_folder_screenshots_icon32</item>
+        <item name="namedFolderDownloadsIcon">@drawable/named_folder_downloads_icon32</item>
+        <item name="namedFolderUserHomeIcon">@drawable/named_folder_user_home_icon32</item>
+        <item name="namedFolderMediaIcon">@drawable/named_folder_media_icon32</item>
+        <item name="namedFolderRecentDocsIcon">@drawable/named_folder_recents_icon32</item>
+        <item name="mainToolbarBackgroundColor">@color/colorMainToolbarBackground</item>
+        <item name="mainToolbarBackgroundColor2">@color/colorMainToolbarBackground2</item>
+        <item name="mainToolbarBackgroundColor3">@color/colorMainToolbarBackground3</item>
+        <item name="mainToolbarBackgroundColor4">@color/colorMainToolbarBackground4</item>
+        <item name="mainToolbarForegroundTextColor">@color/colorMainToolbarForegroundText</item>
+        <item name="colorToolbarDivider">@color/colorToolbarDivider</item>
+        <item name="colorToolbarNav">@color/colorToolbarNav</item>
+        <item name="__colorPrimary">@color/__colorPrimary</item>
+        <item name="__colorPrimaryDark">@color/__colorPrimaryDark</item>
+        <item name="__colorPrimaryVeryDark">@color/__colorPrimaryVeryDark</item>
+        <item name="__colorAccentLight">@color/__colorAccentLight</item>
+        <item name="__colorAccent">@color/__colorAccent</item>
+        <item name="__colorAccentMedium">@color/__colorAccentMedium</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="LibraryToolbar.SubtitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal|bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:typeface">serif</item>
+        <item name="android:gravity">center_vertical|center</item>
+        <item name="android:paddingLeft">10sp</item>
+    </style>
+    <style name="LibraryToolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">normal|bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:typeface">serif</item>
+        <item name="android:gravity">center_vertical|left</item>
+        <item name="android:paddingLeft">10sp</item>
+    </style>
+    <style name="SelectionCheckBoxStyle" parent="LibraryDefaultTheme">
+        <item name="colorControlNormal">?__colorAccentMedium</item>
+        <item name="colorControlActivated">?__colorAccentMedium</item>
+        <item name="buttonTint">?colorPrimary</item>
+    </style>
+</resources>

@@ -1,0 +1,153 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<!--
+3    This program (the AndroidFilePickerLight library) is free software written by
+4    Maxie Dion Schmidt: you can redistribute it and/or modify
+5    it under the terms of the GNU General Public License as published by
+6    the Free Software Foundation, either version 3 of the License, or
+7    (at your option) any later version.
+8
+9    This program is distributed in the hope that it will be useful,
+10    but WITHOUT ANY WARRANTY; without even the implied warranty of
+11    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+12    GNU General Public License for more details.
+13
+14    The complete license provided with source distributions of this library is
+15    available at the following link:
+16    https://github.com/maxieds/AndroidFilePickerLight
+17-->
+18<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+19    xmlns:tools="http://schemas.android.com/tools"
+20    package="com.maxieds.androidfilepickerlightlibrary" >
+21
+22    <uses-sdk android:minSdkVersion="29" />
+23    //package="com.maxieds.androidfilepickerlightlibrary">
+24    <uses-permission
+24-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:22:5-105
+25        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+25-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:22:22-78
+26        android:required="true" />
+26-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:22:79-102
+27    <uses-permission
+27-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:23:5-104
+28        android:name="android.permission.READ_EXTERNAL_STORAGE"
+28-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:23:22-77
+29        android:required="true" />
+29-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:23:78-101
+30    <uses-permission
+30-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:24:5-104
+31        android:name="android.permission.ACCESS_MEDIA_LOCATION"
+31-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:24:22-77
+32        android:required="true" />
+32-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:24:78-101
+33    <uses-permission
+33-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:25:5-91
+34        android:name="android.permission.INTERNET"
+34-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:25:22-64
+35        android:required="true" />
+35-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:25:65-88
+36
+37    <application
+37-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:27:5-90:19
+38        android:defaultToDeviceProtectedStorage="true"
+38-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:33:9-55
+39        android:excludeFromRecents="false"
+39-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:30:9-43
+40        android:hardwareAccelerated="true"
+40-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:31:9-43
+41        android:installLocation="preferExternal"
+41-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:35:9-49
+42        android:largeHeap="true"
+42-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:38:9-33
+43        android:launchMode="singleTop"
+43-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:28:9-39
+44        android:noHistory="false"
+44-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:29:9-34
+45        android:preserveLegacyExternalStorage="true"
+45-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:37:9-53
+46        android:requestLegacyExternalStorage="true"
+46-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:36:9-52
+47        android:supportsRtl="true"
+47-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:32:9-35
+48        android:usesCleartextTraffic="false" >
+48-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:34:9-45
+49        <activity
+49-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:41:9-68:20
+50            android:name="com.maxieds.androidfilepickerlightlibrary.FileChooserActivity"
+50-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:42:13-48
+51            android:alwaysRetainTaskState="true"
+51-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:44:13-49
+52            android:autoRemoveFromRecents="true"
+52-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:54:13-49
+53            android:clearTaskOnLaunch="true"
+53-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:45:13-45
+54            android:excludeFromRecents="true"
+54-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:52:13-46
+55            android:exported="true"
+55-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:49:13-36
+56            android:finishOnTaskLaunch="true"
+56-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:55:13-46
+57            android:grantUriPermissions="true"
+57-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:50:13-47
+58            android:hardwareAccelerated="true"
+58-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:46:13-47
+59            android:immersive="true"
+59-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:56:13-37
+60            android:launchMode="singleTop"
+60-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:53:13-43
+61            android:noHistory="true"
+61-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:51:13-37
+62            android:persistableMode="persistNever"
+62-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:57:13-51
+63            android:resizeableActivity="false"
+63-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:58:13-47
+64            android:screenOrientation="nosensor"
+64-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:43:13-49
+65            android:stateNotNeeded="true"
+65-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:48:13-42
+66            android:uiOptions="none" >
+66-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:47:13-37
+67            <intent-filter android:priority="1000" >
+67-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:61:13-66:29
+67-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:61:28-51
+68                <action android:name="android.intent.action.ACTION_PICK_ACTIVITY" />
+68-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:62:17-85
+68-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:62:25-82
+69                <!-- <category android:name="android.intent.category.HOME" /> -->
+70                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+71                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+72            </intent-filter>
+73        </activity>
+74
+75        <provider
+75-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:70:9-88:20
+76            android:name="com.maxieds.androidfilepickerlightlibrary.BasicFileProvider"
+76-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:71:13-87
+77            android:authorities="${applicationId}.FileChooserActivity"
+77-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:72:13-71
+78            android:enabled="true"
+78-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:74:13-35
+79            android:exported="true"
+79-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:73:13-36
+80            android:grantUriPermissions="true"
+80-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:75:13-47
+81            android:initOrder="100"
+81-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:77:13-36
+82            android:permission="android.permission.MANAGE_DOCUMENTS" >
+82-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:76:13-69
+83            <intent-filter>
+83-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:80:13-82:29
+84                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+84-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:81:17-84
+84-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:81:25-81
+85            </intent-filter>
+86
+87            <meta-data
+87-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:84:13-86:68
+88                android:name="android.support.FILE_PROVIDER_PATHS"
+88-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:85:17-67
+89                android:resource="@xml/file_provider_paths_base" />
+89-->/Users/maxieds/AndroidFilePickerLight/AndroidFilePickerLightLibrary/src/main/AndroidManifest.xml:86:17-65
+90        </provider>
+91    </application>
+92
+93</manifest>
