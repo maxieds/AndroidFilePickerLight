@@ -1,3 +1,1 @@
-include ':AndroidFilePickerLightLibrary'
-include ':app'
 rootProject.name = "AndroidFilePickerLight"
