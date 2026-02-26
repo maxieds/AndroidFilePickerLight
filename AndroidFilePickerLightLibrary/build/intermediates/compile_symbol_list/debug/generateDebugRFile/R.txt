@@ -4,6 +4,12 @@ int attr __colorAccentMedium 0x0
 int attr __colorPrimary 0x0
 int attr __colorPrimaryDark 0x0
 int attr __colorPrimaryVeryDark 0x0
+int attr colorAccent 0x0
+int attr colorAccentLight 0x0
+int attr colorAccentMedium 0x0
+int attr colorPrimary 0x0
+int attr colorPrimaryDark 0x0
+int attr colorPrimaryVeryDark 0x0
 int attr colorToolbarDivider 0x0
 int attr colorToolbarNav 0x0
 int attr defaultFileIcon 0x0
@@ -33,6 +39,9 @@ int color __colorPrimary 0x0
 int color __colorPrimaryDark 0x0
 int color __colorPrimaryVeryDark 0x0
 int color __colorTransparent 0x0
+int color colorAccent 0x0
+int color colorAccentLight 0x0
+int color colorAccentMedium 0x0
 int color colorFileListDivider_border 0x0
 int color colorFileListDivider_gradientEnd 0x0
 int color colorFileListDivider_gradientStart 0x0
@@ -41,6 +50,9 @@ int color colorMainToolbarBackground2 0x0
 int color colorMainToolbarBackground3 0x0
 int color colorMainToolbarBackground4 0x0
 int color colorMainToolbarForegroundText 0x0
+int color colorPrimary 0x0
+int color colorPrimaryDark 0x0
+int color colorPrimaryVeryDark 0x0
 int color colorToolbarDivider 0x0
 int color colorToolbarNav 0x0
 int drawable apk_file_icon32 0x0

@@ -31,6 +31,12 @@
     <attr name="mainToolbarForegroundTextColor" format="reference|color" />
     <attr name="colorToolbarDivider" format="reference|color" />
     <attr name="colorToolbarNav" format="reference|color" />
+    <attr name="colorPrimary" format="reference|color" />
+    <attr name="colorPrimaryDark" format="reference|color" />
+    <attr name="colorPrimaryVeryDark" format="reference|color" />
+    <attr name="colorAccent" format="reference|color" />
+    <attr name="colorAccentMedium" format="reference|color" />
+    <attr name="colorAccentLight" format="reference|color" />
     <attr name="__colorPrimary" format="reference|color" />
     <attr name="__colorPrimaryDark" format="reference|color" />
     <attr name="__colorPrimaryVeryDark" format="reference|color" />

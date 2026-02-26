@@ -20,7 +20,7 @@
     package="com.maxieds.androidfilepickerlightlibrary" >
 
     <uses-sdk android:minSdkVersion="29" />
-    //package="com.maxieds.androidfilepickerlightlibrary">
+
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:required="true" />

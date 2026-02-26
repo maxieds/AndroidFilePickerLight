@@ -2,26 +2,20 @@ apply plugin: 'com.android.application'
 
 android {
 
+    namespace 'com.maxieds.androidfilepickerlight'
+    compileSdk 35
+
     defaultConfig {
 
         applicationId "com.maxieds.androidfilepickerlight"
         minSdkVersion 29
-        targetSdkVersion 33
-        compileSdkVersion 33
-        versionCode 3
+        targetSdkVersion 30
+        versionCode 4
         versionName "1.3.0"
+        buildFeatures.buildConfig = true
+        buildToolsVersion '35.0.1'
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-    }
-
-    namespace 'com.maxieds.androidfilepickerlight'
-
-    compileOptions {
-
-        //sourceCompatibility JavaVersion.VERSION_1_8
-        //targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
 
     }
 
@@ -42,6 +36,14 @@ android {
         }
 
     }
+
+    compileOptions {
+
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+
+    }
+
 }
 
 dependencies {
@@ -52,5 +54,14 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.1.0'
     implementation 'androidx.navigation:navigation-ui:2.1.0'
     implementation project(":AndroidFilePickerLightLibrary")
+
+    implementation libs.appcompat
+    implementation libs.material
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:core:1.5.0'
 
 }

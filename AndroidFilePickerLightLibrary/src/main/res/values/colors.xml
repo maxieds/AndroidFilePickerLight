@@ -29,6 +29,12 @@
     <color name="colorFileListDivider_gradientEnd">#E9EEF1</color>
     <color name="colorToolbarDivider">#215270</color>
     <color name="colorToolbarNav">#A6BAC6</color>
+    <color name="colorPrimary">#72B1D6</color>
+    <color name="colorPrimaryDark">#215270</color>
+    <color name="colorPrimaryVeryDark">#061B29</color>
+    <color name="colorAccent">#A7CEE6</color>
+    <color name="colorAccentMedium">#7A97A9</color>
+    <color name="colorAccentLight">#E9EEF1</color>
     <color name="__colorPrimary">#72B1D6</color>
     <color name="__colorPrimaryDark">#215270</color>
     <color name="__colorPrimaryVeryDark">#061B29</color>
