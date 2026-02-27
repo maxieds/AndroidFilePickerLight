@@ -183,11 +183,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     private static boolean appHasRequestedPerms = false;
 
-    private static FileChooserBuilder initialFileChooserBuilderInst = null;
-
-    public static void setInitialFileChooserBuilder(FileChooserBuilder fpInst) {
-        initialFileChooserBuilderInst = fpInst;
-    }
+    public static FileChooserBuilder initialFileChooserBuilderInst = null;
 
     @Override
     public void onCreate(Bundle lastSettingsBundle) {

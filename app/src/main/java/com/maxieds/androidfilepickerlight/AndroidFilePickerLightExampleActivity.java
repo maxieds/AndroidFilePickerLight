@@ -203,7 +203,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 .showHidden(true)
                 .setInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT)
                 .setCustomThemeStylizerConfig(customThemeBuilder);
-        FileChooserActivity.setInitialFileChooserBuilder(fpInst);
+        FileChooserActivity.initialFileChooserBuilderInst = fpInst;
         fpInst.launchFilePicker();
 
     }
@@ -242,7 +242,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 .setDefaultFolderIcon(R.drawable.orangetheme_folder_icon32);
 
         fpInst.setCustomThemeStylizerConfig(customThemeBuilder);
-        FileChooserActivity.setInitialFileChooserBuilder(fpInst);
+        FileChooserActivity.initialFileChooserBuilderInst = fpInst;
         fpInst.launchFilePicker();
 
     }

@@ -8,7 +8,7 @@ public final class BuildConfig {
   public static final String LIBRARY_PACKAGE_NAME = "com.maxieds.androidfilepickerlightlibrary";
   public static final String BUILD_TYPE = "debug";
   // Field from build type: debug
-  public static final String BUILD_TIMESTAMP = "2026-02-27-042733";
+  public static final String BUILD_TIMESTAMP = "2026-02-27-044612";
   // Field from build type: debug
   public static final String GIT_COMMIT_DATE = "";
   // Field from build type: debug
