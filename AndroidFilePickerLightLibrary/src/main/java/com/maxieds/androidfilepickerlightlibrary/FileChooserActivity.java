@@ -50,7 +50,7 @@ import com.maxieds.androidfilepickerlightlibrary.R;
 
 public class FileChooserActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
-    private static String LOGTAG = FileChooserActivity.class.getSimpleName();
+    private static final String LOGTAG = FileChooserActivity.class.getSimpleName();
 
     private static FileChooserActivity staticRunningInst = null;
     public static  FileChooserActivity getInstance() { return staticRunningInst; }
@@ -72,13 +72,14 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             //"android.permission.READ_EXTERNAL_STORAGE",
             //"android.permission.WRITE_EXTERNAL_STORAGE",
             //"android.permission.ACCESS_MEDIA_LOCATION",
-            "android.permission.INTERNET"
+            //"android.permission.INTERNET"
     };
 
     public static final String[] ACTIVITY_OPTIONAL_PERMISSIONS = {
             "android.permission.READ_EXTERNAL_STORAGE",
             "android.permission.WRITE_EXTERNAL_STORAGE",
             "android.permission.ACCESS_MEDIA_LOCATION",
+            "android.permission.INTERNET",
             "android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
             "android.permission.MANAGE_EXTERNAL_STORAGE",
     };
@@ -128,8 +129,12 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 }
                 paramExcpt.printStackTrace();
                 Log.e(LOGTAG, unhandledExcptMsg);
-                getInstance().postSelectedFilesActivityResult((Exception) paramAsRTE);
-                //finish();
+                /* Do not crash out if there is an unhandled exception in the
+                 * picker runtime (changed from previous behavior):
+                 */
+                //getInstance().postSelectedFilesActivityResult((Exception) paramAsRTE);
+                getInstance().postSelectedFilesActivityResult();
+                finish();
             }
         });
     }
@@ -186,7 +191,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         boolean checkPermsStatus = true;
         try {
             if (!appHasRequestedPerms) {
-                PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
+                //PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
                 PermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
                 appHasRequestedPerms = true;
             }
@@ -363,7 +368,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             @Override
             public void onClick(View btnView) {
                 getDisplayFragmentsInstance().cancelAllOperationsInProgress();
-                getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
+                //getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
+                getInstance().postSelectedFilesActivityResult();
             }
         };
         cancelActionBtn.setOnClickListener(quitActivityBtnClickListener);

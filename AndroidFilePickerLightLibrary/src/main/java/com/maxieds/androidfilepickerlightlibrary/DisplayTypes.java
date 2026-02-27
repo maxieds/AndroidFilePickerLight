@@ -157,6 +157,7 @@ public class DisplayTypes {
                             fcidx + 1 + DisplayFragments.getInstance().lastFileDataStartIndex, directoryContentsList.get(fcidx).getBaseName()));
                 }
                 initMatrixCursorListing.close();
+                initMatrixCursorListing = null;
             }
             catch(FileNotFoundException ioe) {
                 ioe.printStackTrace();

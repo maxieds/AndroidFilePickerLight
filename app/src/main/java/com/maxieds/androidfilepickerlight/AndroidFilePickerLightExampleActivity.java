@@ -23,7 +23,9 @@ import android.os.Bundle;
 
 import com.maxieds.androidfilepickerlightlibrary.CustomThemeBuilder;
 import com.maxieds.androidfilepickerlightlibrary.DisplayUtils;
+import com.maxieds.androidfilepickerlightlibrary.FileChooserActivity;
 import com.maxieds.androidfilepickerlightlibrary.FileChooserBuilder;
+import com.maxieds.androidfilepickerlightlibrary.FileChooserException;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,12 +42,34 @@ import java.util.Locale;
 
 public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
 
+    private static final String LOGTAG = AndroidFilePickerLightExampleActivity.class.getSimpleName();
     private static Activity runningActivityInst = null;
     public static Activity getInstance() { return runningActivityInst; }
+
+    private void setUnhandledExceptionHandler() {
+        final AppCompatActivity localActivityContext = this;
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread paramThread, Throwable paramExcpt) {
+                FileChooserException.AndroidFilePickerLightException paramAsRTE = null;
+                String unhandledExcptMsg = "Unhandled file chooser (from calling app) exception";
+                if (paramExcpt != null) {
+                    unhandledExcptMsg = String.format(Locale.getDefault(), "%s: %s", unhandledExcptMsg, paramExcpt.getMessage());
+                    paramAsRTE = new FileChooserException.AndroidFilePickerLightException(unhandledExcptMsg);
+                    paramAsRTE.initCause(paramExcpt);
+                } else {
+                    paramAsRTE = new FileChooserException.AndroidFilePickerLightException(unhandledExcptMsg);
+                }
+                paramExcpt.printStackTrace();
+                Log.e(LOGTAG, unhandledExcptMsg);
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setUnhandledExceptionHandler();
         runningActivityInst = this;
         setContentView(R.layout.activity_android_file_picker_light_example);
         Toolbar toolbar = findViewById(R.id.toolbar);
