@@ -182,6 +182,13 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     }
 
     private static boolean appHasRequestedPerms = false;
+
+    private static FileChooserBuilder initialFileChooserBuilderInst = null;
+
+    public static void setInitialFileChooserBuilder(FileChooserBuilder fpInst) {
+        initialFileChooserBuilderInst = fpInst;
+    }
+
     @Override
     public void onCreate(Bundle lastSettingsBundle) {
 
@@ -210,7 +217,14 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
         BasicFileProvider.resetBasicFileProviderDefaults();
         cwdFolderCtx = null;
 
-        FileChooserBuilder fpConfig = new FileChooserBuilder(this);
+        FileChooserBuilder fpConfig;
+        if (initialFileChooserBuilderInst == null) {
+            fpConfig = new FileChooserBuilder(this);
+        }
+        else {
+            fpConfig = initialFileChooserBuilderInst;
+            fpConfig.resetActivityContext(this);
+        }
         if(fpConfig.getExternalFilesProvider() != null) {
             BasicFileProvider.setExternalDocumentsProvider(fpConfig.getExternalFilesProvider());
         }
@@ -453,7 +467,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     @AfterPermissionGranted(PermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE)
     private void handleRequiredPermissionsGranted() {
-        String[] permsList = ACTIVITY_REQUIRED_PERMISSIONS;
+        String[] permsList = ACTIVITY_OPTIONAL_PERMISSIONS; // ACTIVITY_REQUIRED_PERMISSIONS;
         if (EasyPermissions.hasPermissions(this, permsList)) {}
         else {
             EasyPermissions.requestPermissions(this, getString(R.string.requiredPermsRationale),

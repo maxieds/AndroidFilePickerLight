@@ -24,6 +24,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -42,7 +43,7 @@ import java.util.Locale;
 
 public class DisplayUtils {
 
-    private static String LOGTAG = DisplayUtils.class.getSimpleName();
+    private static final String LOGTAG = DisplayUtils.class.getSimpleName();
 
     public static int getColorVariantFromTheme(Activity activityRef, int attrID) throws FileChooserException.InvalidActivityContextException {
         if(activityRef == null) {
@@ -210,9 +211,11 @@ public class DisplayUtils {
 
     public static <T extends Object> T firstNonNull(T firstObj, T secondObj) {
         if(firstObj != null) {
+            Log.i(LOGTAG, "First object non-null");
             return firstObj;
         }
         else {
+            Log.i(LOGTAG, "Second object non-null");
             return secondObj;
         }
     }

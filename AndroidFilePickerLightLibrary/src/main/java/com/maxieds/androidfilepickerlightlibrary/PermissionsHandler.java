@@ -74,13 +74,6 @@ public class PermissionsHandler {
     public static boolean obtainRequiredPermissions(Activity activityCtx, String[] permsList) {
         if(android.os.Build.VERSION.SDK_INT >= 23) {
              activityCtx.requestPermissions(permsList, REQUEST_REQUIRED_PERMISSIONS_CODE);
-             EasyPermissions.requestPermissions(
-                    new PermissionRequest.Builder(activityCtx, REQUEST_REQUIRED_PERMISSIONS_CODE, permsList)
-                            .setRationale(R.string.grantPermsDialogRationaleText)
-                            .setPositiveButtonText(R.string.grantPermsDialogOkBtnText)
-                            .setNegativeButtonText(R.string.grantPermsDialogCancelBtnText)
-                            .setTheme(R.style.LibraryDefaultTheme)
-                            .build());
         }
         for(int pidx = 0; pidx < permsList.length; pidx++) {
             if(!hasAccessPermission(activityCtx, permsList[pidx])) {

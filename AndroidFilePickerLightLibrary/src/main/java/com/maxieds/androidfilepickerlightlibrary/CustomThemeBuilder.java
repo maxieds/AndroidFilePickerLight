@@ -23,6 +23,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
@@ -207,9 +208,12 @@ public class CustomThemeBuilder {
             try {
                 resolvedColor =  DisplayUtils.getColorFromResource(activityCtxRef, baseColorResId);
             } catch(Exception ex) {
+                ex.printStackTrace();
                 try {
                     resolvedColor =  DisplayUtils.resolveColorFromAttribute(activityCtxRef, baseColorResId);
-                } catch (Exception ex2) {}
+                } catch (Exception ex2) {
+                    ex2.printStackTrace();
+                }
             }
             return new int[] {
                     resolvedColor,                                                   /* COLOR_PRIMARY */
@@ -231,9 +235,9 @@ public class CustomThemeBuilder {
     private FileChooserColorScheme themeColorScheme;
 
     public CustomThemeBuilder setThemeColors(@ColorRes int[] colorsList) {
-        for(int cidx = 0; cidx < colorsList.length; cidx++) {
+        /*for(int cidx = 0; cidx < colorsList.length; cidx++) {
             colorsList[cidx] = DisplayUtils.resolveColorFromResId(activityCtx, colorsList[cidx]);
-        }
+        }*/
         themeColorScheme = new FileChooserColorScheme(colorsList);
         return this;
     }
@@ -448,24 +452,27 @@ public class CustomThemeBuilder {
             @Override
             public boolean styleDefaultPathNavigationButton(ImageButton dirNavBtn, FileChooserBuilder.DefaultNavFoldersType baseFolderBtnType) throws RuntimeException {
                 if(dirNavBtn == null || baseFolderBtnType == null) {
+                    Log.i(LOGTAG, "Path nav buttons are null ...");
                     return false;
                 }
-                dirNavBtn.setBackgroundColor(themeColorScheme.getColorToolbarNav());
+                dirNavBtn.setBackgroundColor(_themeColorScheme.getColorToolbarNav());
                 try {
                     boolean status = true;
                     Drawable navBtnIcon;
                     if (_navBtnIconResIdMap.get(baseFolderBtnType) != null) {
-                        navBtnIcon = DisplayUtils.resolveDrawableFromResId(_activityCtx, _navBtnIconResIdMap.get(baseFolderBtnType));
+                        navBtnIcon = DisplayUtils.getDrawableFromResource(_activityCtx, _navBtnIconResIdMap.get(baseFolderBtnType));
                     } else {
                         status = false;
                         int defaultIconResId = FileChooserBuilder.DefaultNavFoldersType.NAV_FOLDER_ICON_RESIDS_MAP.get(
                                 FileChooserBuilder.DefaultNavFoldersType.NAV_FOLDER_PATHS_REVMAP.get(baseFolderBtnType).ordinal()
                         ).intValue();
+                        Log.i(LOGTAG, "Having to use default nav icons ...");
                         navBtnIcon = DisplayUtils.resolveDrawableFromAttribute(defaultIconResId);
                     }
                     dirNavBtn.setImageDrawable(navBtnIcon);
                     return status;
                 } catch(NullPointerException npe) {
+                    npe.printStackTrace();
                     return false;
                 }
             }

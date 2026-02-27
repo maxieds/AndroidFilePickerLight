@@ -96,7 +96,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
             errorRationaleDisplayText.setTextColor(getColor(R.color.colorOnErrorDisplayText));
             errorRationaleDisplayText.setText(errorDisplayText.toString());
             adBuilder.setView(errorRationaleDisplayText);
-            adBuilder.setNegativeButton("[X] That bytes, boo.", null);
+            adBuilder.setNegativeButton("[X] That bytes, BOO :(", null);
             adBuilder.create().show();
             return;
         }
@@ -114,6 +114,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 displayText.append(" • " + fileItem + "\n");
             }
         } catch(Exception emptyFilesListError) {
+            /* The next code should never get run: */
             emptyFilesListError.printStackTrace();
             displayText.append(" • [ ]\n");
         }
@@ -170,14 +171,6 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
 
     public void actionButtonLaunchMultiPickerActivityNewThemeGreen(View btnView) {
 
-        FileChooserBuilder fpInst = new FileChooserBuilder(this);
-        fpInst.setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE);
-        fpInst.setSelectMultiple(5);
-        fpInst.setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES);
-        fpInst.setNavigationLongForm(false);
-        fpInst.showHidden(true);
-        fpInst.setInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT);
-
         CustomThemeBuilder customThemeBuilder = new CustomThemeBuilder(this)
                 .setPickerTitleText(R.string.picker_title_text)
                 .setNavBarPrefixText(R.string.navbar_prefix_text)
@@ -202,7 +195,15 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 .setDefaultFolderIcon(R.drawable.greentheme_folder_icon32)
                 .setFileItemMetaDataPermissionsDisplayStyle(CustomThemeBuilder.FileItemPermissionsDisplayStyle.PERMISSIONS_DISPLAY_POSIX_STYLE);
 
-        fpInst.setCustomThemeStylizerConfig(customThemeBuilder);
+        FileChooserBuilder fpInst = new FileChooserBuilder(this)
+                .setSelectionMode(FileChooserBuilder.SelectionModeType.SELECT_OMNIVORE)
+                .setSelectMultiple(5)
+                .setActionCode(FileChooserBuilder.ACTIVITY_CODE_SELECT_MULTIPLE_FILES)
+                .setNavigationLongForm(false)
+                .showHidden(true)
+                .setInitialPath(FileChooserBuilder.BaseFolderPathType.BASE_PATH_DEFAULT)
+                .setCustomThemeStylizerConfig(customThemeBuilder);
+        FileChooserActivity.setInitialFileChooserBuilder(fpInst);
         fpInst.launchFilePicker();
 
     }
@@ -241,6 +242,7 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
                 .setDefaultFolderIcon(R.drawable.orangetheme_folder_icon32);
 
         fpInst.setCustomThemeStylizerConfig(customThemeBuilder);
+        FileChooserActivity.setInitialFileChooserBuilder(fpInst);
         fpInst.launchFilePicker();
 
     }

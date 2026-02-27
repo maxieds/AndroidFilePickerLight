@@ -37,7 +37,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class FileChooserBuilder implements Serializable {
 
-    private static String LOGTAG = FileChooserBuilder.class.getSimpleName();
+    private static final String LOGTAG = FileChooserBuilder.class.getSimpleName();
 
     public enum DefaultFileTypes {
 
@@ -224,7 +224,7 @@ public class FileChooserBuilder implements Serializable {
     private FileFilter.FileFilterBase localFileFilter;
     private FileFilter.FileItemsSortFunc customSortFunc;
 
-    // Non-display type configuration:
+    /* Non-display type configuration: */
     private int recyclerViewStartBufferSize;
     private int recyclerViewNotVisibleBufferSize;
     private int recyclerViewLayoutFlingDampenThreshold;
@@ -281,6 +281,13 @@ public class FileChooserBuilder implements Serializable {
                 pathSelectMode.ordinal() != SelectionModeType.SELECT_FILE_ONLY.ordinal();
     }
 
+    public boolean resetActivityContext(Activity actContext) {
+        if (actContext == null) {
+            return false;
+        }
+        activityContextRef = new WeakReference<Activity>(actContext);
+        return true;
+    }
     public FileChooserBuilder setInitialPathAbsolute(String startPathAbs) {
         startPathRelative = null;
         startPathAbsolute = startPathAbs;
