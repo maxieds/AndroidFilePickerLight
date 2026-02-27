@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 
 import androidx.core.content.ContextCompat;
 
+import java.util.HashMap;
 import java.util.jar.Manifest;
 import java.util.Map;
 
@@ -44,6 +45,7 @@ public class PermissionsHandler {
 
     private static Map<String, String> REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP;
     static {
+        REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP = new HashMap<String, String>();
         REQUIRED_PERMISSIONS_LOOKUP_RATIONALE_MAP.put(
                 "android.permission.READ_EXTERNAL_STORAGE",
                 "The file chooser needs permission to read/write external storage."

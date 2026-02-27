@@ -85,8 +85,13 @@ public class AndroidFilePickerLightExampleActivity extends AppCompatActivity {
         TextView fileSelectionsDisplayText = new TextView(this);
         fileSelectionsDisplayText.setPadding(25, 10, 25, 10);
         StringBuilder displayText = new StringBuilder();
-        for(String fileItem : fileItemsList) {
-            displayText.append(" • " + fileItem + "\n");
+        try {
+            for (String fileItem : fileItemsList) {
+                displayText.append(" • " + fileItem + "\n");
+            }
+        } catch(Exception emptyFilesListError) {
+            emptyFilesListError.printStackTrace();
+            displayText.append(" • [ ]\n");
         }
         fileSelectionsDisplayText.setText(displayText.toString());
         adBuilder.setView(fileSelectionsDisplayText);

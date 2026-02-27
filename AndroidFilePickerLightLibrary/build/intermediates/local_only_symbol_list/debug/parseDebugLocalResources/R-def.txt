@@ -6,12 +6,6 @@ attr __colorAccentMedium
 attr __colorPrimary
 attr __colorPrimaryDark
 attr __colorPrimaryVeryDark
-attr colorAccent
-attr colorAccentLight
-attr colorAccentMedium
-attr colorPrimary
-attr colorPrimaryDark
-attr colorPrimaryVeryDark
 attr colorToolbarDivider
 attr colorToolbarNav
 attr defaultFileIcon
@@ -41,9 +35,6 @@ color __colorPrimary
 color __colorPrimaryDark
 color __colorPrimaryVeryDark
 color __colorTransparent
-color colorAccent
-color colorAccentLight
-color colorAccentMedium
 color colorFileListDivider_border
 color colorFileListDivider_gradientEnd
 color colorFileListDivider_gradientStart
@@ -52,9 +43,6 @@ color colorMainToolbarBackground2
 color colorMainToolbarBackground3
 color colorMainToolbarBackground4
 color colorMainToolbarForegroundText
-color colorPrimary
-color colorPrimaryDark
-color colorPrimaryVeryDark
 color colorToolbarDivider
 color colorToolbarNav
 drawable apk_file_icon32

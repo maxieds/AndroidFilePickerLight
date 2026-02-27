@@ -69,15 +69,18 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     private PrefetchFilesUpdater prefetchFilesUpdaterInst;
 
     public static final String[] ACTIVITY_REQUIRED_PERMISSIONS = {
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.WRITE_EXTERNAL_STORAGE",
-            "android.permission.ACCESS_MEDIA_LOCATION",
+            //"android.permission.READ_EXTERNAL_STORAGE",
+            //"android.permission.WRITE_EXTERNAL_STORAGE",
+            //"android.permission.ACCESS_MEDIA_LOCATION",
             "android.permission.INTERNET"
     };
 
     public static final String[] ACTIVITY_OPTIONAL_PERMISSIONS = {
-            //"android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
-            //"android.permission.MANAGE_EXTERNAL_STORAGE",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.ACCESS_MEDIA_LOCATION",
+            "android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION",
+            "android.permission.MANAGE_EXTERNAL_STORAGE",
     };
 
     public void startPrefetchFileUpdatesThread() {
@@ -123,7 +126,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
                 } else {
                     paramAsRTE = new FileChooserException.AndroidFilePickerLightException(unhandledExcptMsg);
                 }
+                paramExcpt.printStackTrace();
+                Log.e(LOGTAG, unhandledExcptMsg);
                 getInstance().postSelectedFilesActivityResult((Exception) paramAsRTE);
+                //finish();
             }
         });
     }
@@ -170,22 +176,26 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
 
     }
 
-    //private static ActivityResultCallback activityResCb;
-    //private static ActivityResultLauncher activityResCbLauncher;
-
+    private static boolean appHasRequestedPerms = false;
     @Override
     public void onCreate(Bundle lastSettingsBundle) {
 
         super.onCreate(lastSettingsBundle);
 
         RuntimeException closeActivityRTE = null;
-        //activityResCb = new ActivityResultCallback(this);
-        //activityResCbLauncher = registerForActivityResult(activityResCb);
         boolean checkPermsStatus = true;
         try {
-            PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
-            PermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
-        } catch (Throwable permsEx) {}
+            if (!appHasRequestedPerms) {
+                PermissionsHandler.obtainRequiredPermissions(this, ACTIVITY_REQUIRED_PERMISSIONS);
+                PermissionsHandler.requestOptionalPermissions(this, ACTIVITY_OPTIONAL_PERMISSIONS);
+                appHasRequestedPerms = true;
+            }
+        } catch (Throwable permsEx) {
+            permsEx.printStackTrace();
+            appHasRequestedPerms = true;
+            String notifyErrorMsg = String.format(Locale.getDefault(), "Error: requesting permissions for the first time: %s", permsEx.getMessage());
+            Log.e(LOGTAG, notifyErrorMsg);
+        }
 
         /* Otherwise, continue with initializing the file chooser display: */
         setUnhandledExceptionHandler();
@@ -259,8 +269,8 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             actionBar.setSubtitleTextColor(getColor(R.color.colorMainToolbarForegroundText));
             actionBar.setLogo(getDrawable(R.drawable.file_chooser_default_toolbar_icon48));
             getWindow().setTitleColor(DisplayUtils.getColorVariantFromTheme(R.attr.mainToolbarBackgroundColor));
-            getWindow().setStatusBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorPrimaryDark));
-            getWindow().setNavigationBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.colorPrimaryDark));
+            getWindow().setStatusBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.__colorPrimaryDark));
+            getWindow().setNavigationBarColor(DisplayUtils.getColorVariantFromTheme(R.attr.__colorPrimaryDark));
         }
         else {
             mainLayoutStylizer.styleMainActivityWindow(getWindow());
@@ -284,15 +294,24 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             Button.OnClickListener stockDirNavBtnClickHandler = new Button.OnClickListener() {
                 @Override
                 public void onClick(View btnView) {
-                    getDisplayFragmentsInstance().cancelAllOperationsInProgress();
-                    getDisplayFragmentsInstance().pathHistoryStack.clear(); // reset the directory traversal history
-                    String navBtnInitFolderName = (String) btnView.getTag();
-                    Log.i(LOGTAG, "Next DIR TYPE NAME : " + navBtnInitFolderName);
-                    FileChooserBuilder.BaseFolderPathType navBtnInitFolderType =
-                            FileChooserBuilder.BaseFolderPathType.NAV_FOLDER_NAME_TO_INST_MAP.get(navBtnInitFolderName);
-                    getDisplayFragmentsInstance().initiateNewFolderLoad(navBtnInitFolderType);
-                    String displayIntoNextMsg = String.format(Locale.getDefault(), "Into NAV DIR \"%s\".", navBtnInitFolderName);
-                    DisplayUtils.displayToastMessageShort(displayIntoNextMsg);
+                    String stockPathBtnDesc = "<none>";
+                    try {
+                        getDisplayFragmentsInstance().cancelAllOperationsInProgress();
+                        getDisplayFragmentsInstance().pathHistoryStack.clear(); // reset the directory traversal history
+                        String navBtnInitFolderName = (String) btnView.getTag();
+                        stockPathBtnDesc = navBtnInitFolderName;
+                        Log.i(LOGTAG, "Next DIR TYPE NAME : " + navBtnInitFolderName);
+                        FileChooserBuilder.BaseFolderPathType navBtnInitFolderType =
+                                FileChooserBuilder.BaseFolderPathType.NAV_FOLDER_NAME_TO_INST_MAP.get(navBtnInitFolderName);
+                        getDisplayFragmentsInstance().initiateNewFolderLoad(navBtnInitFolderType);
+                        String displayIntoNextMsg = String.format(Locale.getDefault(), "Into NAV DIR \"%s\".", navBtnInitFolderName);
+                        Log.i(LOGTAG, displayIntoNextMsg);
+                    } catch (Exception filesystemErrorOnClick) {
+                        filesystemErrorOnClick.printStackTrace();
+                        String errorDisplayMsg = String.format(Locale.getDefault(), "Unable to load directory: %s. Check your permissions for this app in Android Settings and try again.", stockPathBtnDesc);
+                        DisplayUtils.displayToastMessageShort(FileChooserActivity.getInstance(), errorDisplayMsg);
+                        Log.e(LOGTAG, errorDisplayMsg);
+                    }
                 }
             };
             dirNavBtn.setOnClickListener(stockDirNavBtnClickHandler);
@@ -353,7 +372,10 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             public void onClick(View btnView) {
                 getDisplayFragmentsInstance().cancelAllOperationsInProgress();
                 if(DisplayFragments.getInstance().activeSelectionsList.size() == 0) {
-                    getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
+                    /* Empty selection: try to degrade politely: */
+                    //getInstance().postSelectedFilesActivityResult(new FileChooserException.CommunicateNoDataException());
+                    //DisplayUtils.displayToastMessageShort(getInstance(), "No files selected.");
+                    getInstance().postSelectedFilesActivityResult();
                 }
                 else {
                     getInstance().postSelectedFilesActivityResult();

@@ -218,28 +218,32 @@ public class DisplayUtils {
     }
 
     private static void displayToastMessage(Activity activityInst, String toastMsg, int msgDuration, CustomThemeBuilder.FileItemLayoutStylizer layoutStylizer) {
-        Toast toastDisplay = Toast.makeText(
-                activityInst,
-                toastMsg,
-                msgDuration
-        );
-        toastDisplay.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 25);
-        toastDisplay.getView().setPadding(10, 10, 10, 10);
-        int toastBackgroundColor = getColorVariantFromTheme(R.attr.__colorAccent);
-        int toastTextColor = getColorVariantFromTheme(R.attr.__colorPrimaryDark);
-        if(layoutStylizer != null) {
-            toastBackgroundColor = layoutStylizer.getThemeColorizer().getColorAccent();
-            toastTextColor = layoutStylizer.getThemeColorizer().getColorPrimaryDark();
+        try {
+            Toast toastDisplay = Toast.makeText(
+                    activityInst,
+                    toastMsg,
+                    msgDuration
+            );
+            toastDisplay.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 25);
+            toastDisplay.getView().setPadding(10, 10, 10, 10);
+            int toastBackgroundColor = getColorVariantFromTheme(R.attr.__colorAccent);
+            int toastTextColor = getColorVariantFromTheme(R.attr.__colorPrimaryDark);
+            if (layoutStylizer != null) {
+                toastBackgroundColor = layoutStylizer.getThemeColorizer().getColorAccent();
+                toastTextColor = layoutStylizer.getThemeColorizer().getColorPrimaryDark();
+            }
+            toastDisplay.getView().getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
+            TextView toastTextMsg = toastDisplay.getView().findViewById(android.R.id.message);
+            if (toastTextMsg != null) {
+                toastTextMsg.setTextColor(toastTextColor);
+                toastTextMsg.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+                toastTextMsg.setTypeface(toastTextMsg.getTypeface(), Typeface.BOLD_ITALIC);
+            }
+            toastDisplay.getView().setAlpha(0.75f);
+            toastDisplay.show();
+        } catch (Exception windowError) {
+            windowError.printStackTrace();
         }
-        toastDisplay.getView().getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
-        TextView toastTextMsg = toastDisplay.getView().findViewById(android.R.id.message);
-        if(toastTextMsg != null) {
-            toastTextMsg.setTextColor(toastTextColor);
-            toastTextMsg.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-            toastTextMsg.setTypeface(toastTextMsg.getTypeface(), Typeface.BOLD_ITALIC);
-        }
-        toastDisplay.getView().setAlpha(0.75f);
-        toastDisplay.show();
     }
 
     private static void displayToastMessage(Activity activityInst, String toastMsg, int msgDuration) {

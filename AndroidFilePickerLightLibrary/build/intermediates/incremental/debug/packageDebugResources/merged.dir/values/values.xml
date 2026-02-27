@@ -6,12 +6,6 @@
     <attr format="reference|color" name="__colorPrimary"/>
     <attr format="reference|color" name="__colorPrimaryDark"/>
     <attr format="reference|color" name="__colorPrimaryVeryDark"/>
-    <attr format="reference|color" name="colorAccent"/>
-    <attr format="reference|color" name="colorAccentLight"/>
-    <attr format="reference|color" name="colorAccentMedium"/>
-    <attr format="reference|color" name="colorPrimary"/>
-    <attr format="reference|color" name="colorPrimaryDark"/>
-    <attr format="reference|color" name="colorPrimaryVeryDark"/>
     <attr format="reference|color" name="colorToolbarDivider"/>
     <attr format="reference|color" name="colorToolbarNav"/>
     <attr format="reference" name="defaultFileIcon"/>
@@ -41,9 +35,6 @@
     <color name="__colorPrimaryDark">#215270</color>
     <color name="__colorPrimaryVeryDark">#061B29</color>
     <color name="__colorTransparent">@android:color/transparent</color>
-    <color name="colorAccent">#A7CEE6</color>
-    <color name="colorAccentLight">#E9EEF1</color>
-    <color name="colorAccentMedium">#7A97A9</color>
     <color name="colorFileListDivider_border">#90A9B8</color>
     <color name="colorFileListDivider_gradientEnd">#E9EEF1</color>
     <color name="colorFileListDivider_gradientStart">#BCCBD4</color>
@@ -52,9 +43,6 @@
     <color name="colorMainToolbarBackground3">#354954</color>
     <color name="colorMainToolbarBackground4">#4f5F69</color>
     <color name="colorMainToolbarForegroundText">#DCE4E8</color>
-    <color name="colorPrimary">#72B1D6</color>
-    <color name="colorPrimaryDark">#215270</color>
-    <color name="colorPrimaryVeryDark">#061B29</color>
     <color name="colorToolbarDivider">#215270</color>
     <color name="colorToolbarNav">#A6BAC6</color>
     <string name="errorMsgNotSelectable">Cannot select the file path (too many or no multiple)</string>

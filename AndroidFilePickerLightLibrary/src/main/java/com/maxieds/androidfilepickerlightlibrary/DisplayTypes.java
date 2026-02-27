@@ -156,6 +156,7 @@ public class DisplayTypes {
                     Log.d(LOGTAG, String.format(Locale.getDefault(), "   [#%02d => %02d ACTUAL Idx] FILE BASE NAME => \"%s\" ... ", fcidx + 1,
                             fcidx + 1 + DisplayFragments.getInstance().lastFileDataStartIndex, directoryContentsList.get(fcidx).getBaseName()));
                 }
+                initMatrixCursorListing.close();
             }
             catch(FileNotFoundException ioe) {
                 ioe.printStackTrace();
