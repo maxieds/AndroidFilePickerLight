@@ -33,6 +33,7 @@ int color __colorPrimary 0x0
 int color __colorPrimaryDark 0x0
 int color __colorPrimaryVeryDark 0x0
 int color __colorTransparent 0x0
+int color __white 0x0
 int color colorFileListDivider_border 0x0
 int color colorFileListDivider_gradientEnd 0x0
 int color colorFileListDivider_gradientStart 0x0

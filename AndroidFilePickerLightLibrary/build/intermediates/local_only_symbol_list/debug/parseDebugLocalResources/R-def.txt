@@ -35,6 +35,7 @@ color __colorPrimary
 color __colorPrimaryDark
 color __colorPrimaryVeryDark
 color __colorTransparent
+color __white
 color colorFileListDivider_border
 color colorFileListDivider_gradientEnd
 color colorFileListDivider_gradientStart

@@ -14,7 +14,7 @@ def getShellCommandOutput(String shellCmd) {
     try {
         def cmdResult = ['bash', '-c', shellCmd].execute();
         int waitResult = cmdResult.wait();
-        if (cmdResult.text.length() == 0 || waitResult != 0) {
+        if (cmdResult.text.length() == 0) {
             return '';
         }
         String cmdResultText = cmdResult.text;
@@ -46,8 +46,8 @@ android {
         targetSdkVersion 35
         compileSdkVersion 35
         compileSdk 35
-        versionCode 28
-        versionName "1.3.5-beta"
+        versionCode 29
+        versionName "1.3.6-beta"
         buildFeatures.buildConfig = true
         buildToolsVersion '35.0.1'
 
@@ -119,6 +119,22 @@ android {
     }
 
 }
+
+// Task to delete the old jar:
+task clearJar(type: Delete) {
+    delete 'build/libs/AndroidFilePickerLightLibrary-${android.defaultConfig.versionName}.jar'
+}
+
+// Task to export contents as jar:
+task makeJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('build/libs/')
+    include('classes.jar')
+    rename('classes.jar', 'AndroidFilePickerLightLibrary-${android.defaultConfig.versionName}.jar')
+}
+
+/* Build the JAR file by running: $ ./gradlew makeJar */
+makeJar.dependsOn(clearJar, build)
 
 dependencies {
 

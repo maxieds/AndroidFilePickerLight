@@ -35,6 +35,7 @@
     <color name="__colorPrimaryDark">#215270</color>
     <color name="__colorPrimaryVeryDark">#061B29</color>
     <color name="__colorTransparent">@android:color/transparent</color>
+    <color name="__white">#FFFFFF</color>
     <color name="colorFileListDivider_border">#90A9B8</color>
     <color name="colorFileListDivider_gradientEnd">#E9EEF1</color>
     <color name="colorFileListDivider_gradientStart">#BCCBD4</color>

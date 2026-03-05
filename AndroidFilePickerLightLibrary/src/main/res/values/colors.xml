@@ -44,5 +44,6 @@
     <color name="__colorAccentMedium">#7A97A9</color>
     <color name="__colorAccentLight">#E9EEF1</color>
     <color name="__colorTransparent">@android:color/transparent</color>
+    <color name="__white">#FFFFFF</color>
 
 </resources>
