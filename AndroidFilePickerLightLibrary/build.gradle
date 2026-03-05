@@ -51,6 +51,9 @@ task makeJarRelease(type: Copy) {
 }
 
 /* Build the JAR file by running: $ ./gradlew makeJar */
+/* To get the AAR (JAR + R/assets), run:
+ * $ ./gradlew AndroidFilePickerLightLibrary:assembleRelease
+ */
 makeJarRelease.dependsOn(clearJarRelease, build)
 
 android {
