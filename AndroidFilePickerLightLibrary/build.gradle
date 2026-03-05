@@ -46,8 +46,8 @@ android {
         targetSdkVersion 35
         compileSdkVersion 35
         compileSdk 35
-        versionCode 27
-        versionName "1.3.4-beta"
+        versionCode 28
+        versionName "1.3.5-beta"
         buildFeatures.buildConfig = true
         buildToolsVersion '35.0.1'
 
