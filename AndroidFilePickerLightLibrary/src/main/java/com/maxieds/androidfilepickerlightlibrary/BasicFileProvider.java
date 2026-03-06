@@ -145,7 +145,10 @@ public class BasicFileProvider extends DocumentsProvider {
         String defaultLegacyStorageDir = "/storage/self/primary";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             try {
-                String ctxStorageDir = FileChooserActivity.getInstance().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+                //String ctxStorageDir = FileChooserActivity.getInstance().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+                //String rootStorageDir = "/storage/emulated/0"; // "/sdcard"
+                File rootStorageFile = new File(defaultLegacyStorageDir);
+                String ctxStorageDir = rootStorageFile.getAbsolutePath();
                 if (ctxStorageDir != null && ctxStorageDir.length() > 0) {
                     defaultLegacyStorageDir = ctxStorageDir;
                     return setLegacyBaseFolderByName(defaultLegacyStorageDir, namedSubFolder);
@@ -177,7 +180,8 @@ public class BasicFileProvider extends DocumentsProvider {
                 setLegacyBaseFolderByName("");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_DOWNLOADS:
-                baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                //baseDirPath = appCtx.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                baseDirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 setLegacyBaseFolderByName("Download");
                 break;
             case BASE_PATH_TYPE_EXTERNAL_FILES_MOVIES:
