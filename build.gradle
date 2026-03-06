@@ -23,7 +23,7 @@ afterEvaluate {
 
                 groupId 'com.maxieds.androidfilepickerlightlibrary'
                 artifactId 'AndroidFilePickerLightLibrary'
-                version '1.3.7-beta'
+                version '1.3.8-beta'
 
             }
 

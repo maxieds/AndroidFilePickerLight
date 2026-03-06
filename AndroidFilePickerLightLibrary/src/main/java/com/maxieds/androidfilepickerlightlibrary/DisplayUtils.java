@@ -227,22 +227,27 @@ public class DisplayUtils {
                     toastMsg,
                     msgDuration
             );
-            toastDisplay.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 25);
-            toastDisplay.getView().setPadding(10, 10, 10, 10);
+            //toastDisplay.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 25);
+            View tdView = toastDisplay.getView();
+            if (tdView != null) {
+                tdView.setPadding(10, 10, 10, 10);
+            }
             int toastBackgroundColor = getColorVariantFromTheme(R.attr.__colorAccent);
             int toastTextColor = getColorVariantFromTheme(R.attr.__colorPrimaryDark);
             if (layoutStylizer != null) {
                 toastBackgroundColor = layoutStylizer.getThemeColorizer().getColorAccent();
                 toastTextColor = layoutStylizer.getThemeColorizer().getColorPrimaryDark();
             }
-            toastDisplay.getView().getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
-            TextView toastTextMsg = toastDisplay.getView().findViewById(android.R.id.message);
-            if (toastTextMsg != null) {
-                toastTextMsg.setTextColor(toastTextColor);
-                toastTextMsg.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-                toastTextMsg.setTypeface(toastTextMsg.getTypeface(), Typeface.BOLD_ITALIC);
+            if (tdView != null) {
+                tdView.getBackground().setColorFilter(toastBackgroundColor, PorterDuff.Mode.SRC_IN);
+                TextView toastTextMsg = tdView.findViewById(android.R.id.message);
+                if (toastTextMsg != null) {
+                    toastTextMsg.setTextColor(toastTextColor);
+                    toastTextMsg.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+                    toastTextMsg.setTypeface(toastTextMsg.getTypeface(), Typeface.BOLD_ITALIC);
+                }
+                tdView.setAlpha(0.75f);
             }
-            toastDisplay.getView().setAlpha(0.75f);
             toastDisplay.show();
         } catch (Exception windowError) {
             windowError.printStackTrace();
@@ -333,7 +338,7 @@ public class DisplayUtils {
             @Override
             public void run() {
                 progressBarToast = Toast.makeText(mainAppActivity, statusBarMsg, STATUS_TOAST_DISPLAY_TIME);
-                progressBarToast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 65);
+                //progressBarToast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 65);
                 LayoutInflater layoutInflater = mainAppActivity.getLayoutInflater();
                 View toastProgressView = layoutInflater.inflate(R.layout.progress_bar_layout, null);
                 Drawable statusBarMarkerImage = mainAppActivity.getResources().getDrawable(PROGRESS_BAR_VISUAL_MARKERS[statusBarMarkerIdx]);

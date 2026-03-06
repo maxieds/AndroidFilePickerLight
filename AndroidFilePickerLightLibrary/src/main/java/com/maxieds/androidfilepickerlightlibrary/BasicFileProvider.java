@@ -146,8 +146,8 @@ public class BasicFileProvider extends DocumentsProvider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             try {
                 //String ctxStorageDir = FileChooserActivity.getInstance().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath();
-                //String rootStorageDir = "/storage/emulated/0"; // "/sdcard"
-                File rootStorageFile = new File(defaultLegacyStorageDir);
+                String rootStorageDir = "/storage/emulated/0"; // "/sdcard"
+                File rootStorageFile = new File(rootStorageDir);
                 String ctxStorageDir = rootStorageFile.getAbsolutePath();
                 if (ctxStorageDir != null && ctxStorageDir.length() > 0) {
                     defaultLegacyStorageDir = ctxStorageDir;
@@ -173,8 +173,8 @@ public class BasicFileProvider extends DocumentsProvider {
         FileChooserActivity appCtx = FileChooserActivity.getInstance();
         switch(baseFolderType) {
             case BASE_PATH_TYPE_FILES_DIR:
-                baseDirPath = appCtx.getFilesDir();
-                break;
+                //baseDirPath = appCtx.getFilesDir();
+                //break;
             case BASE_PATH_DEFAULT:
             case BASE_PATH_SECONDARY_STORAGE:
                 setLegacyBaseFolderByName("");
@@ -470,7 +470,9 @@ public class BasicFileProvider extends DocumentsProvider {
             else {
                 docsQueryFilesList = parent.listFiles();
             }
-            if (docsQueryFilesList.length == 0) {
+            if (docsQueryFilesList == null) {
+                return mcResult;
+            } else if (docsQueryFilesList.length == 0) {
                 return mcResult;
             }
             if(customFolderSort != null) {

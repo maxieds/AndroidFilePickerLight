@@ -19,17 +19,20 @@
 
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <root-path name="external_files" path="/storage/self/primary" />
+        <!--<root-path name="external_files" path="/storage/self/primary" />-->
+        <root-path name="external_files" path="/storage/emulated/0" />
 
         <files-path name="external_files" path="." />
-        <files-path name="root" path="/" />
-        <files-path name="shared" path="shared/"/>
-
-        <cache-path name="cache" path="/" />
+        <!--<files-path name="root" path="/" />-->
+        <files-path name="root" path="/storage/emulated/0" />
+        <!--<files-path name="shared" path="shared/"/>-->
+        <!--<cache-path name="cache" path="/" />-->
+        <cache-path name="cache" path="/storage/emulated/0" />
 
         <external-cache-path name="external_cache" path="." />
 
-        <external-files name="/storage/self/primary" path="."/>
+        <!--<external-files name="/storage/self/primary" path="."/>-->
+        <external-files name="/storage/emulated/0" path="."/>
         <external-files name="Download" path="Download/" />
         <external-files name="Downloads" path="Downloads/" />
         <external-files name="Movies" path="./Movies/" />
@@ -39,7 +42,8 @@
         <external-files name="DCIM" path="./DCIM/" />
         <external-files name="Camera" path="./DCIM/Camera/" />
 
-        <external-files-path name="/storage/self/primary" path="."/>
+        <!--<external-files-path name="/storage/self/primary" path="."/>-->
+        <external-files-path name="/storage/emulated/0" path="."/>
         <external-files-path name="Download" path="Download/" />
         <external-files-path name="Downloads" path="Downloads/" />
         <external-files-path name="Movies" path="Movies/" />
