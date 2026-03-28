@@ -231,7 +231,8 @@ public class FileChooserBuilder implements Serializable {
     private long prefetchThreadUpdateDelay;
 
     public static final long NO_ABORT_TIMEOUT = -1;
-    public static final long DEFAULT_TIMEOUT = 250 * 1000;
+    //public static final long DEFAULT_TIMEOUT = 250 * 1000;
+    public static final long DEFAULT_TIMEOUT = FileChooserBuilder.NO_ABORT_TIMEOUT;
     public static final int DEFAULT_MAX_SELECTED_FILES = 10;
 
     public FileChooserBuilder(Activity activityContextInst) {
@@ -487,19 +488,36 @@ public class FileChooserBuilder implements Serializable {
     public static final int ACTIVITY_CODE_SELECT_DIRECTORY_ONLY = 2 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
     public static final int ACTIVITY_CODE_SELECT_MULTIPLE_FILES = 3 + FILE_PICKER_SWIZZLED_BITS_OFFSET;
 
+    private static void postExceptionToUIThread(FileChooserException.AndroidFilePickerLightException fpe) {
+        final FileChooserException.AndroidFilePickerLightException _fpe = fpe;
+        Thread postFCEValueToUIThread = new Thread() {
+            final FileChooserException.AndroidFilePickerLightException __fpe = _fpe;
+            @Override
+            public void run() {
+                final FileChooserException.AndroidFilePickerLightException ___fpe = __fpe;
+                FileChooserActivity.getInstance().runOnUiThread(new Runnable() {
+                    public void run() {
+                        throw ___fpe;
+                    }
+                });
+            }
+        };
+        postFCEValueToUIThread.start();
+    }
+
     /* Client code should call this method in their main Activity's onActivityResult function
      * to handle the logic there when the activity was created as a file picker instance:
      */
     public static List<String> handleActivityResult(Activity activityInst, int requestCode, int resultCode, Intent data)
             throws FileChooserException.AndroidFilePickerLightException {
         if(activityInst == null || data == null) {
-            throw new FileChooserException.CommunicateNoDataException();
+            postExceptionToUIThread(new FileChooserException.CommunicateNoDataException());
         }
         if(resultCode == RESULT_OK) {
             List<String> selectedDataItems = data.getStringArrayListExtra(FileChooserBuilder.FILE_PICKER_INTENT_DATA_PAYLOAD_KEY);
             finishActivityResultHandler(activityInst);
             try { // A short pause to give the calling Activity time to resume form at the top of the display:
-                Thread.sleep(250);
+                Thread.sleep(50);
             } catch(InterruptedException ie) {}
             return selectedDataItems;
         }
@@ -507,7 +525,7 @@ public class FileChooserBuilder implements Serializable {
             try {
                 String getExitErrorMsg = data.getStringExtra(FILE_PICKER_EXCEPTION_MESSAGE_KEY);
                 finishActivityResultHandler(activityInst);
-                throw FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg);
+                postExceptionToUIThread(FileChooserException.getExceptionForExitCause(data.getStringExtra(FILE_PICKER_EXCEPTION_CAUSE_KEY), getExitErrorMsg));
             } catch (NullPointerException npe) {
                 npe.printStackTrace();
             }
@@ -515,18 +533,19 @@ public class FileChooserBuilder implements Serializable {
         FileChooserException.AndroidFilePickerLightException resultNotOKException = new FileChooserException.GenericRuntimeErrorException();
         resultNotOKException.packageDataItemsFromIntent(data);
         finishActivityResultHandler(activityInst);
-        throw resultNotOKException;
+        postExceptionToUIThread(resultNotOKException);
+        return new ArrayList<String>();
     }
 
     /* The next procedure is necessary because for some reason the app otherwise
      * freezes without bringing the original Activity context back to the front:
      */
     public static void finishActivityResultHandler(Activity activityInst) {
-        activityInst.moveTaskToBack(false);
+        /*activityInst.moveTaskToBack(false);
         Intent bringToFrontIntent = new Intent(activityInst, activityInst.getClass());
         bringToFrontIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         activityInst.startActivity(bringToFrontIntent);
-        //ActivityCompat.finishAffinity(this);
+        //ActivityCompat.finishAffinity(this);*/
     }
 
 }

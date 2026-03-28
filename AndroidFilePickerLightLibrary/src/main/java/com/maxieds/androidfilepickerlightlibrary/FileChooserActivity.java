@@ -260,7 +260,7 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
             };
             execIdleTimeoutHandler.postDelayed(execIdleTimeoutRunner, idleTimeout);
         }
-        checkRequiredPermissionsForActivityLaunch(FILE_CHOOSER_ACTIVITY_PERMISSIONS_CHECK_DELAY);
+        //--checkRequiredPermissionsForActivityLaunch(FILE_CHOOSER_ACTIVITY_PERMISSIONS_CHECK_DELAY);
 
     }
 
@@ -464,21 +464,21 @@ public class FileChooserActivity extends AppCompatActivity implements EasyPermis
     @AfterPermissionGranted(PermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE)
     private void handleRequiredPermissionsGranted() {
         String[] permsList = ACTIVITY_OPTIONAL_PERMISSIONS; // ACTIVITY_REQUIRED_PERMISSIONS;
-        if (EasyPermissions.hasPermissions(this, permsList)) {}
-        else {
-            EasyPermissions.requestPermissions(this, getString(R.string.requiredPermsRationale),
-                                               PermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE, permsList);
-        }
+        //if (EasyPermissions.hasPermissions(this, permsList)) {}
+        //else {
+        //    EasyPermissions.requestPermissions(this, getString(R.string.requiredPermsRationale),
+        //                                       PermissionsHandler.REQUEST_REQUIRED_PERMISSIONS_CODE, permsList);
+        //}
     }
 
     @AfterPermissionGranted(PermissionsHandler.REQUEST_OPTIONAL_PERMISSIONS_CODE)
     private void handleOptionalPermissionsGranted() {
         String[] permsList = ACTIVITY_OPTIONAL_PERMISSIONS;
-        if (EasyPermissions.hasPermissions(this, permsList)) {}
-        else {
-            EasyPermissions.requestPermissions(this, getString(R.string.optionalPermsRationale),
-                    PermissionsHandler.REQUEST_OPTIONAL_PERMISSIONS_CODE, permsList);
-        }
+        //if (EasyPermissions.hasPermissions(this, permsList)) {}
+        //else {
+        //    EasyPermissions.requestPermissions(this, getString(R.string.optionalPermsRationale),
+        //            PermissionsHandler.REQUEST_OPTIONAL_PERMISSIONS_CODE, permsList);
+        //}
     }
 
     public Intent getSelectedFilesActivityResultIntent() {
