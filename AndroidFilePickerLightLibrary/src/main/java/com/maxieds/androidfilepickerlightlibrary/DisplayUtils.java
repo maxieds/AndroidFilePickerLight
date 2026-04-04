@@ -18,6 +18,7 @@
 package com.maxieds.androidfilepickerlightlibrary;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -36,8 +37,11 @@ import android.widget.Toast;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.util.Locale;
 
@@ -180,6 +184,13 @@ public class DisplayUtils {
         }
     }
 
+    public static Drawable resolveDrawableFromResId(Activity activityCtxRef, @DrawableRes int resId, boolean tintIcons, @ColorRes int tintColor) {
+        if (!tintIcons) {
+            return resolveDrawableFromResId(activityCtxRef, resId);
+        }
+        return tintDrawableIconByColor(activityCtxRef, resId, tintColor);
+    }
+
     public static Drawable resolveDrawableFromResId(@DrawableRes int resId) {
         return resolveDrawableFromResId(FileChooserActivity.getInstance(), resId);
     }
@@ -280,6 +291,15 @@ public class DisplayUtils {
 
     public static void displayToastMessageLong(String toastMsg) {
         displayToastMessageLong(FileChooserActivity.getInstance(), toastMsg, DisplayFragments.getInstance().getFileItemLayoutStylizer());
+    }
+
+    public static Drawable tintDrawableIconByColor(@NonNull Context ctx, @DrawableRes int drId, @ColorRes int tintColor) {
+        Drawable iconDrawable = ContextCompat.getDrawable(ctx, drId);
+        iconDrawable = DrawableCompat.wrap(iconDrawable).mutate();
+        /* First: Lighten the default icon: */
+        DrawableCompat.setTint(iconDrawable, ContextCompat.getColor(ctx, R.color.__white));
+        DrawableCompat.setTint(iconDrawable, ContextCompat.getColor(ctx, tintColor));
+        return iconDrawable;
     }
 
     private static int[] PROGRESS_BAR_VISUAL_MARKERS = new int[] {

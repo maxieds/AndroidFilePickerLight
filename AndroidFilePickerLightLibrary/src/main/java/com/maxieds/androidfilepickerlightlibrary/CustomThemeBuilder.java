@@ -61,6 +61,8 @@ public class CustomThemeBuilder {
         globalBackBtnIconResId = NULL_RESOURCE_ID;
         doneActionBtnIconResId = NULL_RESOURCE_ID;
         cancelActionBtnIconResId = NULL_RESOURCE_ID;
+        useTintedDefaultIcons = false;
+        tintColorResId = NULL_RESOURCE_ID;
         themeColorScheme = null;
         toolbarIconResId = NULL_RESOURCE_ID;
         useToolbarGradients = false;
@@ -112,9 +114,26 @@ public class CustomThemeBuilder {
         return this;
     }
 
+    private boolean useTintedDefaultIcons;
+    private int tintColorResId;
+
     private int globalBackBtnIconResId;
     private int doneActionBtnIconResId;
     private int cancelActionBtnIconResId;
+    private int toolbarIconResId;
+
+    public CustomThemeBuilder setUseTintedDefaultIcons() {
+        pickerTitleTextResId = NULL_RESOURCE_ID;
+        navBarPrefixTextResId = NULL_RESOURCE_ID;
+        doneActionBtnTextResId = NULL_RESOURCE_ID;
+        cancelActionBtnTextResId = NULL_RESOURCE_ID;
+        globalBackBtnIconResId = NULL_RESOURCE_ID;
+        doneActionBtnIconResId = NULL_RESOURCE_ID;
+        cancelActionBtnIconResId = NULL_RESOURCE_ID;
+        useTintedDefaultIcons = true;
+        tintColorResId = (activityCtx != null) ? DisplayUtils.getColorFromResource(activityCtx, R.color.__colorAccentMedium) : NULL_RESOURCE_ID;
+        return this;
+    }
 
     public CustomThemeBuilder setGlobalBackButtonIcon(@DrawableRes int backIconResId) {
         globalBackBtnIconResId = backIconResId;
@@ -235,9 +254,6 @@ public class CustomThemeBuilder {
     private FileChooserColorScheme themeColorScheme;
 
     public CustomThemeBuilder setThemeColors(@ColorRes int[] colorsList) {
-        /*for(int cidx = 0; cidx < colorsList.length; cidx++) {
-            colorsList[cidx] = DisplayUtils.resolveColorFromResId(activityCtx, colorsList[cidx]);
-        }*/
         themeColorScheme = new FileChooserColorScheme(colorsList);
         return this;
     }
@@ -247,8 +263,6 @@ public class CustomThemeBuilder {
         themeColorScheme = new FileChooserColorScheme(themeColorsList);
         return this;
     }
-
-    private int toolbarIconResId;
 
     public CustomThemeBuilder setActivityToolbarIcon(@DrawableRes int customIconResId) {
         toolbarIconResId = customIconResId;
@@ -367,7 +381,7 @@ public class CustomThemeBuilder {
         final boolean _useToolbarGradients = useToolbarGradients;
         final Drawable _toolbarLogoIconFinal = DisplayUtils.firstNonNull(
                 DisplayUtils.resolveDrawableFromResId(activityCtx, toolbarIconResId),
-                DisplayUtils.resolveDrawableFromResId(R.drawable.file_chooser_default_toolbar_icon48)
+                DisplayUtils.resolveDrawableFromResId(activityCtx, R.drawable.file_chooser_default_toolbar_icon48, useTintedDefaultIcons, tintColorResId)
         );
         final String _pickerTitleTextFinal = DisplayUtils.firstNonNull(
                 DisplayUtils.resolveStringFromResId(activityCtx, pickerTitleTextResId),
@@ -387,15 +401,15 @@ public class CustomThemeBuilder {
         );
         final Drawable _globalBackBtnIconFinal = DisplayUtils.firstNonNull(
                 DisplayUtils.resolveDrawableFromResId(activityCtx, globalBackBtnIconResId),
-                DisplayUtils.resolveDrawableFromResId(R.drawable.nav_back_button_icon32)
+                DisplayUtils.resolveDrawableFromResId(activityCtx, R.drawable.nav_back_button_icon32, useTintedDefaultIcons, tintColorResId)
         );
         final Drawable _doneActionBtnIconFinal = DisplayUtils.firstNonNull(
                 DisplayUtils.resolveDrawableFromResId(activityCtx, doneActionBtnIconResId),
-                DisplayUtils.resolveDrawableFromResId(R.drawable.done_button_check_icon24)
+                DisplayUtils.resolveDrawableFromResId(activityCtx, R.drawable.done_button_check_icon24, useTintedDefaultIcons, tintColorResId)
         );
         final Drawable _cancelActionBtnIconFinal = DisplayUtils.firstNonNull(
                 DisplayUtils.resolveDrawableFromResId(activityCtx, cancelActionBtnIconResId),
-                DisplayUtils.resolveDrawableFromResId(R.drawable.cancel_button_x_icon24)
+                DisplayUtils.resolveDrawableFromResId(activityCtx, R.drawable.cancel_button_x_icon24, useTintedDefaultIcons, tintColorResId)
         );
         if (activityCtx == null || themeColorScheme == null || _pickerTitleTextFinal == null ||
                 _navBarPrefixTextFinal == null || _doneActionBtnTextFinal == null || _cancelActionBtnTextFinal == null ||

@@ -8,13 +8,13 @@ public final class BuildConfig {
   public static final String LIBRARY_PACKAGE_NAME = "com.maxieds.androidfilepickerlightlibrary";
   public static final String BUILD_TYPE = "debug";
   // Field from build type: debug
-  public static final String BUILD_TIMESTAMP = "2026-03-28-045040";
+  public static final String BUILD_TIMESTAMP = "2026-04-04-145211";
   // Field from build type: debug
   public static final String GIT_COMMIT_DATE = "";
   // Field from build type: debug
   public static final String GIT_COMMIT_HASH = "";
   // Field from build type: debug
-  public static final long VERSION_CODE = 32L;
+  public static final long VERSION_CODE = 33L;
   // Field from build type: debug
-  public static final String VERSION_NAME = "1.3.9-beta";
+  public static final String VERSION_NAME = "1.4.0-beta";
 }
